@@ -1,0 +1,27 @@
+<!--[*  book_admin_verify_urls.htm,v 1.1 2006/12/23 22:59:01 paustian Exp  *]-->
+<!--[include file="book_admin_menu.htm"]-->
+<h2><!--[gt text="Chapter"]--> - <!--[$url_table[0].chap_no]--></h2>
+<h3><!--[gt text="Bad Links"]--></h3>
+<table border="1">
+<tr><th><!--[gt text="Chapter"]--></th><th><!--[gt text="Article Number"]--></th><th><!--[gt text="URL"]--></th></tr>
+<!--[section name=i loop=$url_table]-->
+<!--[if $url_table[i.index].present == -1]-->
+<tr>	<td><!--[$url_table[i.index].chap_no]--></td>
+	<td><!--[$url_table[i.index].article_no]--></td>
+	<td><!--[$url_table[i.index].url]--></td>
+</tr>
+<!--[/if]-->
+<!--[/section]-->
+</table>
+<h3><!--[gt text="Good Links"]--></h3>
+<table border="1">
+<tr><th><!--[gt text="Chapter"]--></th><th><!--[gt text="Article Number"]--></th><th><!--[gt text="URL"]--></th></tr>
+<!--[section name=i loop=$url_table]-->
+<!--[if $url_table[i.index].present == 1]-->
+<tr>	<td><!--[$url_table[i.index].chap_no]--></td>
+	<td><!--[$url_table[i.index].article_no]--></td>
+	<td><!--[$url_table[i.index].url]--></td>
+</tr>
+<!--[/if]-->
+<!--[/section]-->
+</table>

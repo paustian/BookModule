@@ -1,0 +1,7 @@
+<li><a href="<!--[pnmodurl modname="Book" type="user" func="displayarticlesinchapter"]-->&amp;chap_id=<!--[$chapter.chap_id]-->"><!--[gt text="Chapter "]--> <!--[$chapter.chap_number]--> <!--[$chapter.chap_name]--></a>
+<ul>
+<!--[foreach item=article from=$articles]-->
+<li><!--[$chapter.chap_number]-->-<!--[$article.art_number]--> <!--[$article.title]--><!--[if $show_internals]-->artid:<!--[$article.art_id]-->; next:<!--[$article.next]-->; prev:<!--[$article.prev]--><!--[/if]--></li>
+<!--[/foreach]-->
+</ul>
+</li>

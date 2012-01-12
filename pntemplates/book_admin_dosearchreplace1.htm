@@ -1,0 +1,33 @@
+<!--[*  book_admin_dochapterdelete.htm,v 1.6 2006/01/02 01:51:12 paustian Exp  *]-->
+<!--[include file="book_admin_menu.htm"]-->
+<h2><!--[gt text="Search and Replace in a Chapter/Book"]--></h2>
+<h2><!--[gt text="This is a powerful, but dangerous function. Construct your expresions carefully!"]--></h2>
+<form class="form" action="<!--[pnmodurl modname="Book" type="admin" func="dosearchreplace2"]-->" method="post" enctype="application/x-www-form-urlencoded">
+      <div>
+        <input type="hidden" name="authid" value="<!--[insert name="generateauthkey" module="Book"]-->" />
+
+               <table>
+            <tr><td><!--[gt text="Search Pattern"]-->:</td><td><input type="text" name="search_pat" size="50" value="<!--[$search_pat]-->" /></td></tr>
+            <tr><td><!--[gt text="Replace Pattern"]-->:</td><td><input type="text" name="replace_pat" size="50" value="<!--[$replace_pat]-->" /></td></tr>
+            <tr><td><input type="checkbox" name="preview" checked /><!--[gt text="Show preview of search"]--></td><td></td></tr>
+            <!--[section name=i loop=$books]-->
+            <tr><td>
+                    <input type="radio" name="book_id" value="<!--[$books[i].book_id]-->" <!--[if $smarty.section.i.index == 0]-->checked><!--[else]-->><!--[/if]--><!--[$books[i].book_name]-->
+                </td>
+                <td>
+                    <select name="chapter_<!--[$books[i].book_id]-->">
+                        <option label="<!--[gt text="Search/Replace Entire Book"]-->" value="0"><!--[gt text="_BOOKSEARCHREPLACEALL"]--></option>
+                        <!--[html_options options=$chapters[i] selected=`$chap_id`]-->
+                    </select>
+                </td></tr>
+            <!--[/section]-->
+        </table>
+        <p><input name="submit" type="submit" value="<!--[gt text="Do Search and Replace"]-->" /></p>
+        <hr />
+        <!--[if $preview_text != ""]-->
+        <h3><!--[gt text="Search and Replace Preview"]--></h3>
+        <p><!--[$preview_text]--></p>
+        <!--[else]-->
+        <h3><!--[gt text="No matches found."]--></h3>
+        <!--[/if]-->
+</form>

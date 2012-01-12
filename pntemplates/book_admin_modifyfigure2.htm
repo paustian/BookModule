@@ -1,0 +1,54 @@
+<!--[*  book_admin_modifyfigure2.htm,v 1.5 2007/01/13 20:48:36 paustian Exp  *]-->
+<!--[include file="book_admin_menu.htm"]-->
+<h2><!--[gt text="Edit Figure"]--></h2>
+<form class="form" action="<!--[pnmodurl modname="Book" type="admin" func="updatefigure"]-->" method="post" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="authid" value="<!--[insert name="generateauthkey" module="Book"]-->" />
+	<input type="hidden" name="fig_id" value="<!--[$fig_id]-->" />
+	<table>
+<tr>
+    <td>
+    Figure ID:
+    </td>
+    <td>
+    <!--[$fig_id]-->
+    </td>
+</tr>
+<tr>
+	<td><!--[gt text="Figure Number"]--></td>
+	<td><input type="text" name="fig_number" size="3" maxlength="10" value="<!--[$fig_number]-->"/></td>
+</tr>
+<tr>
+	<td><!--[gt text="Chapter Number"]--></td>
+	<td><input type="text" name="chap_number" size="3" maxlength="10" value="<!--[$chap_number]-->"/></td>
+</tr>
+<tr>
+	<td><input type="checkbox" name="fig_perm" <!--[if $fig_perm == 1]-->checked<!--[/if]-->></td>
+	<td><!--[gt text="Permission for figure has been granted."]--></td>
+<tr>
+	<td><!--[gt text="Book ID"]--></td>
+	<td><select name="book_id">
+		<!--[html_options options=$books selected=$book_id]-->
+		</select>
+	</td>
+</tr>
+<tr>
+	<td><!--[gt text="Figure Title"]--></td>
+	<td>
+  		<input type="text" name="fig_title" size="40" maxlength="256" value="<!--[$fig_title]-->"/>
+	</td>
+</tr>
+<tr>
+	<td><!--[gt text="Figure Legend"]--></td>
+	<td>
+  <textarea name="fig_content" rows="10" cols="80" wrap="virutal"><!--[$fig_content]--></textarea>
+  </td>
+</tr>
+<tr>
+	<td><!--[gt text="Image Path"]--></td>
+	<td><input type="text" name="img_link" size="40" maxlength="256" value="<!--[$img_link]-->"></td>
+</tr>
+</table>
+<input name="submit" type="submit" value="<!--[gt text="Edit Figure"]-->" />
+	
+</form>
+    
