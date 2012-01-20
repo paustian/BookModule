@@ -333,7 +333,7 @@ function book_adminapi_deletearticle($args) {
         LogUtil::registerArgsError();
         return false;
     }
-    $article = pnModAPIFunc('Book', 'user', 'getarticle', array ('art_id' => $art_id));
+    $article = pnModAPIFunc('Book', 'user', 'getarticle', array ('art_id' => $args['art_id']));
 
 // Security check
     if (!SecurityUtil::checkPermission('Book::Chapter', "$article[book_id]::$article[chap_id]", ACCESS_DELETE)) {
