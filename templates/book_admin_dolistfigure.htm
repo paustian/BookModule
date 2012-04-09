@@ -1,0 +1,16 @@
+{*  book_admin_dolistfigure.htm,v 1.2 2006/01/02 01:51:12 paustian Exp  *}
+{include file="book_admin_menu.htm"}
+<h2>{gt text="List of All Figures"}</h2>
+<form class="form" action="{pnmodurl modname="Book" type="admin" func="listbookfigures"}" method="post" enctype="application/x-www-form-urlencoded">
+<div>
+    <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
+    {section name=i loop=$books}
+    <input type="radio" name="book_id" value="{$books[i].book_id}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].book_id|pnvarcensor} - {$books[i].book_name|pnvarcensor}
+	<br/>
+	{/section}
+        <p>{pnbutton src=folder_documents.gif set=icons/small alt="List Figures" title="List Figures" value="listfigs"}{gt text="List Figures"}</p>
+        <p>{pnbutton src=folder_green.gif set=icons/small alt="List Figure Paths" title="List Figure Paths" value="listpaths"}{gt text="List Figure Paths"}</p>
+
+        <p><input name="submit" type="submit" value="{gt text="List Figures"}" /></p>
+</form>
+

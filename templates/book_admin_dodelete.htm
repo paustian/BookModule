@@ -1,0 +1,13 @@
+{*  book_admin_dodelete.htm,v 1.4 2006/12/23 22:59:01 paustian Exp  *}
+{include file="book_admin_menu.htm"}
+<h2>{gt text="Delete Book"}</h2>
+<h2>{gt text="Warning deleting a book will remove all its chapters and its articles. Make sure that this is what you want to do before hitting submit."}</h2>
+<form class="form" action="{pnmodurl modname="Book" type="admin" func="delete"}" method="post" enctype="application/x-www-form-urlencoded">
+<div>
+    <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
+    {section name=i loop=$books}
+    <input type="radio" name="book_id" value="{$books[i].book_id}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].book_id|pnvarcensor} - {$books[i].book_name|pnvarcensor}
+	<br/>
+	{/section}
+	<p><input name="submit" type="submit" value="{gt text="Delete Book"}" /></p>
+</form>

@@ -1,0 +1,14 @@
+{*  book_user_toc.htm,v 1.5 2007/03/15 17:32:44 paustian Exp  *}
+{ book_treemenu_include }
+<h1>{$book}</h1>
+<ul id="treemenu2" class="treeview">
+{foreach item=chapter from=$chapters}
+{$chapter}
+{/foreach}
+</ul>
+<script type="text/javascript">
+
+//ddtreemenu.createTree(treeid, enablepersist, opt_persist_in_days (default is 1))
+ddtreemenu.createTree("treemenu2", true, 5)
+
+</script>
