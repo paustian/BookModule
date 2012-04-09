@@ -35,7 +35,7 @@ class Book_Installer extends Zikula_AbstractInstaller {
      * This function is only ever called once during the lifetime of a particular
      * module instance
      */
-    public function intall() {
+    public function install() {
         // Get datbase setup - note that both pnDBGetConn() and DBUtil::getTables()
         // return arrays but we handle them differently.  For pnDBGetConn()
         // we currently just want the first item, which is the official
@@ -122,6 +122,7 @@ class Book_Installer extends Zikula_AbstractInstaller {
                 
             case 2.0:
                 // No code is needed to upgrade to 2.0 from 1.0
+            case 2.1:
                 break;
         }
 

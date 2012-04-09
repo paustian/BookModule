@@ -4,25 +4,44 @@
 // The following information is used by the Modules module 
 // for display and upgrade purposes
 // the version string must not exceed 10 characters!
-$modversion['name'] = 'Book';
-$modversion['version'] = '2.0';
-$modversion['description'] = 'A module for displying a large structured document';
+class Book_Version extends Zikula_AbstractVersion
+{
+    public function getMetaData()
+    {
+        $meta = array();
+        $meta['version']        = '2.1.0';
+        $meta['displayname']    = $this->__('Book Writing');
+        $meta['description']    = $this->__('A module for displying a large structured document, creating figure descriptions for the book, and a glossary.');
+        // this defines the module's url and should be in lowercase without space
+        $meta['url']            = $this->__('book');
+        $meta['core_min'] = '1.3.0'; // Fixed to 1.3.x range
+        $meta['core_max'] = '1.3.99'; // Fixed to 1.3.x range
+        $meta['capabilities']   = array(HookUtil::SUBSCRIBER_CAPABLE => array('enabled' => true));
+        
+        $meta['securityschema'] = array('Book::Chapter' => 'Book id (int)::Chapter id (int)');
+        $meta['author'] = 'Timothy Paustian';
+        $meta['contact'] = 'http://http://www.bact.wisc.edu/faculty/paustian/';
+        
+        return $meta;
+    }
 
-// The following in formation is used by the credits module
-// to display the correct credits
-$modversion['credits'] = 'docs/credits.txt';
-$modversion['help'] = 'docs/help.txt';
-$modversion['changelog'] = 'docs/changelog.txt';
-$modversion['license'] = 'docs/license.txt';
-$modversion['official'] = 1;
-$modversion['author'] = 'Timothy Paustian';
-$modversion['contact'] = 'http://http://www.bact.wisc.edu/faculty/paustian/';
+    protected function setupHookBundles()
+    {
+        $bundle = new Zikula_HookManager_SubscriberBundle($this->name, 'subscriber.book.ui_hooks.articles', 'ui_hooks', $this->__('Book Articles Hooks'));
+        $bundle->addEvent('display_view', 'book.ui_hooks.articles.display_view');
+        $bundle->addEvent('form_edit', 'book.ui_hooks.articles.form_edit');
+        $bundle->addEvent('form_delete', 'book.ui_hooks.articles.form_delete');
+        $bundle->addEvent('validate_edit', 'book.ui_hooks.articles.validate_edit');
+        $bundle->addEvent('validate_delete', 'book.ui_hooks.articles.validate_delete');
+        $bundle->addEvent('process_edit', 'book.ui_hooks.articles.process_edit');
+        $bundle->addEvent('process_delete', 'book.ui_hooks.articles.process_delete');
+        $this->registerHookSubscriberBundle($bundle);
 
-// The following information tells the PostNuke core that this
-// module has an admin option.
-$modversion['admin'] = 1;
+        $bundle = new Zikula_HookManager_SubscriberBundle($this->name, 'subscriber.book.filter_hooks.articles', 'filter_hooks', $this->__('News Display Hooks'));
+        $bundle->addEvent('filter', 'book.filter_hooks.articles.filter');
+        $this->registerHookSubscriberBundle($bundle);
+    }
 
-// This one adds the info to the DB, so that users can click on the 
-// headings in the permission module
-$modversion['securityschema'] = array('Book::Chapter' => 'Book id (int)::Chapter id (int)');
+
+}
 ?>
