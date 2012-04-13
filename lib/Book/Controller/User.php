@@ -415,7 +415,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         $render->assign('prev', $article['prev']);
         $render->assign('book_id', $article['book_id']);
         //this code is used for the hook
-        $return_url = pnModURL('Book', 'user', 'displayarticle', array('art_id' => $art_id));
+        $return_url = new Zikula_ModUrl('Book', 'User', 'displayarticle', '', array(art_id => $art_id));
         $render->assign('returnurl', $return_url);
 
         //call the user api to increment the counter

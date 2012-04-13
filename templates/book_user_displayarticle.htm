@@ -49,7 +49,6 @@
 <p> <a href="{pnmodurl modname="Book" type="user" func="toc" book_id=$book_id}">{gt text="Table of Contents"}</a>|
 <a href="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" chap_id=$chap_id}">{gt text="Chapter Article List"}</a>|
 <a href="{pnmodurl modname="Book" type="user" func="displayarticle" art_id=$art_id theme=Printer}">{gt text="Printable Version"}</a>
-| <a href="{pnmodurl modname="Book" type="user" func="displaychapter" chap_id=$chap_id theme=Printer}">{gt text="Printable Chapter"}</a></p>
-
-
+<a href="{pnmodurl modname="Book" type="user" func="displaychapter" chap_id=$chap_id theme=Printer}">{gt text="Printable Chapter"}</a></p>
+{notifydisplayhooks eventname='book.ui_hooks.articles.display_view' id=$art_id urlobject=$returnurl}
 </div>
