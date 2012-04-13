@@ -68,7 +68,8 @@ class Book_Installer extends Zikula_AbstractInstaller {
         ModUtil::setVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
         ModUtil::setVar('Book', 'BOOKS_LABEL', __('Books'));
         ModUtil::setVar('Book', 'securebooks', false);
-
+        
+        HookUtil::registerSubscriberBundles($this->version->getHookSubscriberBundles());
         // Initialisation successful
         return true;
     }
@@ -123,6 +124,7 @@ class Book_Installer extends Zikula_AbstractInstaller {
             case 2.0:
                 // No code is needed to upgrade to 2.0 from 1.0
             case 2.1:
+                HookUtil::registerSubscriberBundles($this->version->getHookSubscriberBundles());
                 break;
         }
 
@@ -161,8 +163,8 @@ class Book_Installer extends Zikula_AbstractInstaller {
         }
 
         // Delete any module variables
-        pnModDelVar('Book', 'securebooks', false);
-
+        ModUtil::delVar('Book', 'securebooks', false);
+        HookUtil::unregisterProviderBundles($this->version->getHookProviderBundles());
         // Deletion successful
         return true;
     }

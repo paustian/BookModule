@@ -29,19 +29,9 @@ class Book_Version extends Zikula_AbstractVersion
     {
         $bundle = new Zikula_HookManager_SubscriberBundle($this->name, 'subscriber.book.ui_hooks.articles', 'ui_hooks', $this->__('Book Articles Hooks'));
         $bundle->addEvent('display_view', 'book.ui_hooks.articles.display_view');
-        $bundle->addEvent('form_edit', 'book.ui_hooks.articles.form_edit');
-        $bundle->addEvent('form_delete', 'book.ui_hooks.articles.form_delete');
-        $bundle->addEvent('validate_edit', 'book.ui_hooks.articles.validate_edit');
-        $bundle->addEvent('validate_delete', 'book.ui_hooks.articles.validate_delete');
         $bundle->addEvent('process_edit', 'book.ui_hooks.articles.process_edit');
         $bundle->addEvent('process_delete', 'book.ui_hooks.articles.process_delete');
         $this->registerHookSubscriberBundle($bundle);
-
-        $bundle = new Zikula_HookManager_SubscriberBundle($this->name, 'subscriber.book.filter_hooks.articles', 'filter_hooks', $this->__('News Display Hooks'));
-        $bundle->addEvent('filter', 'book.filter_hooks.articles.filter');
-        $this->registerHookSubscriberBundle($bundle);
     }
-
-
 }
 ?>
