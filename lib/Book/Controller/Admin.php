@@ -1390,8 +1390,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($tid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Article(s) deleted.'));
+            //an article was deleted, let the hooks, know about it
+            // item deleted, so notify hooks of the event
+            $hook = new Zikula_ProcessHook('book.ui_hooks.articles.process_delete', $art_id);
+            $this->notifyHooks($hook);
         }
-
+        
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
         pnRedirect(pnModURL('Book', 'admin', 'dodeletearticle'));
