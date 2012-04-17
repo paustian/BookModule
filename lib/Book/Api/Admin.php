@@ -47,12 +47,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return LogUtil::registerError(__('Book creation failed.'));
         }
 
-// Let any hooks know that we have created a new item.  As this is a
-// create hook we're passing 'tid' as the extra info, which is the
-// argument that all of the other functions use to reference this
-// item
-        ModUtil::callHooks('item', 'create', $args['book_id'], 'book_id');
-
 // Return the id of the newly created item to the calling process
         return $book_id;
     }
@@ -92,8 +86,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if (!DBUtil::insertObject($args, 'book_chaps', 'chap_id')) {
             return LogUtil::registerError(_CREATEFAILED);
         }
-// Let any hooks know that we have created a new item.
-        ModUtil::callHooks('item', 'create', $args['chap_id'], 'chap_id');
 
 // Return the id of the newly created item to the calling process
         return $args['chap_id'];
@@ -154,9 +146,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return LogUtil::registerError(_CREATEFAILED . "article insert");
         }
 
-// Let any hooks know that we have created a new item.
-        ModUtil::callHooks('item', 'create', $args['art_id'], 'art_id');
-
 // Return the id of the newly created item to the calling process
         return $args['art_id'];
     }
@@ -187,8 +176,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if (!DBUtil::insertObject($args, 'book_figures', 'fig_id')) {
             return LogUtil::registerError(_CREATEFAILED . "article insert");
         }
-// Let any hooks know that we have created a new item.
-        ModUtil::callHooks('item', 'create', $args['fig_id'], 'fig_id');
 
 // Return the id of the newly created item to the calling process
         return $args['fig_id'];
@@ -219,11 +206,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if (!DBUtil::insertObject($args, 'book_glossary', 'gloss_id')) {
             return LogUtil::registerError(__('Creating the glossary item failed, createglossary'));
         }
-// Let any hooks know that we have created a new item.  As this is a
-// create hook we're passing 'tid' as the extra info, which is the
-// argument that all of the other functions use to reference this
-// item
-        ModUtil::callHooks('item', 'create', $gloss_id, 'gloss_id');
 
 // Return the id of the newly created item to the calling process
         return $gloss_id;
@@ -258,18 +240,19 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
 
-        if (!DBUtil::deleteObjectByID('book_name', $args['book_id'], 'book_id')) {
+       if (!DBUtil::deleteObjectByID('book_name', $args['book_id'], 'book_id')) {
             return LogUtil::registerError(__('Deleting the book failed'));
         }
 
-//Now delete all the articles and chapters
+        //Now delete all the articles and chapters
         $pntable = & DBUtil::getTables();
-//delete all the articles associated with this book
+            //delete all the articles associated with this book
         $articleList = &$pntable['book_column'];
         $where = "WHERE $articleList[book_id] = '" . DataUtil::formatForStore($args['book_id']) . "'";
-
-        if (!DBUtil::deleteWhere('book', $where)) {
-            return LogUtil::registerError(__('Deleting the articles of the book failed'));
+        $articles_of_book = DBUtil::selectObjectArray('book', $where);
+        foreach($articles_of_book as $article){
+            //we call the module controller to make sure it communicates with any hooked modules.
+            ModUtil::func('Book', 'admin', 'deletearticle', array('art_id' => $article['art_id']));
         }
 //delete all the chapters associated with this book
         $chapList = &$pntable['book_chaps_column'];
@@ -279,9 +262,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return LogUtil::registerError(__('Deleting the chapters of the book failed'));
         }
 
-// Let any hooks know that we have deleted an item.  As this is a
-// delete hook we're not passing any extra info
-        ModUtil::callHooks('item', 'delete', $args['book_id'], '');
 
 // Let the calling process know that we have finished successfully
         return true;
@@ -303,42 +283,39 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 //delete all the articles associated with this chapter
         $articleList = &$pntable['book_column'];
         $where = "WHERE $articleList[chap_id] = '" . DataUtil::formatForStore($args['chap_id']) . "'";
-
-        if (!DBUtil::deleteWhere('book', $where)) {
-            return LogUtil::registerError(__('Deleting the artilces in the chapter failed'));
+        $articles_of_book = DBUtil::selectObjectArray('book', $where);
+        foreach($articles_of_book as $article){
+            //we call the module controller to make sure it communicates with any hooked modules.
+            ModUtil::func('Book', 'admin', 'deletearticle', array('art_id' => $article['art_id']));
         }
-
+        
 //finally delete the chapter
         if (!DBUtil::deleteObjectByID('book_chaps', $args['chap_id'], 'chap_id')) {
             return LogUtil::registerError(__('Deleting the chapter failed.'));
         }
 
-// Let any hooks know that we have deleted an item.  As this is a
-// delete hook we're not passing any extra info
-        ModUtil::callHooks('item', 'deletechapter', $chap_id, '');
 
 // Let the calling process know that we have finished successfully
         return true;
     }
 
     public function deletearticle($args) {
-// Argument check
+        // Argument check
         if (!isset($args['art_id'])) {
             LogUtil::registerArgsError();
             return false;
         }
         $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $args['art_id']));
 
-// Security check
+        // Security check
         if (!SecurityUtil::checkPermission('Book::Chapter', "$article[book_id]::$article[chap_id]", ACCESS_DELETE)) {
             LogUtil::registerPermissionError();
             return false;
         }
-
-        if (!DBUtil::deleteObjectByID('book', $args['art_id'], 'art_id')) {
+       if (!DBUtil::deleteObjectByID('book', $args['art_id'], 'art_id')) {
             return LogUtil::registerError(__('Deleting the article failed.'));
         }
-        ModUtil::callHooks('item', 'deletearticle', $args['art_id'], '');
+        
 
 // Let the calling process know that we have finished successfully
         return true;
@@ -359,8 +336,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return LogUtil::registerError(__('Deleting the figure failed.'));
         }
 
-        ModUtil::callHooks('item', 'deletefigure', $args['fig_id'], '');
-
 // Let the calling process know that we have finished successfully
         return true;
     }
@@ -379,7 +354,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if (!DBUtil::deleteObjectByID('book_glossary', $args['gloss_id'], 'gloss_id')) {
             return LogUtil::registerError(__('Deleting the glossary item failed.'));
         }
-        ModUtil::callHooks('item', 'deleteglossary', $args['gloss_id'], '');
 
 // Let the calling process know that we have finished successfully
         return true;
@@ -563,9 +537,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return LogUtil::registerError(__('Updating the figure failed.'));
         }
 
-// Let any hooks know that we have created a new item.
-        ModUtil::callHooks('book', 'updatefigure', $fig_id, 'fig_id');
-
         return true;
     }
 
@@ -589,9 +560,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if (!DBUtil::updateObject($args, 'book_glossary', '', 'gloss_id')) {
             return LogUtil::registerError(__('Updating the glossary failed.'));
         }
-
-        // Let any hooks know that we have created a new item.
-        ModUtil::callHooks('book', 'updateglossary', $args['gloss_id'], 'gloss_id');
 
         return true;
     }
@@ -646,7 +614,6 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if (!DBUtil::deleteObjectByID('book_user_data', $args['id'])) {
             return LogUtil::registerError(__('Deleting the highlight failed.'));
         }
-        ModUtil::callHooks('item', 'deletehighlight', $id, '');
 
 // Let the calling process know that we have finished successfully
         return true;
