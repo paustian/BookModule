@@ -112,19 +112,18 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
         // Create output object
         // Note that for a block the corresponding module must be passed.
         $render = Zikula_View::getInstance('Book');
-
+        $ret_text = '';
         // Display each item, permissions permitting
-        $shown_results = 0;
-        $bookitems = array();
         foreach ($items as $item) {
 
             if (SecurityUtil::checkPermission('Book::Chapter', "$item[book_id]::.*", ACCESS_READ)) {
-                $bookitems[] = array('url' => pnModURL('Book', 'user', 'toc', array('book_id' => $item['book_id'])),
+                $ret_text = array('url' => pnModURL('Book', 'user', 'toc', array('book_id' => $item['book_id'])),
                     'title' => $item['book_name']);
             } else {
                 $bookitems[] = array('title' => $item['title']);
             }
         }
+        
         $render->assign('book_names', $bookitems);
 
         // Populate block info and pass to theme
