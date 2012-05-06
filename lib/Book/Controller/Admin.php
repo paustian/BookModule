@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------
 class Book_Controller_Admin extends Zikula_AbstractController {
 
-    Static public function url_replace_func($matches) {
+    static public function url_replace_func($matches) {
         //you have to do two amp amp because the browser translates one of them.
         //first replace the amp
         $ret_text = 'href="' . preg_replace('|&([^a][^m][^p][^;])|', '&amp;amp;$1', $matches[1]) . '"';

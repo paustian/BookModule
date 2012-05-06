@@ -63,13 +63,14 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
      * @return       array       The block information
      */
     public function info() {
-        return array('text_type' => 'First',
-            'module' => 'Book',
-            'text_type_long' => 'Display a list of books',
-            'allow_multiple' => true,
-            'form_content' => false,
-            'form_refresh' => false,
-            'show_preview' => true);
+        return array('module'          => $this->name,
+                     'text_type'       => $this->__('Book List'),
+                     'text_type_long'  => $this->__('Block of Books Available'),
+                     'allow_multiple'  => true,
+                     'form_content'    => false,
+                     'form_refresh'    => false,
+                     'show_preview'    => true,
+                     'admin_tableless' => true);
     }
 
     /**
@@ -111,25 +112,18 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
 
         // Create output object
         // Note that for a block the corresponding module must be passed.
-        $render = Zikula_View::getInstance('Book');
-
+        $books = array();
         // Display each item, permissions permitting
-        $shown_results = 0;
-        $bookitems = array();
         foreach ($items as $item) {
-
-            if (SecurityUtil::checkPermission('Book::Chapter', "$item[book_id]::.*", ACCESS_READ)) {
-                $bookitems[] = array('url' => pnModURL('Book', 'user', 'toc', array('book_id' => $item['book_id'])),
-                    'title' => $item['book_name']);
-            } else {
-                $bookitems[] = array('title' => $item['title']);
-            }
+            $item['toc'] = ModUtil::func('Book', 'user', 'toc', array('book_id' => $item['book_id']));
+            $books[]=$item;
         }
-        $render->assign('book_names', $bookitems);
+        
+        $this->view->assign('books', $books);
 
         // Populate block info and pass to theme
-        $blockinfo['content'] = $render->fetch('book_block_first.htm');
-
+        $text = $this->view->fetch('book_block_first.htm');
+        $blockinfo['content'] = $text;
         return themesideblock($blockinfo);
     }
 
