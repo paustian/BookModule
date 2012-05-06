@@ -1,4 +1,5 @@
 <?php
+
 // pninit.php,v 1.9 2007/02/03 20:32:56 paustian Exp
 // ----------------------------------------------------------------------
 // PostNuke Content Management System
@@ -27,140 +28,142 @@
 // Purpose of file:  Initialisation functions for book
 // ----------------------------------------------------------------------
 
-/**
- * initialise the book module
- * This function is only ever called once during the lifetime of a particular
- * module instance
- */
-function book_init() {
-    // Get datbase setup - note that both pnDBGetConn() and pnDBGetTables()
-    // return arrays but we handle them differently.  For pnDBGetConn()
-    // we currently just want the first item, which is the official
-    // database handle.  For pnDBGetTables() we want to keep the entire
-    // tables array together for easy reference later on
-    
+class Book_Installer extends Zikula_AbstractInstaller {
 
+    /**
+     * initialise the book module
+     * This function is only ever called once during the lifetime of a particular
+     * module instance
+     */
+    public function install() {
+        // Get datbase setup - note that both pnDBGetConn() and pnDBGetTables()
+        // return arrays but we handle them differently.  For pnDBGetConn()
+        // we currently just want the first item, which is the official
+        // database handle.  For pnDBGetTables() we want to keep the entire
+        // tables array together for easy reference later on
 // Create table
-    if (!DBUtil::createTable('book_name')) {
-        return false;
-    }
-    if (!DBUtil::createTable('book_chaps')) {
-        return false;
-    }
+        if (!DBUtil::createTable('book_name')) {
+            return false;
+        }
+        if (!DBUtil::createTable('book_chaps')) {
+            return false;
+        }
 
-    if (!DBUtil::createTable('book')) {
-        return false;
-    }
+        if (!DBUtil::createTable('book')) {
+            return false;
+        }
 
-    if (!DBUtil::createTable('book_figures')) {
-        return false;
-    }
+        if (!DBUtil::createTable('book_figures')) {
+            return false;
+        }
 
-    if (!DBUtil::createTable('book_glossary')) {
-        return false;
-    }
+        if (!DBUtil::createTable('book_glossary')) {
+            return false;
+        }
 
-    if (!DBUtil::createTable('book_user_data')) {
-        return false;
-    }
-    // These are used in the searching functions.
-    pnModSetVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
-    pnModSetVar('Book', 'BOOKS_LABEL', __('Books'));
-    pnModSetVar('Book', 'securebooks', false);
+        if (!DBUtil::createTable('book_user_data')) {
+            return false;
+        }
+        // These are used in the searching functions.
+        pnModSetVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
+        pnModSetVar('Book', 'BOOKS_LABEL', __('Books'));
+        pnModSetVar('Book', 'securebooks', false);
 
-    // Initialisation successful
-    return true;
-}
-
-/**
- * upgrade the book module from an old version
- * This function can be called multiple times
- */
-function book_upgrade($oldversion) {
-    // Upgrade dependent on old version number
-    switch($oldversion) {
-        case 0.1:
-            if (!DBUtil::createTable('book_user_data')) {
-                return false;
-            }
-
-        case 1.0:
-        //We can leave this as mysql specific code because you could not use anything but mysql before 2.0
-            $dbconn =& pnDBGetConn(true);
-            $pntable =& pnDBGetTables();
-
-            $bookFigures = $pntable['book_figures'];
-            $bookFigList = &$pntable['book_figures_column'];
-
-            // Code to upgrade from version 1.0 goes here
-            //add the permission field to the figure table
-            $sql = "ALTER TABLE $bookFigures ADD $bookFigList[fig_perm] TINYINT DEFAULT 1 NOT NULL";
-            $dbconn->Execute($sql);
-
-            // Check for an error with the database code, and if so set an
-            // appropriate error message and return
-            if ($dbconn->ErrorNo() != 0) {
-                return false;
-            }
-
-            $bookGlossary = $pntable['book_glossary'];
-            $bookGlssaryList = &$pntable['book_glossary_column'];
-            $sql = "ALTER TABLE $bookGlossary ADD $bookGlssaryList[user] TEXT DEFAULT '', ADD $bookGlssaryList[URL] TEXT DEFAULT ''";
-
-            $dbconn->Execute($sql);
-
-            // Check for an error with the database code, and if so set an
-            // appropriate error message and return
-            if ($dbconn->ErrorNo() != 0) {
-                return false;
-            }
-            //make it possible to prevent simultaneous use by more than one person.
-            pnModSetVar('Book', 'securebooks', false);
-            break;
-        case 2.0:
-        // No code is needed to upgrade to 2.0 from 1.0
-            break;
+        // Initialisation successful
+        return true;
     }
 
-    // Update successful
-    return true;
-}
+    /**
+     * upgrade the book module from an old version
+     * This function can be called multiple times
+     */
+    public function upgrade($oldversion) {
+        // Upgrade dependent on old version number
+        switch ($oldversion) {
+            case 0.1:
+                if (!DBUtil::createTable('book_user_data')) {
+                    return false;
+                }
 
-/**
- * delete the book module
- * This function is only ever called once during the lifetime of a particular
- * module instance
- */
-function book_delete() {
-    //drop the tables
-    if (!DBUtil::dropTable('book_name')) {
-        return false;
+            case 1.0:
+                //We can leave this as mysql specific code because you could not use anything but mysql before 2.0
+                $dbconn = & pnDBGetConn(true);
+                $pntable = & pnDBGetTables();
+
+                $bookFigures = $pntable['book_figures'];
+                $bookFigList = &$pntable['book_figures_column'];
+
+                // Code to upgrade from version 1.0 goes here
+                //add the permission field to the figure table
+                $sql = "ALTER TABLE $bookFigures ADD $bookFigList[fig_perm] TINYINT DEFAULT 1 NOT NULL";
+                $dbconn->Execute($sql);
+
+                // Check for an error with the database code, and if so set an
+                // appropriate error message and return
+                if ($dbconn->ErrorNo() != 0) {
+                    return false;
+                }
+
+                $bookGlossary = $pntable['book_glossary'];
+                $bookGlssaryList = &$pntable['book_glossary_column'];
+                $sql = "ALTER TABLE $bookGlossary ADD $bookGlssaryList[user] TEXT DEFAULT '', ADD $bookGlssaryList[URL] TEXT DEFAULT ''";
+
+                $dbconn->Execute($sql);
+
+                // Check for an error with the database code, and if so set an
+                // appropriate error message and return
+                if ($dbconn->ErrorNo() != 0) {
+                    return false;
+                }
+                //make it possible to prevent simultaneous use by more than one person.
+                pnModSetVar('Book', 'securebooks', false);
+                break;
+            case 2.0:
+                // No code is needed to upgrade to 2.0 from 1.0
+                break;
+        }
+
+        // Update successful
+        return true;
     }
-    if (!DBUtil::dropTable('book_chaps')) {
-        return false;
+
+    /**
+     * delete the book module
+     * This function is only ever called once during the lifetime of a particular
+     * module instance
+     */
+    public function uninstall() {
+        //drop the tables
+        if (!DBUtil::dropTable('book_name')) {
+            return false;
+        }
+        if (!DBUtil::dropTable('book_chaps')) {
+            return false;
+        }
+
+        if (!DBUtil::dropTable('book')) {
+            return false;
+        }
+
+        if (!DBUtil::dropTable('book_figures')) {
+            return false;
+        }
+
+        if (!DBUtil::dropTable('book_glossary')) {
+            return false;
+        }
+
+        if (!DBUtil::dropTable('book_user_data')) {
+            return false;
+        }
+
+        // Delete any module variables
+        pnModDelVar('Book', 'securebooks', false);
+
+        // Deletion successful
+        return true;
     }
 
-    if (!DBUtil::dropTable('book')) {
-        return false;
-    }
-
-    if (!DBUtil::dropTable('book_figures')) {
-        return false;
-    }
-
-    if (!DBUtil::dropTable('book_glossary')) {
-        return false;
-    }
-
-    if (!DBUtil::dropTable('book_user_data')) {
-        return false;
-    }
-
-    // Delete any module variables
-    pnModDelVar('Book', 'securebooks', false);
-
-    // Deletion successful
-    return true;
 }
 
 ?>
