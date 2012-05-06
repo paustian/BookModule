@@ -27,6 +27,7 @@ class Book_Version extends Zikula_AbstractVersion
 
     protected function setupHookBundles()
     {
+        //code for setting up hooks with Zikula. The Book module can subcribe to modules providing hooks
         $bundle = new Zikula_HookManager_SubscriberBundle($this->name, 'subscriber.book.ui_hooks.articles', 'ui_hooks', $this->__('Book Articles Hooks'));
         $bundle->addEvent('display_view', 'book.ui_hooks.articles.display_view');
         $bundle->addEvent('process_edit', 'book.ui_hooks.articles.process_edit');
