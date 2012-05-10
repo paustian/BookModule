@@ -716,7 +716,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         //get the article
         $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $art_id));
         //add glossary terms
-        $article['contents'] = book_adminapi_add_glossary_terms(array('in_text' => $article['contents']));
+        $article['contents'] = $this->add_glossary_terms(array('in_text' => $article['contents']));
         //save the article
         return ModUtil::apiFunc('book', 'admin', 'updatearticle', $article);
     }
@@ -760,9 +760,9 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
 
         //sort the terms, doing the biggest ones first
-        usort($terms, $this->_sort_term_sizes);
+        usort($terms, array($this, _sort_term_sizes));
         //now search for all the terms
-        $result = preg_replace_callback($terms, $this->_glossreplacecallback, $contents, 1);
+        $result = preg_replace_callback($terms, array($this, _glossreplacecallback), $contents, 1);
         if ($result != "") {
             $contents = $result;
         }
