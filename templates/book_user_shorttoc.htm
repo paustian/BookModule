@@ -63,7 +63,7 @@
     ---------
    </option>
   {foreach item=chapter from=$chapters}
-   <option value="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter"}&amp;chap_id={$chapter.chap_id}">{$chapter.chap_number} - {$chapter.chap_name}</option>
+   <option value="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" chap_id=$chapter.chap_id}">{$chapter.chap_number} - {$chapter.chap_name}</option>
   {/foreach} 
   </select>
   <input type="submit" value="Go" />
