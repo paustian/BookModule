@@ -10,6 +10,7 @@
  * @package
  * @subpackage Book
  */
+
 class Book_Api_Search extends Zikula_AbstractApi {
 
     /**
@@ -36,7 +37,6 @@ class Book_Api_Search extends Zikula_AbstractApi {
      * Search plugin main function
      * */
     public function search($args) {
-
         ModUtil::dbInfoLoad('Search');
         $pntable = DBUtil::getTables();
         $bookcolumn = $pntable['book_column'];
@@ -48,7 +48,7 @@ class Book_Api_Search extends Zikula_AbstractApi {
 
         ModUtil::loadApi('Book', 'user');
 
-        $permChecker = new book_result_checker();
+        $permChecker = new Book_ResultChecker();
         $stories = DBUtil::selectObjectArrayFilter('book', $where, null, null, null, '', $permChecker, null);
         if (!$stories) {
             //not found, return true
@@ -96,14 +96,26 @@ class Book_Api_Search extends Zikula_AbstractApi {
      * Access checking is ignored since access check has
      * already been done. But we do add a URL to the found item
      */
-    public function search_check(&$args) {
+    public function search_check($args) {
 
         //stopped here. have to make right URL. Also, does not work with search form
         $datarow = &$args['datarow'];
         $artId = $datarow['extra'];
-        $datarow['url'] = pnModUrl('Book', 'user', 'displayarticle', array('art_id' => $artId));
+        $datarow['url'] = ModUtil::url('Book', 'user', 'displayarticle', array('art_id' => $artId));
         //var_dump(debug_backtrace()); die;
         return true;
     }
 
 }
+
+class Book_ResultChecker
+{
+    // This method is called by DBUtil::selectObjectArrayFilter() for each and every search result.
+    // A return value of true means "keep result" - false means "discard".
+    function checkResult(&$item)
+    {
+        $ok = (SecurityUtil::checkPermission('Book::', "$item[book_id]::$item[chapter_id]", ACCESS_OVERVIEW));
+        return $ok;
+    }
+}
+?>
