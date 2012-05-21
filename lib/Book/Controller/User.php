@@ -375,7 +375,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         }
         pnModFunc('book', 'user', 'checkuserstatus');
 
-        $render = Zikula_View::getInstance('Book');
+        $render = Zikula_View::getInstance('Book', false);
 
         //get the chapter title
         $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $art_id));
