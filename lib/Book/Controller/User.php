@@ -1180,7 +1180,6 @@ class Book_Controller_User extends Zikula_AbstractController {
         pnUserLogOut();
         return $render->fetch('book_user_morethanoneuser.htm');
     }
-
 }
 
 ?>
