@@ -68,7 +68,8 @@ class Book_Installer extends Zikula_AbstractInstaller {
         pnModSetVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
         pnModSetVar('Book', 'BOOKS_LABEL', __('Books'));
         pnModSetVar('Book', 'securebooks', false);
-
+        
+        HookUtil::registerSubscriberBundles($this->version->getHookSubscriberBundles());
         // Initialisation successful
         return true;
     }
