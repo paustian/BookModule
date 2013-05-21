@@ -126,7 +126,7 @@ class Book_Controller_User extends Zikula_AbstractController {
                 }
 
                 $render->assign('chapter', $chapter_item);
-                $render->assign('articles', $art_array);
+                //$render->assign('articles', $art_array);
                 $render->caching = false;
                 if (SecurityUtil::checkPermission('Book::Chapter', "$book[book_id]::$chapter_item[chap_id]", ACCESS_READ)) {
                     $chapter_data[] = $render->fetch("book_user_toc_row.htm");
@@ -191,7 +191,7 @@ class Book_Controller_User extends Zikula_AbstractController {
             $chap_id = $chapter_item['chap_id'];
             if ($chapter_item['chap_number'] > 0) {
                 if (SecurityUtil::checkPermission('Book::Chapter', "$book_id::$chapter_item[chap_id]", ACCESS_OVERVIEW)) {
-                    $chapter_item['chap_name'] = myTruncate2($chapter_item['chap_name'], 25);
+                    $chapter_item['chap_name'] = $this->myTruncate2($chapter_item['chap_name'], 25);
                     $chapter_data[] = $chapter_item;
                 }
             }
@@ -207,7 +207,7 @@ class Book_Controller_User extends Zikula_AbstractController {
 
         $render->caching = false;
         $text = $render->fetch('book_user_shorttoc.htm');
-
+        
         return $text;
     }
 
@@ -508,7 +508,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         $definition = $item['definition'];
         $lcterm = strtolower($term);
         $URL = DataUtil::formatForDisplayHTML(pnModURL('Book', 'user', 'displayglossary')) . "#$lcterm";
-        $ret_text = "<a class=\"glossary\" href=\"$URL\" onmouseover=\"return escape('$definition')\">$term</a>";
+        $ret_text = "<a class=\"glossary\" href=\"$URL\" onmouseover=\"tooltip.pop(this, '$definition') \">$term</a>";
         return $ret_text;
     }
 
