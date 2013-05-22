@@ -391,7 +391,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         if ($uid != "") {
             $highlights = ModUtil::apiFunc('Book', 'user', 'gethighlights', array('uid' => $uid, 'art_id' => $art_id));
             if ($highlights) {
-                $content = process_highlights($highlights, $content);
+                $content = $this->process_highlights($highlights, $content);
             }
         }
         if ($article['next'] == 0) {

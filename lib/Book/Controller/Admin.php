@@ -709,8 +709,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //This will no longer happen
         $contents = preg_replace_callback('/href="(.*?)"/', 'Book_Controller_Admin::url_replace_func', $article['contents']);
         //we need all of this
+        $contents = DataUtil::formatForDisplay($contents);
+        $title = DataUtil::formatForDisplay($article['title']);
         $render->assign('contents', $contents);
-        $render->assign('title', $article['title']);
+        $render->assign('title', $title);
         $render->assign('next', $article['next']);
         $render->assign('prev', $article['prev']);
         $render->assign('art_id', $article['art_id']);
