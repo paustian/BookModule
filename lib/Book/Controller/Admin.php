@@ -330,7 +330,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      * Processes the results of the form supplied by book_admin_newfigure()
      * to create a new item
      * @param 'fig_number' the number of the figure to be created
-     * @param 'number' the number of the chatper the figure will be displayed in These two items will be used to identify figures
+     * @param 'chap_number' the number of the chatper the figure will be displayed in These two items will be used to identify figures
      * @param 'img_link' the path to the image to display
      * @param 'title' the title of the figure
      * @param 'content' the content of the figure. The legend
@@ -342,7 +342,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         // Get parameters from whatever input we need.
         $fig_number = FormUtil::getPassedValue('fig_number', isset($args['fig_number']) ? $args['fig_number'] : null);
-        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
+        $chap_number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
         $img_link = FormUtil::getPassedValue('img_link', isset($args['img_link']) ? $args['img_link'] : null);
         $title = FormUtil::getPassedValue('title', isset($args['title']) ? $args['title'] : null);
         $content = FormUtil::getPassedValue('content', isset($args['content']) ? $args['content'] : null);
@@ -360,7 +360,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // The API function is called.
         $fid = ModUtil::apiFunc('Book', 'admin', 'createfigure', array('fig_number' => $fig_number,
-            'number' => $number,
+            'chap_number' => $chap_number,
             'img_link' => $img_link,
             'title' => $title,
             'perm' => $perm,
@@ -854,7 +854,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //grab parameters
         $fid = FormUtil::getPassedValue('fid2', isset($args['fid2']) ? $args['fid2'] : null);
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
-        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
+        $chap_number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
         $fig_number = FormUtil::getPassedValue('fig_number', isset($args['fig_number']) ? $args['fig_number'] : null);
 
 
@@ -870,7 +870,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         if (isset($bid) && isset($number) && isset($fig_number)) {
             $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('bid' => $bid,
-                'number' => $number,
+                'chap_number' => $chap_number,
                 'fig_number' => $fig_number));
         }
         //unsuccessful, try the figure id
@@ -890,7 +890,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $render->assign('img_link', $figure['img_link']);
         $render->assign('fid', $figure['fid']);
         $render->assign('perm', $figure['perm']);
-        $render->assign('number', $figure['number']);
+        $render->assign('chap_number', $figure['chap_number']);
         $render->assign('bid', $figure['bid']);
 
         $books = ModUtil::apiFunc('Book', 'user', 'getall');
@@ -938,7 +938,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $title = FormUtil::getPassedValue('title', isset($args['title']) ? $args['title'] : null);
         $img_link = FormUtil::getPassedValue('img_link', isset($args['img_link']) ? $args['img_link'] : null);
         $content = FormUtil::getPassedValue('content', isset($args['content']) ? $args['content'] : null);
-        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
+        $number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         $perm = FormUtil::getPassedValue('perm', isset($args['perm']) ? $args['perm'] : null);
 
@@ -953,7 +953,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             'title' => $title,
             'content' => $content,
             'img_link' => $img_link,
-            'number' => $number,
+            'chap_number' => $chap_number,
             'perm' => $perm,
             'bid' => $bid));
         // Call apiupdate to do all the work
@@ -2068,7 +2068,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                 'title' => $figure['title'],
                 'content' => $figure['content'],
                 'img_link' => $new_path,
-                'number' => $figure['number'],
+                'chap_number' => $figure['chap_number'],
                 'perm' => $figure['perm'],
                 'bid' => $figure['bid']));
             // Call apiupdate to do all the work

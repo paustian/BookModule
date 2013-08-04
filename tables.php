@@ -97,8 +97,8 @@ function book_pntables()
     
     $table['book_figures'] = $bookFigures;
     $table['book_figures_column'] = array (  'fid' => $bookFigures . '_fid',
-    										'fig_number' => $bookFigures . '_fig_number',
-                                        'number' => $bookFigures . '_number',
+    					'fig_number' => $bookFigures . '_fig_number',
+                                        'chap_number' => $bookFigures . '_number',
                                         'bid' => $bookFigures . '_bid',
                                         'img_link' => $bookFigures . '_img_link',
                                         'title' => $bookFigures . '_title',

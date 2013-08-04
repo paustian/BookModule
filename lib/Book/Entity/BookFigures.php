@@ -34,7 +34,7 @@ class Book_Entity_BookFigures extends Zikula_EntityAccess {
     /**
      * @ORM\Column(type="integer", length=20)
      */
-    private $number;
+    private $chap_number;
     
     /**
      * @ORM\Column(type="integer", length=20)
@@ -76,7 +76,7 @@ class Book_Entity_BookFigures extends Zikula_EntityAccess {
 
         $this->title = '';
         $this->fig_number = 0;
-        $this->number = 0;
+        $this->chap_number = 0;
         $this->bid = 0;
         $this->contents = '';
         $this->title = '';
@@ -101,11 +101,11 @@ class Book_Entity_BookFigures extends Zikula_EntityAccess {
     }
     
     public function getChap_number() {
-        return $this->number;
+        return $this->chap_number;
     }
 
-    public function setChap_number($number) {
-        $this->number = $number;
+    public function setChap_number($chap_number) {
+        $this->chap_number = $chap_number;
     }
 
     public function getBook_id() {

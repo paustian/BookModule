@@ -18,5 +18,32 @@
 
 class Book_Entity_Repository_BookGloss extends Doctrine\ORM\EntityRepository
 {
+     public function getArticles($orderBy='', $where='')
+    {
+        $dql = "SELECT a FROM Book_Entity_BookGloss a";
+        
+        if (!empty($where)) {
+            $dql .= ' WHERE ' . $where;
+        }
+        
+        if(!empty($orderBy)){
+            $dql .= " ORDER BY a.$orderBy";
+        } 
+        // generate query
+        $query = $this->_em->createQuery($dql);
+
+
+        try {
+            $result = $query->getResult();
+        } catch (Exception $e) {
+            echo "<pre>";
+            var_dump($e->getMessage());
+            var_dump($query->getDQL());
+            var_dump($query->getParameters());
+            var_dump($query->getSQL());
+            die;
+        }
+        return $result;
+    }
 }
 ?>

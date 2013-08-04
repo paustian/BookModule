@@ -558,7 +558,7 @@ class Book_Controller_User extends Zikula_AbstractController {
 
     static public function inlinefigures($matches) {
         $book_number = $matches[1];
-        $number = $matches[2];
+        $chap_number = $matches[2];
         $fig_number = $matches[3];
 
         //grab the width and heigh if present. The synthax to use here is
@@ -576,7 +576,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         }
 
         $figure = pnModFunc('Book', 'user', 'displayfigure', array('fig_number' => $fig_number,
-            'number' => $number,
+            'chap_number' => $chap_number,
             'bid' => $book_number,
             'stand_alone' => false,
             'width' => $width,
@@ -588,7 +588,7 @@ class Book_Controller_User extends Zikula_AbstractController {
     public function displayfigure($args) {
 
         $fig_number = FormUtil::getPassedValue('fig_number', isset($args['fig_number']) ? $args['fig_number'] : null);
-        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
+        $chap_number = FormUtil::getPassedValue('number', isset($args['chap_number']) ? $args['number'] : null);
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         $stand_alone = FormUtil::getPassedValue('stand_alone', isset($args['stand_alone']) ? $args['stand_alone'] : null);
         $width = FormUtil::getPassedValue('width', isset($args['width']) ? $args['width'] : null);
@@ -607,7 +607,9 @@ class Book_Controller_User extends Zikula_AbstractController {
         $render = Zikula_View::getInstance('Book', false);
 
         //get the chapter title
-        $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('fig_number' => $fig_number, 'number' => $number, 'bid' => $bid));
+        $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('fig_number' => $fig_number, 
+            'chap_number' => $chap_number, 
+            'bid' => $bid));
         //permission check
         //$book = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $figure['bid']));
 
@@ -632,7 +634,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         $render->assign('title', $figure['title']);
         $render->assign('img_link', $visible_link);
         $render->assign('fig_number', $fig_number);
-        $render->assign('number', $number);
+        $render->assign('chap_number', $chap_number);
         $render->assign('fid', $figure['fid']);
         $render->assign('admin_link', $figure['img_link']);
 

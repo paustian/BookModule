@@ -7,7 +7,7 @@
 {section name=i loop=$figData}
 <tr>
 	<td><input type="checkbox" name="fid[]" value="{$figData[i.index].fid}"></td>
-	<td>{$figData[i.index].number}-{$figData[i.index].fig_number} {$figData[i.index].title}</td>
+	<td>{$figData[i.index].chap_number}-{$figData[i.index].fig_number} {$figData[i.index].title}</td>
 	<td><input type="text" name="img_link[{$figData[i.index].fid}]" size="70" value="{$figData[i.index].img_link}"></td>
 </tr>
 {/section}

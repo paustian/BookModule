@@ -136,30 +136,30 @@ class Book_Installer extends Zikula_AbstractInstaller {
                 $connection = Doctrine_Manager::getInstance()->getConnection('default');
                 $sqlStatements = array();
                 //Change the Book table
-                $sqlStatements[] = "ALTER TABLE  `book` CHANGE  `bid`  `bid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
+                $sqlStatements[] = "ALTER TABLE  `book` CHANGE  `book_id`  `bid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
                     CHANGE  `name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
                 
                 //Change the articles table
-                $sqlStatements[] = "ALTER TABLE  `book_art` CHANGE  `book_aid`  `aid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                $sqlStatements[] = "ALTER TABLE  `book_art` CHANGE  `book_art_id`  `aid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
                     CHANGE  `book_art_title`  `art_title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-                    CHANGE  `book_art_cid`  `cid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
-                    CHANGE  `book_art_bid`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_art_chap_id`  `cid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_art_book_id`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
                     CHANGE  `book_art_contents`  `contents` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
                     CHANGE  `book_art_counter`  `counter` BIGINT( 20 ) NOT NULL DEFAULT  '0',
                     CHANGE  `book_art_lang`  `lang` VARCHAR( 30 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'eng',
                     CHANGE  `book_art_next`  `next` BIGINT( 20 ) NOT NULL DEFAULT  '0',
                     CHANGE  `book_art_prev`  `prev` BIGINT( 20 ) NOT NULL DEFAULT  '0',
-                    CHANGE  `book_aid`  `number` BIGINT( 20 ) NOT NULL DEFAULT  '0'";
+                    CHANGE  `book_art_number`  `number` BIGINT( 20 ) NOT NULL DEFAULT  '0'";
                 //Change the chapters table
-                $sqlStatements[] = "ALTER TABLE  `book_chap` CHANGE  `book_cid`  `cid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
-                    CHANGE  `book_number`  `number` BIGINT( 20 ) NOT NULL DEFAULT  '0',
-                    CHANGE  `book_chap_bid`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
-                    CHANGE  `book_name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
+                $sqlStatements[] = "ALTER TABLE  `book_chap` CHANGE  `book_chap_id`  `cid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                    CHANGE  `book_chap_number`  `number` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_chap_book_id`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_chap_name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
                 //Change the Figures table
                 $sqlStatements[] = "ALTER TABLE  `book_figs` CHANGE  `book_figs_fid`  `fid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
                     CHANGE  `book_figs_fig_number`  `fig_number` BIGINT( 20 ) NOT NULL ,
-                    CHANGE  `book_figs_number`  `number` BIGINT( 20 ) NOT NULL ,
-                    CHANGE  `book_figs_bid`  `bid` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_figs_chap_number`  `chap_number` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_figs_book_id`  `bid` BIGINT( 20 ) NOT NULL ,
                     CHANGE  `book_figs_img_link`  `img_link` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
                     CHANGE  `book_figs_title`  `title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
                     CHANGE  `book_figs_perm`  `perm` TINYINT( 4 ) NOT NULL DEFAULT  '1',

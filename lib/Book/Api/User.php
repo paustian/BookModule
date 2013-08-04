@@ -85,7 +85,8 @@ class Book_Api_User extends Zikula_AbstractApi {
                 'instance_middle' => '',
                 'instance_right' => '',
                 'level' => ACCESS_OVERVIEW));
-
+        I need the change this to Doctrine I need to figure out the permissions 
+        and how to handle them wiht doctrine. May not be able to.
         $item = DBUtil::selectObjectByID('name', $bid, 'bid', null, $permFilter);
 
         if ($item === false) {
@@ -478,12 +479,12 @@ class Book_Api_User extends Zikula_AbstractApi {
     public function getfigure($args) {
         //you can find a figure by id or by book, chapter and figure number
         if (!isset($args['fid'])) {
-            if (!isset($args['fig_number']) || !isset($args['number']) || !isset($args['bid'])) {
+            if (!isset($args['fig_number']) || !isset($args['chap_number']) || !isset($args['bid'])) {
                 LogUtil::registerError(__('Variable error getfigure'));
                 return false;
             }
             $fig_number = $args['fig_number'];
-            $number = $args['number'];
+            $chap_number = $args['chap_number'];
             $bid = $args['bid'];
         } else {
             $fid = $args['fid'];
@@ -499,7 +500,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         } else {
             $items = array();
             $where = "WHERE $bookFigList[fig_number]='" . DataUtil::formatForStore($fig_number) . "'" .
-                    " AND $bookFigList[number]='" . DataUtil::formatForStore($number) . "'" .
+                    " AND $bookFigList[chap_number]='" . DataUtil::formatForStore($chap_number) . "'" .
                     " AND  $bookFigList[bid]='" . DataUtil::formatForStore($bid) . "'";
             //This should pick out a unqiue item
             $item = DBUtil::selectObject('book_figures', $where);
