@@ -3,7 +3,7 @@
 <h2>{gt text="Chapter"} - {$url_table[0].chap_no}</h2>
 <h3>{gt text="Bad Links"}</h3>
 <table border="1">
-<tr><th>{gt text="Chapter"}</th><th>{gt text="Article Number"}</th><th>{gt text="URL"}</th></tr>
+<tr><th>{gt text="Chapter"}</th><th>{gt text="Article Number"}</th><th>{gt text="url"}</th></tr>
 {section name=i loop=$url_table}
 {if $url_table[i.index].present == -1}
 <tr>	<td>{$url_table[i.index].chap_no}</td>
@@ -15,7 +15,7 @@
 </table>
 <h3>{gt text="Good Links"}</h3>
 <table border="1">
-<tr><th>{gt text="Chapter"}</th><th>{gt text="Article Number"}</th><th>{gt text="URL"}</th></tr>
+<tr><th>{gt text="Chapter"}</th><th>{gt text="Article Number"}</th><th>{gt text="url"}</th></tr>
 {section name=i loop=$url_table}
 {if $url_table[i.index].present == 1}
 <tr>	<td>{$url_table[i.index].chap_no}</td>

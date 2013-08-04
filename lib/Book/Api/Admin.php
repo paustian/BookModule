@@ -31,7 +31,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     public function create($args) {
 // Argument check
-        if ((!isset($args['book_name']))) {
+        if ((!isset($args['name']))) {
             LogUtil::registerArgsError();
             return false;
         }
@@ -42,13 +42,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-//insert a new object. The book_id is inserted into the $args array
-        if (!DBUtil::insertObject($args, 'book_name', 'book_id')) {
+//insert a new object. The bid is inserted into the $args array
+        if (!DBUtil::insertObject($args, 'name', 'bid')) {
             return LogUtil::registerError(__('Book creation failed.'));
         }
 
 // Return the id of the newly created item to the calling process
-        return $book_id;
+        return $bid;
     }
 
     /**
@@ -61,19 +61,19 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 // Argument check
 //we make sure that the number is 1 or greater. No zero or
 //negative chapters
-        if ((!isset($args['chap_name'])) ||
-                (!isset($args['book_id']))) {
+        if ((!isset($args['name'])) ||
+                (!isset($args['bid']))) {
             LogUtil::registerArgsError();
             return false;
         }
 
 
-        if (!isset($arts['chap_number']) || ($args['chap_number'] < 1)) {
+        if (!isset($arts['number']) || ($args['number'] < 1)) {
 //we need to generate a chapter number. Count the number of
 //chapters and then add a 1 to it. This may fail if a
 //chapter is missing, but its not fatal to have two chapters
 //with the same number
-            $args['number'] = ModUtil::apiFunc('Book', 'user', 'countchapters', array('book_id' => $book)) + 1;
+            $args['number'] = ModUtil::apiFunc('Book', 'user', 'countchapters', array('bid' => $book)) + 1;
         }
 // Security check - important to do this as early on as possible to
 // avoid potential security holes or just too much wasted processing
@@ -82,13 +82,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
 
-//insert a new object. The book_id is inserted into the $args array
-        if (!DBUtil::insertObject($args, 'book_chaps', 'chap_id')) {
+//insert a new object. The bid is inserted into the $args array
+        if (!DBUtil::insertObject($args, 'book_chaps', 'cid')) {
             return LogUtil::registerError(_CREATEFAILED);
         }
 
 // Return the id of the newly created item to the calling process
-        return $args['chap_id'];
+        return $args['cid'];
     }
 
     /**
@@ -108,12 +108,12 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 //and that the chapter is larger than 1
 //negative chapters
         if ((!isset($args['title'])) ||
-                (!isset($args['book_id'])) ||
+                (!isset($args['bid'])) ||
                 (!isset($args['contents'])) ||
                 (!isset($args['next'])) ||
                 (!isset($args['prev'])) ||
-                (!isset($args['art_number'])) ||
-                (!isset($args['chap_id'])) || ($args['chap_id'] < 1) ||
+                (!isset($args['aid'])) ||
+                (!isset($args['cid'])) || ($args['cid'] < 1) ||
                 (!isset($args['lang']))) {
             LogUtil::registerArgsError();
             return false;
@@ -138,16 +138,16 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         //This is not working. for some reason the content is empty on insert. It has
         //    something to do with preserve.
         $preserve = false;
-//    if(isset($args['art_id'])){
+//    if(isset($args['aid'])){
 //        $preserve = true;
 //    }
-//insert a new object. The book_id is inserted into the $args array
-        if (!DBUtil::insertObject($args, 'book', 'art_id', $preserve)) {
+//insert a new object. The bid is inserted into the $args array
+        if (!DBUtil::insertObject($args, 'book', 'aid', $preserve)) {
             return LogUtil::registerError(_CREATEFAILED . "article insert");
         }
 
 // Return the id of the newly created item to the calling process
-        return $args['art_id'];
+        return $args['aid'];
     }
 
     public function createfigure($args) {
@@ -156,11 +156,11 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 //and that the chapter is larger than 1
 //negative chapters
         if ((!isset($args['fig_number'])) ||
-                (!isset($args['chap_number'])) ||
-                (!isset($args['fig_content'])) ||
-                (!isset($args['fig_title'])) ||
-                (!isset($args['fig_perm'])) ||
-                (!isset($args['book_id'])) ||
+                (!isset($args['number'])) ||
+                (!isset($args['content'])) ||
+                (!isset($args['title'])) ||
+                (!isset($args['perm'])) ||
+                (!isset($args['bid'])) ||
                 (!isset($args['img_link']))) {
             LogUtil::registerArgsError();
             return false;
@@ -172,13 +172,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
 
-//insert a new object. The book_id is inserted into the $args array
-        if (!DBUtil::insertObject($args, 'book_figures', 'fig_id')) {
+//insert a new object. The bid is inserted into the $args array
+        if (!DBUtil::insertObject($args, 'book_figures', 'fid')) {
             return LogUtil::registerError(_CREATEFAILED . "article insert");
         }
 
 // Return the id of the newly created item to the calling process
-        return $args['fig_id'];
+        return $args['fid'];
     }
 
     public function createglossary($args) {
@@ -191,8 +191,8 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if ((!isset($args['user']))) {
             $args['user'] = "";
         }
-        if ((!isset($args['URL']))) {
-            $args['URL'] = "";
+        if ((!isset($args['url']))) {
+            $args['url'] = "";
         }
 
 
@@ -202,13 +202,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
 
-//insert a new object. The book_id is inserted into the $args array
-        if (!DBUtil::insertObject($args, 'book_glossary', 'gloss_id')) {
+//insert a new object. The bid is inserted into the $args array
+        if (!DBUtil::insertObject($args, 'book_glossary', 'gid')) {
             return LogUtil::registerError(__('Creating the glossary item failed, createglossary'));
         }
 
 // Return the id of the newly created item to the calling process
-        return $gloss_id;
+        return $gid;
     }
 
     /**
@@ -219,13 +219,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
      */
     public function delete($args) {
 // Argument check
-        if (!isset($args['book_id'])) {
+        if (!isset($args['bid'])) {
             LogUtil::registerArgsError();
             return false;
         }
 
 // The user API function is called.
-        $item = ModUtil::apiFunc('Book', 'user', 'get', array('book_id' => $args['book_id']));
+        $item = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $args['bid']));
 
 
         if ($item == false) {
@@ -235,12 +235,12 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
 
 // Security check
-        if (!SecurityUtil::checkPermission('Book::', "$args[book_id]::", ACCESS_DELETE)) {
+        if (!SecurityUtil::checkPermission('Book::', "$args[bid]::", ACCESS_DELETE)) {
             LogUtil::registerPermissionError();
             return false;
         }
 
-       if (!DBUtil::deleteObjectByID('book_name', $args['book_id'], 'book_id')) {
+       if (!DBUtil::deleteObjectByID('name', $args['bid'], 'bid')) {
             return LogUtil::registerError(__('Deleting the book failed'));
         }
 
@@ -248,15 +248,15 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         $pntable = & DBUtil::getTables();
             //delete all the articles associated with this book
         $articleList = &$pntable['book_column'];
-        $where = "WHERE $articleList[book_id] = '" . DataUtil::formatForStore($args['book_id']) . "'";
+        $where = "WHERE $articleList[bid] = '" . DataUtil::formatForStore($args['bid']) . "'";
         $articles_of_book = DBUtil::selectObjectArray('book', $where);
         foreach($articles_of_book as $article){
             //we call the module controller to make sure it communicates with any hooked modules.
-            ModUtil::func('Book', 'admin', 'deletearticle', array('art_id' => $article['art_id']));
+            ModUtil::func('Book', 'admin', 'deletearticle', array('aid' => $article['aid']));
         }
 //delete all the chapters associated with this book
         $chapList = &$pntable['book_chaps_column'];
-        $where = "WHERE $chapList[book_id] = '" . DataUtil::formatForStore($args['book_id']) . "'";
+        $where = "WHERE $chapList[bid] = '" . DataUtil::formatForStore($args['bid']) . "'";
 
         if (!DBUtil::deleteWhere('book_chaps', $where)) {
             return LogUtil::registerError(__('Deleting the chapters of the book failed'));
@@ -270,27 +270,27 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function deletechapter($args) {
 // Argument check - make sure that all required arguments are present,
 // if not then set an appropriate error message and return
-        if (!isset($args['chap_id'])) {
+        if (!isset($args['cid'])) {
             LogUtil::registerArgsError();
             return false;
         }
 // Security check
-        if (!SecurityUtil::checkPermission('::Chapter', "::$args[chap_id]", ACCESS_DELETE)) {
+        if (!SecurityUtil::checkPermission('::Chapter', "::$args[cid]", ACCESS_DELETE)) {
             LogUtil::registerPermissionError();
             return false;
         }
         $pntable = & DBUtil::getTables();
 //delete all the articles associated with this chapter
         $articleList = &$pntable['book_column'];
-        $where = "WHERE $articleList[chap_id] = '" . DataUtil::formatForStore($args['chap_id']) . "'";
+        $where = "WHERE $articleList[cid] = '" . DataUtil::formatForStore($args['cid']) . "'";
         $articles_of_book = DBUtil::selectObjectArray('book', $where);
         foreach($articles_of_book as $article){
             //we call the module controller to make sure it communicates with any hooked modules.
-            ModUtil::func('Book', 'admin', 'deletearticle', array('art_id' => $article['art_id']));
+            ModUtil::func('Book', 'admin', 'deletearticle', array('aid' => $article['aid']));
         }
         
 //finally delete the chapter
-        if (!DBUtil::deleteObjectByID('book_chaps', $args['chap_id'], 'chap_id')) {
+        if (!DBUtil::deleteObjectByID('book_chaps', $args['cid'], 'cid')) {
             return LogUtil::registerError(__('Deleting the chapter failed.'));
         }
 
@@ -301,18 +301,18 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     public function deletearticle($args) {
         // Argument check
-        if (!isset($args['art_id'])) {
+        if (!isset($args['aid'])) {
             LogUtil::registerArgsError();
             return false;
         }
-        $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $args['art_id']));
+        $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $args['aid']));
 
         // Security check
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$article[book_id]::$article[chap_id]", ACCESS_DELETE)) {
+        if (!SecurityUtil::checkPermission('Book::Chapter', "$article[bid]::$article[cid]", ACCESS_DELETE)) {
             LogUtil::registerPermissionError();
             return false;
         }
-       if (!DBUtil::deleteObjectByID('book', $args['art_id'], 'art_id')) {
+       if (!DBUtil::deleteObjectByID('book', $args['aid'], 'aid')) {
             return LogUtil::registerError(__('Deleting the article failed.'));
         }
         
@@ -323,7 +323,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     public function deletefigure($args) {
 // Argument check
-        if (!isset($args['fig_id'])) {
+        if (!isset($args['fid'])) {
             LogUtil::registerArgsError();
             return false;
         }
@@ -332,7 +332,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        if (!DBUtil::deleteObjectByID('book_figures', $args['fig_id'], 'fig_id')) {
+        if (!DBUtil::deleteObjectByID('book_figures', $args['fid'], 'fid')) {
             return LogUtil::registerError(__('Deleting the figure failed.'));
         }
 
@@ -342,7 +342,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     public function deleteglossary($args) {
 // Argument check
-        if (!isset($args['gloss_id'])) {
+        if (!isset($args['gid'])) {
             LogUtil::registerArgsError();
             return false;
         }
@@ -351,7 +351,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        if (!DBUtil::deleteObjectByID('book_glossary', $args['gloss_id'], 'gloss_id')) {
+        if (!DBUtil::deleteObjectByID('book_glossary', $args['gid'], 'gid')) {
             return LogUtil::registerError(__('Deleting the glossary item failed.'));
         }
 
@@ -361,23 +361,23 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     /**
      * update a book item
-     * @param $args['book_id'] the ID of the item
+     * @param $args['bid'] the ID of the item
      * @param $args['name'] the new name of the item
      * @param $args['number'] the new number of the item
      */
     public function update($args) {
 // Argument check
-        if ((!isset($args['book_id'])) ||
-                (!isset($args['book_name']))) {
+        if ((!isset($args['bid'])) ||
+                (!isset($args['name']))) {
             LogUtil::registerArgsError();
             return false;
         }
-        $book_id = $args['book_id'];
+        $bid = $args['bid'];
 // The user API function is called.  This takes the item ID which
 // we obtained from the input and gets us the information on the
 // appropriate item.  If the item does not exist we post an appropriate
 // message and return
-        $item = ModUtil::apiFunc('Book', 'user', 'get', array('book_id' => $book_id));
+        $item = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $bid));
 
         if ($item == false) {
             //we don't throw an error, we depend on the caling funciton to do that.
@@ -385,12 +385,12 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
 
 // Security check
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$item[book_id]::.*", ACCESS_EDIT)) {
+        if (!SecurityUtil::checkPermission('Book::Chapter', "$item[bid]::.*", ACCESS_EDIT)) {
             LogUtil::registerPermissionError();
             return false;
         }
 
-        if (!DBUtil::updateObject($args, 'book_name', '', 'book_id')) {
+        if (!DBUtil::updateObject($args, 'name', '', 'bid')) {
             return LogUtil::registerError(__('Updating the book failed.'));
         }
 
@@ -400,17 +400,17 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     /**
      * update a chapter item
-     * @param $args['book_id'] the id of the book
-     * @param $args['chap_name'] the title of the chapter
-     * @param $args['chap_number'] the chapter number
-     * @param $args['chap_id'] the unique ID of the chapter
+     * @param $args['bid'] the id of the book
+     * @param $args['name'] the title of the chapter
+     * @param $args['number'] the chapter number
+     * @param $args['cid'] the unique ID of the chapter
      */
     public function updatechapter($args) {
 // Argument check
-        if ((!isset($args['book_id'])) ||
-                (!isset($args['chap_name'])) ||
-                (!isset($args['chap_number'])) ||
-                (!isset($args['chap_id']))) {
+        if ((!isset($args['bid'])) ||
+                (!isset($args['name'])) ||
+                (!isset($args['number'])) ||
+                (!isset($args['cid']))) {
             return LogUtil::registerArgsError();
             ;
         }
@@ -420,36 +420,36 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 // we obtained from the input and gets us the information on the
 // appropriate item.  If the item does not exist we post an appropriate
 // message and return
-        $item = ModUtil::apiFunc('Book', 'user', 'getchapter', array('chap_id' => $args['chap_id']));
+        $item = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $args['cid']));
 
         if ($item == false) {
             return false;
         }
 
 // Security check
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$args[book_id]::$item[chap_id]", ACCESS_EDIT)) {
+        if (!SecurityUtil::checkPermission('Book::Chapter', "$args[bid]::$item[cid]", ACCESS_EDIT)) {
             LogUtil::registerPermissionError();
             ;
             return false;
         }
 
-        if (!DBUtil::updateObject($args, 'book_chaps', '', 'chap_id')) {
+        if (!DBUtil::updateObject($args, 'book_chaps', '', 'cid')) {
             return LogUtil::registerError(__('Updating the chapter failed.'));
         }
 
 
 //Now we have to change the articles if the book id has changed.
-        if ($item['book_id'] != $args['book_id']) {
+        if ($item['bid'] != $args['bid']) {
 //updateObject only changes the items in the array that have changed. If an item
 //is missing in the args array, it is left untouched by the updateObject function
-//So, even though our args array only contains book_id and chap_id information,
+//So, even though our args array only contains bid and cid information,
 //it still works, without destroying the contents of the articles
             $pntable = & DBUtil::getTables();
             $artList = &$pntable['book_column'];
-            $where = "WHERE $artList[book_id]=" . DataUtil::formatForStore($item['book_id']) .
-                    " AND $artList[chap_id]=" . DataUtil::formatForStore($args['chap_id']);
+            $where = "WHERE $artList[bid]=" . DataUtil::formatForStore($item['bid']) .
+                    " AND $artList[cid]=" . DataUtil::formatForStore($args['cid']);
 
-            if (!DBUtil::updateObject($args, 'book', $where, 'art_id')) {
+            if (!DBUtil::updateObject($args, 'book', $where, 'aid')) {
                 return LogUtil::registerError(__('Updating the chapter failed.'));
             }
         }
@@ -462,21 +462,21 @@ class Book_Api_Admin extends Zikula_AbstractApi {
      */
     public function updatearticle($args) {
         // Argument check
-        if ((!isset($args['book_id'])) ||
-                (!isset($args['art_id'])) ||
+        if ((!isset($args['bid'])) ||
+                (!isset($args['aid'])) ||
                 (!isset($args['title'])) ||
                 (!isset($args['contents'])) ||
                 (!isset($args['lang'])) ||
                 (!isset($args['next'])) ||
                 (!isset($args['prev'])) ||
-                (!isset($args['art_number'])) ||
-                (!isset($args['chap_id']))) {
+                (!isset($args['aid'])) ||
+                (!isset($args['cid']))) {
             LogUtil::registerArgsError();
             return false;
         }
 
         // The user API function is called
-        $item = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $args['art_id']));
+        $item = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $args['aid']));
 
         if ($item == false) {
             return false;
@@ -484,7 +484,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
 
         // Security check
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$args[book_id]::$args[chap_id]", ACCESS_EDIT)) {
+        if (!SecurityUtil::checkPermission('Book::Chapter', "$args[bid]::$args[cid]", ACCESS_EDIT)) {
             LogUtil::registerPermissionError();
             return false;
         }
@@ -492,7 +492,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         $pntable = & DBUtil::getTables();
         //delete any highlight data for this article since we just edited it.
         $userList = &$pntable['book_user_data_column'];
-        $where = "WHERE $userList[art_id] = '" . DataUtil::formatForStore($args['art_id']) . "'";
+        $where = "WHERE $userList[aid] = '" . DataUtil::formatForStore($args['aid']) . "'";
         //delete the objects
         if (!DBUtil::DeleteObject(null, 'book_user_data', $where)) {
             //TODO, this has to be checked to make sure its working. Have not done it yet
@@ -500,7 +500,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
 
         //now update the article
-        if (!DBUtil::updateObject($args, 'book', '', 'art_id')) {
+        if (!DBUtil::updateObject($args, 'book', '', 'aid')) {
             return LogUtil::registerError(__('Updating the book object failed.'));
         }
 
@@ -513,13 +513,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 //we make sure that all the arguments are there
 //and that the chapter is larger than 1
 //negative chapters
-        if ((!isset($args['fig_id'])) ||
+        if ((!isset($args['fid'])) ||
                 (!isset($args['fig_number'])) ||
-                (!isset($args['chap_number'])) ||
-                (!isset($args['book_id'])) ||
-                (!isset($args['fig_content'])) ||
-                (!isset($args['fig_perm'])) ||
-                (!isset($args['fig_title'])) ||
+                (!isset($args['number'])) ||
+                (!isset($args['bid'])) ||
+                (!isset($args['content'])) ||
+                (!isset($args['perm'])) ||
+                (!isset($args['title'])) ||
                 (!isset($args['img_link']))) {
             LogUtil::registerArgsError();
             return true;
@@ -533,7 +533,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
 
         //now update the article
-        if (!DBUtil::updateObject($args, 'book_figures', '', 'fig_id')) {
+        if (!DBUtil::updateObject($args, 'book_figures', '', 'fid')) {
             return LogUtil::registerError(__('Updating the figure failed.'));
         }
 
@@ -543,7 +543,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function updateglossary($args) {
 // Argument check
 //we make sure that all the arguments are there
-        if ((!isset($args['gloss_id'])) ||
+        if ((!isset($args['gid'])) ||
                 (!isset($args['term'])) ||
                 (!isset($args['definition']))) {
             LogUtil::registerArgsError();
@@ -557,7 +557,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
 
-        if (!DBUtil::updateObject($args, 'book_glossary', '', 'gloss_id')) {
+        if (!DBUtil::updateObject($args, 'book_glossary', '', 'gid')) {
             return LogUtil::registerError(__('Updating the glossary failed.'));
         }
 
@@ -567,13 +567,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function createhighlight($args) {
 //This is not always working, and I am suspicious of whether this is really working
 //I suspect this may be because of puncuation?
-//print "uid:$uid art:$art_id, start:$start end:$end";die;
+//print "uid:$uid art:$aid, start:$start end:$end";die;
 // Argument check
 //we make sure that all the arguments are there
 //and that the chapter is larger than 1
 //negative chapters
         if ((!isset($args['uid'])) ||
-                (!isset($args['art_id'])) ||
+                (!isset($args['aid'])) ||
                 (!isset($args['start'])) ||
                 (!isset($args['end']))) {
             LogUtil::registerArgsError();
@@ -582,7 +582,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 //now check to make sure the variables make sense
 //none of these is allowed to be less than 0
         if (($args['uid'] < 1) ||
-                ($args['art_id'] < 1) ||
+                ($args['aid'] < 1) ||
                 ($args['start'] < 0) ||
                 ($args['end']) < 0) {
             LogUtil::registerArgsError();
@@ -596,7 +596,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-//insert a new object. The book_id is inserted into the $args array
+//insert a new object. The bid is inserted into the $args array
         if (!DBUtil::insertObject($args, 'book_user_data')) {
             return LogUtil::registerError(__('Creating that highlight failed.'));
         }
@@ -640,12 +640,12 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     public function dosearchreplacebook($args) {
 //no securtiy check needed, handled at the chapter level
-        if (!isset($args['book_id']) || !isset($args['search_pat']) || !isset($args['replace_pat']) || !isset($args['preview'])) {
+        if (!isset($args['bid']) || !isset($args['search_pat']) || !isset($args['replace_pat']) || !isset($args['preview'])) {
             LogUtil::registerArgsError();
             return true;
         }
 //grab all the chapters from the book
-        $items = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $args['book_id']));
+        $items = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $args['bid']));
 //check to make sure we got something
         if (!$items) {
             LogUtil::registerArgsError();
@@ -653,14 +653,14 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         $return_text = "";
         foreach ($items as $item) {
 //call the serach and replace function on each chapter
-            $args['chap_id'] = $item['chap_id'];
+            $args['cid'] = $item['cid'];
             $return_text .= $this->dosearchreplacechap($args);
         }
         return $return_text;
     }
 
     public function dosearchreplacechap($args) {
-        if (!isset($args['chap_id']) || !isset($args['book_id'])
+        if (!isset($args['cid']) || !isset($args['bid'])
                 || !isset($args['search_pat']) || !isset($args['replace_pat'])
                 || !isset($args['preview'])) {
             LogUtil::registerArgsError();
@@ -669,12 +669,12 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
 // Security check - important to do this as early on as possible to
 // avoid potential security holes or just too much wasted processing
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$args[book_id]::$args[chap_id]", ACCESS_EDIT)) {
+        if (!SecurityUtil::checkPermission('Book::Chapter', "$args[bid]::$args[cid]", ACCESS_EDIT)) {
             LogUtil::registerPermissionError();
             return false;
         }
 
-        $art_items = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('chap_id' => $args['chap_id']));
+        $art_items = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('cid' => $args['cid']));
         if (!$art_items) {
             LogUtil::registerArgsError();
         }
@@ -701,7 +701,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 $new = preg_replace($search_pat, $replace_pat, $old, -1, $count);
                 $item['contents'] = $new;
                 if ($count > 0) {
-                    if (!DBUtil::updateObject($item, 'book', '', 'art_id')) {
+                    if (!DBUtil::updateObject($item, 'book', '', 'aid')) {
                         return LogUtil::registerError(__('Updating the article failed during Search and Replace function.'));
                     }
                 }
@@ -712,9 +712,9 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     }
 
     public function addglossaryitems($args) {
-        $art_id = $args['art_id'];
+        $aid = $args['aid'];
         //get the article
-        $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $art_id));
+        $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $aid));
         //add glossary terms
         $article['contents'] = $this->add_glossary_terms(array('in_text' => $article['contents']));
         //save the article
@@ -769,13 +769,13 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
         //replace the figures with a link to just the figure
 //    $pattern = "/([^\d][^\"][> ])Figure ([0-9]*)-([0-9]*)/";
-//    $replacement = "$1<a href=\"" . $URL . "&amp;book_id=$book_id&amp;fig_number=$3&amp;chap_number=$2\">Figure $2-$3</a>";
+//    $replacement = "$1<a href=\"" . $url . "&amp;bid=$bid&amp;fig_number=$3&amp;number=$2\">Figure $2-$3</a>";
 //    $contents = preg_replace($pattern, $replacement, $contents);
 
         return $key_terms . $contents . "\n";
 
 //update the object. It knows which one to update from the
-//art_id stored in the item
+//aid stored in the item
     }
 
     /**

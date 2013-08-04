@@ -5,10 +5,10 @@
     <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
     <p>{gt text="Choose a figure to delete"}
     <p>{gt text="Last 50 Figures"}</p>
-    <select name="fig_id1">
+    <select name="fid1">
     {html_options options=$fig_list}
     </select>
     
-    <p>{gt text="Or enter the Figure ID: "}<input type="text" name="fig_id2" size="3" maxlength="9"/></p>
+    <p>{gt text="Or enter the Figure ID: "}<input type="text" name="fid2" size="3" maxlength="9"/></p>
 	<p><input name="submit" type="submit" value="{gt text="Delete Figure"}" /></p>
 </form>

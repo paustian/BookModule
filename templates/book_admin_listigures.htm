@@ -6,9 +6,9 @@
 <table>
 {section name=i loop=$figData}
 <tr>
-	<td><input type="radio" name="fig_id2" value="{$figData[i.index].fig_id}"></td>
-	<td>{$figData[i.index].chap_number}-{$figData[i.index].fig_number} {$figData[i.index].fig_title}</td>
-	<td>{$figData[i.index].fig_content}</td>
+	<td><input type="radio" name="fid2" value="{$figData[i.index].fid}"></td>
+	<td>{$figData[i.index].number}-{$figData[i.index].fig_number} {$figData[i.index].title}</td>
+	<td>{$figData[i.index].content}</td>
 </tr>
 {/section}
 </table>

@@ -21,16 +21,16 @@
     {section name=i loop=$chaps}
    <tr>
    <td>
-   		<input type="radio" name="chap_id" value="{$chaps[i].chap_id}" {if $smarty.section.i.index == 0}checked>{else}>{/if}
+   		<input type="radio" name="cid" value="{$chaps[i].cid}" {if $smarty.section.i.index == 0}checked>{else}>{/if}
    </td>
     <td>
-    		<input type="text" size="40" max="256" name="title_{$chaps[i].chap_id}" value="{$chaps[i].chap_name|pnvarcensor}">
+    		<input type="text" size="40" max="256" name="title_{$chaps[i].cid}" value="{$chaps[i].name|pnvarcensor}">
     	</td>
     <td>
-    		<input type="text" size="5" max="5" name="number_{$chaps[i].chap_id}" value="{$chaps[i].chap_number|pnvarcensor}">
+    		<input type="text" size="5" max="5" name="number_{$chaps[i].cid}" value="{$chaps[i].number|pnvarcensor}">
     	</td>
     <td>
-  	<select name="book_id_{$chaps[i].chap_id}">
+  	<select name="bid_{$chaps[i].cid}">
   		 {$books[i]}
  	</select>
   	</td>

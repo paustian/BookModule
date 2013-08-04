@@ -1,6 +1,6 @@
-<h3><a href="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" chap_id=$chapter.chap_id}">Chapter {$chapter.chap_number} {$chapter.chap_name} {if $show_internals}Chapter id:{$chapter.chap_id}{/if}</a></h3>
+<h3><a href="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" cid=$chapter.cid}">Chapter {$chapter.number} {$chapter.name} {if $show_internals}Chapter id:{$chapter.cid}{/if}</a></h3>
 <ul>
 {foreach item=article from=$articles}
-<li class="article"><a href="{pnmodurl modname="Book" type="user" func="displayarticle" art_id=$article.art_id}"> {$chapter.chap_number}-{$article.art_number} {$article.title} {if $show_internals}artid:{$article.art_id}; next:{$article.next}; prev:{$article.prev}{/if}</a></li>
+<li class="article"><a href="{pnmodurl modname="Book" type="user" func="displayarticle" aid=$article.aid}"> {$chapter.number}-{$article.aid} {$article.title} {if $show_internals}artid:{$article.aid}; next:{$article.next}; prev:{$article.prev}{/if}</a></li>
 {/foreach}
 </ul>

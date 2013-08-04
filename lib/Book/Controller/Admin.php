@@ -70,8 +70,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $menu = array();
         foreach ($bookItems as $item) {
             // Security check
-            if (SecurityUtil::checkPermission('Book::Chapter', $item['book_id'] . "::.*", ACCESS_ADD)) {
-                $menu[$item['book_id']] = $item['book_name'];
+            if (SecurityUtil::checkPermission('Book::Chapter', $item['bid'] . "::.*", ACCESS_ADD)) {
+                $menu[$item['bid']] = $item['name'];
             }
         }
         $render->assign('bookmenu', $menu);
@@ -102,12 +102,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $chap_menus = array();
 
 
-        //get all the chapters for each book using the book_ids
+        //get all the chapters for each book using the bids
         //we can get this from the $books array
         foreach ($books as $book_item) {
-            $book_id = $book_item['book_id'];
+            $bid = $book_item['bid'];
             //grab all the chapters for this book
-            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $book_id));
+            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
             //check to make sure they are legitimate. The function will
             //send back false if it fails
             if ($chap_info == false) {
@@ -118,8 +118,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             $menuItem = array();
             foreach ($chap_info as $chap_item) {
                 // Security check
-                if (SecurityUtil::checkPermission("Book::Chapter", $book_item['book_id'] . "::" . $chap_item['chap_id'], ACCESS_ADD)) {
-                    $menuItem[$chap_item['chap_id']] = $chap_item['chap_name'];
+                if (SecurityUtil::checkPermission("Book::Chapter", $book_item['bid'] . "::" . $chap_item['cid'], ACCESS_ADD)) {
+                    $menuItem[$chap_item['cid']] = $chap_item['name'];
                 }
             }
             $chap_menus[] = $menuItem;
@@ -163,8 +163,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         $bookMenu = array();
         foreach ($books as $book_item) {
-            if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[book_id]::.*", ACCESS_ADD)) {
-                $bookMenu[$book_item['book_id']] = $book_item['book_name'];
+            if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[bid]::.*", ACCESS_ADD)) {
+                $bookMenu[$book_item['bid']] = $book_item['name'];
             }
         }
         $render->assign('books', $bookMenu);
@@ -210,17 +210,17 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
         }
 
-        $tid = ModUtil::apiFunc('Book', 'admin', 'create', array('book_name' => $name));
+        $tid = ModUtil::apiFunc('Book', 'admin', 'create', array('name' => $name));
 
         if ($tid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Book item created'));
         }
 
-        pnRedirect(pnModURL('Book', 'admin', 'newbook'));
+        pnRedirect(pnModurl('Book', 'admin', 'newbook'));
 
         return true;
     }
@@ -238,26 +238,26 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         // Get parameters from whatever input we need.
-        $name = FormUtil::getPassedValue('chap_name', isset($args['chap_name']) ? $args['chap_name'] : null);
-        $number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
-        $book = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
+        $name = FormUtil::getPassedValue('name', isset($args['name']) ? $args['name'] : null);
+        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
+        $book = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
         }
 
         // The API function is called.
-        $chap_id = ModUtil::apiFunc('Book', 'admin', 'createchapter', array('chap_name' => $name,
-            'chap_number' => $number,
-            'book_id' => $book));
+        $cid = ModUtil::apiFunc('Book', 'admin', 'createchapter', array('name' => $name,
+            'number' => $number,
+            'bid' => $book));
 
-        if ($chap_id != false) {
+        if ($cid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Book item created'));
         }
 
-        pnRedirect(pnModURL('Book', 'admin', 'newchapter'));
+        pnRedirect(pnModurl('Book', 'admin', 'newchapter'));
 
         return true;
     }
@@ -282,33 +282,33 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $contents = FormUtil::getPassedValue('contents', isset($args['contents']) ? $args['contents'] : null);
         $next = FormUtil::getPassedValue('next', isset($args['next']) ? $args['next'] : null);
         $prev = FormUtil::getPassedValue('prev', isset($args['prev']) ? $args['prev'] : null);
-        $book_id = FormUtil::getPassedValue('book', isset($args['book']) ? $args['book'] : null);
+        $bid = FormUtil::getPassedValue('book', isset($args['book']) ? $args['book'] : null);
         $lang = FormUtil::getPassedValue('lang', isset($args['lang']) ? $args['lang'] : null);
-        $art_number = FormUtil::getPassedValue('art_number', isset($args['art_number']) ? $args['art_number'] : null);
+        $aid = FormUtil::getPassedValue('aid', isset($args['aid']) ? $args['aid'] : null);
 
-        $chapter_id = 'chapter_' . $book_id;
+        $chapter_id = 'chapter_' . $bid;
         $chapter = FormUtil::getPassedValue($chapter_id, isset($args[$chapter_id]) ? $args[$chapter_id] : null);
 
         //set some variables since it doesn't make any sense for them to be empty
-        if ($art_number == "") {
-            $art_number = 999;
+        if ($aid == "") {
+            $aid = 999;
         }
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'newarticle'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newarticle'));
         }
-        // print "T:" . $title . "\nb_id:" . $book_id . "\nA number:" .  $art_number. "\nchapter:" . $chapter. "\nlang:" . $lang . "\ncontents:" . $contents;
+        // print "T:" . $title . "\nb_id:" . $bid . "\nA number:" .  $aid. "\nchapter:" . $chapter. "\nlang:" . $lang . "\ncontents:" . $contents;
         // die;
         // The API function is called.
         //It should return the article number ($number) as the id
         $article_id = ModUtil::apiFunc('Book', 'admin', 'createarticle', array('title' => $title,
-            'book_id' => $book_id,
+            'bid' => $bid,
             'contents' => $contents,
             'next' => $next,
             'prev' => $prev,
-            'art_number' => $art_number,
-            'chap_id' => $chapter,
+            'aid' => $aid,
+            'cid' => $chapter,
             'lang' => $lang));
 
         // The return value of the function is checked here, and if the function
@@ -320,7 +320,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'newarticle'));
+        pnRedirect(pnModurl('Book', 'admin', 'newarticle'));
 
         // Return
         return true;
@@ -330,10 +330,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      * Processes the results of the form supplied by book_admin_newfigure()
      * to create a new item
      * @param 'fig_number' the number of the figure to be created
-     * @param 'chap_number' the number of the chatper the figure will be displayed in These two items will be used to identify figures
+     * @param 'number' the number of the chatper the figure will be displayed in These two items will be used to identify figures
      * @param 'img_link' the path to the image to display
-     * @param 'fig_title' the title of the figure
-     * @param 'fig_content' the content of the figure. The legend
+     * @param 'title' the title of the figure
+     * @param 'content' the content of the figure. The legend
      */
     public function createfigure($args) {
         // Security check
@@ -342,37 +342,37 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         // Get parameters from whatever input we need.
         $fig_number = FormUtil::getPassedValue('fig_number', isset($args['fig_number']) ? $args['fig_number'] : null);
-        $chap_number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
+        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
         $img_link = FormUtil::getPassedValue('img_link', isset($args['img_link']) ? $args['img_link'] : null);
-        $fig_title = FormUtil::getPassedValue('fig_title', isset($args['fig_title']) ? $args['fig_title'] : null);
-        $fig_content = FormUtil::getPassedValue('fig_content', isset($args['fig_content']) ? $args['fig_content'] : null);
-        $fig_perm = FormUtil::getPassedValue('fig_perm', isset($args['fig_perm']) ? $args['fig_perm'] : null);
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
-        if ($fig_perm === 'on') {
-            $fig_perm = 1;
+        $title = FormUtil::getPassedValue('title', isset($args['title']) ? $args['title'] : null);
+        $content = FormUtil::getPassedValue('content', isset($args['content']) ? $args['content'] : null);
+        $perm = FormUtil::getPassedValue('perm', isset($args['perm']) ? $args['perm'] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
+        if ($perm === 'on') {
+            $perm = 1;
         } else {
-            $fig_perm = 0;
+            $perm = 0;
         }
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'newfigure'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newfigure'));
         }
 
         // The API function is called.
-        $fig_id = ModUtil::apiFunc('Book', 'admin', 'createfigure', array('fig_number' => $fig_number,
-            'chap_number' => $chap_number,
+        $fid = ModUtil::apiFunc('Book', 'admin', 'createfigure', array('fig_number' => $fig_number,
+            'number' => $number,
             'img_link' => $img_link,
-            'fig_title' => $fig_title,
-            'fig_perm' => $fig_perm,
-            'fig_content' => $fig_content,
-            'book_id' => $book_id));
+            'title' => $title,
+            'perm' => $perm,
+            'content' => $content,
+            'bid' => $bid));
 
-        if ($fig_id != false) {
+        if ($fid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Figure was created.'));
         }
 
-        pnRedirect(pnModURL('Book', 'admin', 'newfigure'));
+        pnRedirect(pnModurl('Book', 'admin', 'newfigure'));
 
         return true;
     }
@@ -394,19 +394,19 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'newglossary'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newglossary'));
         }
 
         // The API function is called.
-        $gloss_id = ModUtil::apiFunc('Book', 'admin', 'createglossary', array('term' => $term,
+        $gid = ModUtil::apiFunc('Book', 'admin', 'createglossary', array('term' => $term,
             'definition' => $definition));
 
-        if ($gloss_id != false) {
+        if ($gid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Glossary item created'));
         }
 
-        pnRedirect(pnModURL('Book', 'admin', 'newglossary'));
+        pnRedirect(pnModurl('Book', 'admin', 'newglossary'));
 
         return true;
     }
@@ -443,8 +443,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     /**
      * This is a standard function that is called with the results of the
      * form supplied by book_admin_modify() to update a current item
-     * @param 'book_id' the id of the book to be updated
-     * @param 'book_name' the name of the book to be updated
+     * @param 'bid' the id of the book to be updated
+     * @param 'name' the name of the book to be updated
      */
     public function update($args) {
         if (!SecurityUtil::checkPermission('Book::', "::", ACCESS_EDIT)) {
@@ -453,25 +453,25 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         // Get parameters from whatever input we need.
         //This is the radio button that is active
         //it will be a number
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
-        //The book_id corresponds to the title for the book.
-        $book_name = FormUtil::getPassedValue($book_id, isset($args[$book_id]) ? $args[$book_id] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
+        //The bid corresponds to the title for the book.
+        $name = FormUtil::getPassedValue($bid, isset($args[$bid]) ? $args[$bid] : null);
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'newglossary'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newglossary'));
         }
 
         // Call apiupdate to do all the work
-        if (ModUtil::apiFunc('Book', 'admin', 'update', array('book_id' => $book_id,
-                    'book_name' => $book_name))) {
+        if (ModUtil::apiFunc('Book', 'admin', 'update', array('bid' => $bid,
+                    'name' => $name))) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('The book was updated.'));
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'modify'));
+        pnRedirect(pnModurl('Book', 'admin', 'modify'));
 
         // Return
         return true;
@@ -500,17 +500,17 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $chapters = array();
         $books = array();
 
-        //get all the chapters for each book using the book_ids
+        //get all the chapters for each book using the bids
         //we can get this from the $books array
         foreach ($bookData as $book_item) {
             // Security check
-            if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[book_id]::", ACCESS_EDIT)) {
-                $book_id = $book_item['book_id'];
+            if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[bid]::", ACCESS_EDIT)) {
+                $bid = $book_item['bid'];
             } else {
                 continue;
             }
             //grab all the chapters for this book
-            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $book_id));
+            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
             //check to make sure they are legitimate. The function will
             //send back false if it fails
             $j++;
@@ -523,10 +523,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                     //tricky thing here. We are looping the $bookdata twice
                     //make sure you use the right variable.
                     foreach ($bookData as $book_number) {
-                        if ($book_number['book_id'] == $chap_item['book_id']) {
-                            $bookMenuString .= "<option value=\"" . $book_number['book_id'] . "\" label=\"" . $book_number['book_name'] . "\" selected>" . $book_number['book_name'] . "</option>\n";
+                        if ($book_number['bid'] == $chap_item['bid']) {
+                            $bookMenuString .= "<option value=\"" . $book_number['bid'] . "\" label=\"" . $book_number['name'] . "\" selected>" . $book_number['name'] . "</option>\n";
                         } else {
-                            $bookMenuString .= "<option value=\"" . $book_number['book_id'] . "\" label=\"" . $book_number['book_name'] . "\">" . $book_number['book_name'] . "</option>\n";
+                            $bookMenuString .= "<option value=\"" . $book_number['bid'] . "\" label=\"" . $book_number['name'] . "\">" . $book_number['name'] . "</option>\n";
                         }
                     }
                     $books[] = $bookMenuString;
@@ -550,25 +550,25 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      * Update information pertaining to a given chapter
      * @param title the title of the chapter
      * @param number the chapter number. This helps order the chapters in the book
-     * @param book_id the id of the book the chapter belongs to. It is possible to move chapters in books
+     * @param bid the id of the book the chapter belongs to. It is possible to move chapters in books
      *
      */
     public function updatechapter($args) {
         // Get parameters from whatever input we need.
         //This is the radio button that is active
         //it will be a number
-        $chap_id = FormUtil::getPassedValue('chap_id', isset($args['chap_id']) ? $args['chap_id'] : null);
-        $title_id = 'title_' . $chap_id;
+        $cid = FormUtil::getPassedValue('cid', isset($args['cid']) ? $args['cid'] : null);
+        $title_id = 'title_' . $cid;
         $title = FormUtil::getPassedValue($title_id, isset($args[$title_id]) ? $args[$title_id] : null);
 
-        $number_id = 'number_' . $chap_id;
+        $number_id = 'number_' . $cid;
         $number = FormUtil::getPassedValue($number_id, isset($args[$number_id]) ? $args[$number_id] : null);
-        $book_look = 'book_id_' . $chap_id;
-        $book_id = FormUtil::getPassedValue($book_look, isset($args[$book_look]) ? $args[$book_look] : null);
+        $book_look = 'bid_' . $cid;
+        $bid = FormUtil::getPassedValue($book_look, isset($args[$book_look]) ? $args[$book_look] : null);
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'modifychapter'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifychapter'));
         }
 
         if (!SecurityUtil::checkPermission('Book::Chapter', "::", ACCESS_EDIT)) {
@@ -576,10 +576,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         // Call apiupdate to do all the work
-        if (ModUtil::apiFunc('Book', 'admin', 'updatechapter', array('book_id' => $book_id,
-                    'chap_name' => $title,
-                    'chap_number' => $number,
-                    'chap_id' => $chap_id))) {
+        if (ModUtil::apiFunc('Book', 'admin', 'updatechapter', array('bid' => $bid,
+                    'name' => $title,
+                    'number' => $number,
+                    'cid' => $cid))) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('The book was updated'));
         } else {
@@ -589,7 +589,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'modifychapter'));
+        pnRedirect(pnModurl('Book', 'admin', 'modifychapter'));
 
         // Return
         return true;
@@ -626,35 +626,35 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         foreach ($books as $book_item) {
             // Security check -- if we do not have permission for this book
             //just skip to the next.
-            if (!SecurityUtil::checkPermission('Book::Chapter', "$book_item[book_id]::", $access_level)) {
+            if (!SecurityUtil::checkPermission('Book::Chapter', "$book_item[bid]::", $access_level)) {
                 continue;
             }
 
 
-            $book_chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $book_item['book_id']));
+            $book_chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $book_item['bid']));
             //add the book name
-            $book_string .= "\n<li>" . DataUtil::formatForDisplayHTML($book_item['book_name']) . "\n<ul rel=\"open\">\n";
+            $book_string .= "\n<li>" . DataUtil::formatForDisplayHTML($book_item['name']) . "\n<ul rel=\"open\">\n";
 
             foreach ($book_chapters as $chap_item) {
                 //Allow access on a book level. We will restrict chapters
-                if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[book_id]::$chap_item[chap_id]", $access_level)) {
+                if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[bid]::$chap_item[cid]", $access_level)) {
 
-                    $articles = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('chap_id' => $chap_item['chap_id'],
-                        'book_id' => $book_item['book_id'],
+                    $articles = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('cid' => $chap_item['cid'],
+                        'bid' => $book_item['bid'],
                         'get_content' => false));
 
                     //add the chapter name
-                    $book_string .= "\t<li>" . DataUtil::formatForDisplayHTML($chap_item['chap_number']) . " " . DataUtil::formatForDisplayHTML($chap_item['chap_name']) . "\n<ul>\n";
+                    $book_string .= "\t<li>" . DataUtil::formatForDisplayHTML($chap_item['number']) . " " . DataUtil::formatForDisplayHTML($chap_item['name']) . "\n<ul>\n";
                     foreach ($articles as $art_item) {
                         if ($art_item['title'] === "") {
                             continue;
                         }
                         if ($isForm) {
-                            $inputTag = "<input name=\"chosen_article\" type=\"radio\" value=\"" . $art_item['art_id'] . "\"> ";
+                            $inputTag = "<input name=\"chosen_article\" type=\"radio\" value=\"" . $art_item['aid'] . "\"> ";
                         }
-                        $art_url = pnModURL('Book', 'user', 'displayarticle', array('art_id' => $art_item['art_id']));
+                        $art_url = pnModurl('Book', 'user', 'displayarticle', array('aid' => $art_item['aid']));
                         $book_string .= "\t\t<li>" . $inputTag . "<a href=\"$art_url\">" .
-                                DataUtil::formatForDisplayHTML($art_item['art_number']) . " " . DataUtil::formatForDisplayHTML($art_item['title']) . "</a></li>\n";
+                                DataUtil::formatForDisplayHTML($art_item['aid']) . " " . DataUtil::formatForDisplayHTML($art_item['title']) . "</a></li>\n";
                         $have_articles = true;
                     }
                     $book_string .= "</ul><!--article close-->\n"; //close article
@@ -684,23 +684,23 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
 // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'modifyarticle1'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyarticle1'));
         }
 
 
-        $art_id = FormUtil::getPassedValue('chosen_article', isset($args['chosen_article']) ? $args['chosen_article'] : null);
+        $aid = FormUtil::getPassedValue('chosen_article', isset($args['chosen_article']) ? $args['chosen_article'] : null);
 
         // Create output object
         $render = Zikula_View::getInstance('Book', false);
 
         //first get the article
-        $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $art_id));
+        $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $aid));
 
         if ($article == false) {
             return LogUtil::registerError($this->__('There was no articles to edit'));
         }
         //now get the book and chapter
-        $book = ModUtil::apiFunc('Book', 'user', 'get', array('book_id' => $article['book_id']));
+        $book = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $article['bid']));
 
 
         $chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('all_chapters' => true));
@@ -715,12 +715,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $render->assign('title', $title);
         $render->assign('next', $article['next']);
         $render->assign('prev', $article['prev']);
-        $render->assign('art_id', $article['art_id']);
-        $render->assign('book_id', $article['book_id']);
-        $render->assign('art_number', $article['art_number']);
+        $render->assign('aid', $article['aid']);
+        $render->assign('bid', $article['bid']);
+        $render->assign('aid', $article['aid']);
 
         //we only need the book name
-        $render->assign('book', $book['book_name']);
+        $render->assign('book', $book['name']);
         //build the chapter menu
         //note that we let the user assign the article to any chapter
         //not just the ones in this book.
@@ -728,10 +728,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         foreach ($chapters as $chap_item) {
             // Security check
-            $chap_menu[$chap_item['chap_id']] = $chap_item['chap_name'];
+            $chap_menu[$chap_item['cid']] = $chap_item['name'];
         }
         $render->assign('chap_menu', $chap_menu);
-        $render->assign('selected_chapter', $article['chap_id']);
+        $render->assign('selected_chapter', $article['cid']);
         $render->assign('language', 'English');
         if (ModUtil::available('scribite')) {
             $scribite = pnModFunc('scribite', 'user', 'loader', array('areas' => array('content')));
@@ -758,30 +758,30 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'modifyarticle1'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyarticle1'));
         }
         // Get parameters from whatever input we need.
         //This is the radio button that is active
         //it will be a number
-        $art_id = FormUtil::getPassedValue('art_id', isset($args['art_id']) ? $args['art_id'] : null);
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
-        $chap_id = FormUtil::getPassedValue('chapter_id', isset($args['chapter_id']) ? $args['chapter_id'] : null);
+        $aid = FormUtil::getPassedValue('aid', isset($args['aid']) ? $args['aid'] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
+        $cid = FormUtil::getPassedValue('chapter_id', isset($args['chapter_id']) ? $args['chapter_id'] : null);
         $content = FormUtil::getPassedValue('contents', isset($args['contents']) ? $args['contents'] : null);
         $title = FormUtil::getPassedValue('title', isset($args['title']) ? $args['title'] : null);
         $lang = FormUtil::getPassedValue('lang', isset($args['lang']) ? $args['lang'] : null);
         $next = FormUtil::getPassedValue('next', isset($args['next']) ? $args['next'] : null);
         $prev = FormUtil::getPassedValue('prev', isset($args['prev']) ? $args['prev'] : null);
-        $art_number = FormUtil::getPassedValue('art_number', isset($args['art_number']) ? $args['art_number'] : null);
+        $aid = FormUtil::getPassedValue('aid', isset($args['aid']) ? $args['aid'] : null);
 
         // Call apiupdate to do all the work
-        if (ModUtil::apiFunc('Book', 'admin', 'updatearticle', array('art_id' => $art_id, 'book_id' => $book_id,
+        if (ModUtil::apiFunc('Book', 'admin', 'updatearticle', array('aid' => $aid, 'bid' => $bid,
                     'title' => $title,
                     'contents' => $content,
-                    'chap_id' => $chap_id,
+                    'cid' => $cid,
                     'lang' => $lang,
                     'next' => $next,
                     'prev' => $prev,
-                    'art_number' => $art_number))) {
+                    'aid' => $aid))) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Article updated.'));
         } else {
@@ -791,7 +791,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'modifyarticle1'));
+        pnRedirect(pnModurl('Book', 'admin', 'modifyarticle1'));
         return true;
     }
 
@@ -814,14 +814,14 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //make a menu of the last fifty figures
         $numFigures = count($figData);
         $fig_menu = array();
-        //get all the chapters for each book using the book_ids
+        //get all the chapters for each book using the bids
         //we can get this from the $books array
 
         for ($i = $numFigures - 1; $i > $numFigures - 50; $i--) {
             if ($i < 0)
                 break;
             $fig_item = $figData[$i];
-            $fig_menu[$fig_item['fig_id']] = $fig_item['fig_title'];
+            $fig_menu[$fig_item['fid']] = $fig_item['title'];
         }
 
         $render->assign('fig_list', $fig_menu);
@@ -833,8 +833,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($bookItems != 0) {
             foreach ($bookItems as $item) {
                 // Security check
-                if (SecurityUtil::checkPermission('Book::Chapter', "$item[book_id]::", ACCESS_EDIT)) {
-                    $book_menu[$item['book_id']] = $item['book_name'];
+                if (SecurityUtil::checkPermission('Book::Chapter', "$item[bid]::", ACCESS_EDIT)) {
+                    $book_menu[$item['bid']] = $item['name'];
                 }
             }
         }
@@ -849,17 +849,17 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'modifyfigure1'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyfigure1'));
         }
         //grab parameters
-        $fig_id = FormUtil::getPassedValue('fig_id2', isset($args['fig_id2']) ? $args['fig_id2'] : null);
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
-        $chap_number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
+        $fid = FormUtil::getPassedValue('fid2', isset($args['fid2']) ? $args['fid2'] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
+        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
         $fig_number = FormUtil::getPassedValue('fig_number', isset($args['fig_number']) ? $args['fig_number'] : null);
 
 
-        if ($fig_id == "") {
-            $fig_id = FormUtil::getPassedValue('fig_id1', isset($args['fig_id1']) ? $args['fig_id1'] : null);
+        if ($fid == "") {
+            $fid = FormUtil::getPassedValue('fid1', isset($args['fid1']) ? $args['fid1'] : null);
             ;
         }
 
@@ -868,15 +868,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $render = Zikula_View::getInstance('Book', false);
         $figure = false;
 
-        if (isset($book_id) && isset($chap_number) && isset($fig_number)) {
-            $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('book_id' => $book_id,
-                'chap_number' => $chap_number,
+        if (isset($bid) && isset($number) && isset($fig_number)) {
+            $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('bid' => $bid,
+                'number' => $number,
                 'fig_number' => $fig_number));
         }
         //unsuccessful, try the figure id
         if (!$figure) {
 
-            $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('fig_id' => $fig_id));
+            $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('fid' => $fid));
         }
 
         if ($figure == false) {
@@ -884,14 +884,14 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         //we need all of this
-        $render->assign('fig_content', $figure['fig_content']);
-        $render->assign('fig_title', $figure['fig_title']);
+        $render->assign('content', $figure['content']);
+        $render->assign('title', $figure['title']);
         $render->assign('fig_number', $figure['fig_number']);
         $render->assign('img_link', $figure['img_link']);
-        $render->assign('fig_id', $figure['fig_id']);
-        $render->assign('fig_perm', $figure['fig_perm']);
-        $render->assign('chap_number', $figure['chap_number']);
-        $render->assign('book_id', $figure['book_id']);
+        $render->assign('fid', $figure['fid']);
+        $render->assign('perm', $figure['perm']);
+        $render->assign('number', $figure['number']);
+        $render->assign('bid', $figure['bid']);
 
         $books = ModUtil::apiFunc('Book', 'user', 'getall');
         if ($books == false) {
@@ -900,14 +900,14 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         $bookMenu = array();
         foreach ($books as $book_item) {
-            if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[book_id]::", ACCESS_EDIT)) {
-                $bookMenu[$book_item['book_id']] = $book_item['book_name'];
+            if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[bid]::", ACCESS_EDIT)) {
+                $bookMenu[$book_item['bid']] = $book_item['name'];
             }
         }
         $render->assign('books', $bookMenu);
 
         if (ModUtil::available('scribite')) {
-            $scribite = pnModFunc('scribite', 'user', 'loader', array('areas' => array('fig_content')));
+            $scribite = pnModFunc('scribite', 'user', 'loader', array('areas' => array('content')));
             PageUtil::AddVar('rawtext', $scribite);
         }
         return $render->fetch('book_admin_modifyfigure2.htm');
@@ -930,32 +930,32 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'modifyfigure1'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyfigure1'));
         }
         // Get parameters from whatever input we need.
-        $fig_id = FormUtil::getPassedValue('fig_id', isset($args['fig_id']) ? $args['fig_id'] : null);
+        $fid = FormUtil::getPassedValue('fid', isset($args['fid']) ? $args['fid'] : null);
         $fig_number = FormUtil::getPassedValue('fig_number', isset($args['fig_number']) ? $args['fig_number'] : null);
-        $fig_title = FormUtil::getPassedValue('fig_title', isset($args['fig_title']) ? $args['fig_title'] : null);
+        $title = FormUtil::getPassedValue('title', isset($args['title']) ? $args['title'] : null);
         $img_link = FormUtil::getPassedValue('img_link', isset($args['img_link']) ? $args['img_link'] : null);
-        $fig_content = FormUtil::getPassedValue('fig_content', isset($args['fig_content']) ? $args['fig_content'] : null);
-        $chap_number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
-        $fig_perm = FormUtil::getPassedValue('fig_perm', isset($args['fig_perm']) ? $args['fig_perm'] : null);
+        $content = FormUtil::getPassedValue('content', isset($args['content']) ? $args['content'] : null);
+        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
+        $perm = FormUtil::getPassedValue('perm', isset($args['perm']) ? $args['perm'] : null);
 
-        if ($fig_perm === 'on') {
-            $fig_perm = 1;
+        if ($perm === 'on') {
+            $perm = 1;
         } else {
-            $fig_perm = 0;
+            $perm = 0;
         }
 
-        $result = ModUtil::apiFunc('Book', 'admin', 'updatefigure', array('fig_id' => $fig_id,
+        $result = ModUtil::apiFunc('Book', 'admin', 'updatefigure', array('fid' => $fid,
             'fig_number' => $fig_number,
-            'fig_title' => $fig_title,
-            'fig_content' => $fig_content,
+            'title' => $title,
+            'content' => $content,
             'img_link' => $img_link,
-            'chap_number' => $chap_number,
-            'fig_perm' => $fig_perm,
-            'book_id' => $book_id));
+            'number' => $number,
+            'perm' => $perm,
+            'bid' => $bid));
         // Call apiupdate to do all the work
         if ($result) {
             // Success
@@ -967,7 +967,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'modifyfigure1'));
+        pnRedirect(pnModurl('Book', 'admin', 'modifyfigure1'));
 
         // Return
         return true;
@@ -988,7 +988,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($bookItems != 0) {
             foreach ($bookItems as $item) {
                 // Security check -- you must have access to at least one book
-                if (SecurityUtil::checkPermission('Book::Chapter', "$item[book_id]::", ACCESS_EDIT)) {
+                if (SecurityUtil::checkPermission('Book::Chapter', "$item[bid]::", ACCESS_EDIT)) {
                     $authorized = true;
                 }
             }
@@ -1019,9 +1019,9 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             $term3[] = $glossary_terms[$i + 2];
             $term4[] = $glossary_terms[$i + 3];
         }
-        $last3 = array('term' => "", 'gloss_id' => "");
-        $last2 = array('term' => "", 'gloss_id' => "");
-        $last1 = array('term' => "", 'gloss_id' => "");
+        $last3 = array('term' => "", 'gid' => "");
+        $last2 = array('term' => "", 'gid' => "");
+        $last1 = array('term' => "", 'gid' => "");
         //$remainder will be the last 0, 1, 2, or 3
         switch ($remainder) {
             case 3:
@@ -1055,16 +1055,16 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'modifyglossary1'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyglossary1'));
         }
-        $gloss_id = FormUtil::getPassedValue('gloss_id', isset($args['gloss_id']) ? $args['gloss_id'] : null);
+        $gid = FormUtil::getPassedValue('gid', isset($args['gid']) ? $args['gid'] : null);
 
 
         // Create output object
         $render = Zikula_View::getInstance('Book', false);
 
         // The user API function is called
-        $glossData = ModUtil::apiFunc('Book', 'user', 'getglossary', array('gloss_id' => $gloss_id));
+        $glossData = ModUtil::apiFunc('Book', 'user', 'getglossary', array('gid' => $gid));
         //print_r($glossData);die;
         $render->assign('glossary', $glossData);
 
@@ -1077,15 +1077,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'modifyfigure1'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyfigure1'));
         }
 
-        $gloss_id = FormUtil::getPassedValue('gloss_id', isset($args['gloss_id']) ? $args['gloss_id'] : null);
+        $gid = FormUtil::getPassedValue('gid', isset($args['gid']) ? $args['gid'] : null);
         $term = FormUtil::getPassedValue('term', isset($args['term']) ? $args['term'] : null);
         $definition = FormUtil::getPassedValue('definition', isset($args['definition']) ? $args['definition'] : null);
 
         // Call apiupdate to do all the work
-        if (ModUtil::apiFunc('Book', 'admin', 'updateglossary', array('gloss_id' => $gloss_id,
+        if (ModUtil::apiFunc('Book', 'admin', 'updateglossary', array('gid' => $gid,
                     'term' => $term,
                     'definition' => $definition))) {
             // Success
@@ -1097,7 +1097,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'modifyglossary1'));
+        pnRedirect(pnModurl('Book', 'admin', 'modifyglossary1'));
 
         // Return
         return true;
@@ -1139,7 +1139,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      * delete
      * Actually delete the book. Note that this also deletes the chapters and the articles
      *
-     * @param	$args[book_id]	The id of the book to delete
+     * @param	$args[bid]	The id of the book to delete
      *
      */
     public function delete($args) {
@@ -1147,13 +1147,13 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
         }
 
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
 
         // The API function is called.
-        $tid = ModUtil::apiFunc('Book', 'admin', 'delete', array('book_id' => $book_id));
+        $tid = ModUtil::apiFunc('Book', 'admin', 'delete', array('bid' => $bid));
         if ($tid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('The book was deleted.'));
@@ -1161,7 +1161,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'view'));
+        pnRedirect(pnModurl('Book', 'admin', 'view'));
 
         // Return
         return true;
@@ -1206,12 +1206,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //$j and $i will be equal. In that case, do not allow the funciton to
         //continue.
         $i = $j = 0;
-        //get all the chapters for each book using the book_ids
+        //get all the chapters for each book using the bids
         //we can get this from the $books array
         foreach ($books as $book_item) {
-            $book_id = $book_item['book_id'];
+            $bid = $book_item['bid'];
             //grab all the chapters for this book
-            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $book_id));
+            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
             //check to make sure they are legitimate. The function will
             //send back false if it fails
             $j++;
@@ -1238,7 +1238,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         foreach ($books as $book_item) {
             $menuItem = array();
             foreach ($chapters[$i] as $chap_item) {
-                $menuItem[$chap_item['chap_id']] = $chap_item['chap_name'];
+                $menuItem[$chap_item['cid']] = $chap_item['name'];
             }
             $i++;
             $chap_menus[] = $menuItem;
@@ -1247,7 +1247,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     }
 
     public function do_export($args) {
-        $ret_url = pnModURL('book', 'admin', 'main');
+        $ret_url = pnModurl('book', 'admin', 'main');
         if (!SecurityUtil::checkPermission('Book::', "::", ACCESS_EDIT)) {
             return LogUtil::registerPermissionError($ret_url);
         }
@@ -1270,13 +1270,13 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //$j and $i will be equal. In that case, do not allow the funciton to
         //continue.
         $i = $j = 0;
-        //get all the chapters for each book using the book_ids
+        //get all the chapters for each book using the bids
         //we can get this from the $books array
         foreach ($books as $book_item) {
-            $book_id = $book_item['book_id'];
+            $bid = $book_item['bid'];
 
             //grab all the chapters for this book
-            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $book_id));
+            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
             //check to make sure they are legitimate. The function will
             //send back false if it fails
             $j++;
@@ -1304,8 +1304,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             $menuItem = array();
             foreach ($chapters[$i] as $chap_item) {
                 // Security check
-                if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[book_id]::$chap_item[chap_id]", ACCESS_EDIT)) {
-                    $menuItem[$chap_item['chap_id']] = $chap_item['chap_name'];
+                if (SecurityUtil::checkPermission('Book::Chapter', "$book_item[bid]::$chap_item[cid]", ACCESS_EDIT)) {
+                    $menuItem[$chap_item['cid']] = $chap_item['name'];
                 }
             }
             $i++;
@@ -1320,7 +1320,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     /**
      * delete chatper
      * The function that actually deletes the chapter
-     * @param	chap_id	The id of the chapter to delete
+     * @param	cid	The id of the chapter to delete
      *
      */
     public function deletechapter($args) {
@@ -1328,18 +1328,18 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
         }
 
         //A little hocus pocus. Each menu for the
         //chapters is identified by its book id
         //we identify the correct one to delete by checking the book id.
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
-        $chap_to_get = 'chapter_' . $book_id;
-        $chap_id = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
+        $chap_to_get = 'chapter_' . $bid;
+        $cid = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
 
         // The API function is called.
-        $tid = ModUtil::apiFunc('Book', 'admin', 'deletechapter', array('chap_id' => $chap_id));
+        $tid = ModUtil::apiFunc('Book', 'admin', 'deletechapter', array('cid' => $cid));
         if ($tid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Chapter(s) deleted'));
@@ -1347,7 +1347,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'chapterdisplay'));
+        pnRedirect(pnModurl('Book', 'admin', 'chapterdisplay'));
 
         // Return
         return true;
@@ -1382,25 +1382,25 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'dodeletearticle'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodeletearticle'));
         }
 
-        $art_id = FormUtil::getPassedValue('chosen_article', isset($args['chosen_article']) ? $args['chosen_article'] : null);
+        $aid = FormUtil::getPassedValue('chosen_article', isset($args['chosen_article']) ? $args['chosen_article'] : null);
 
         // The API function is called.
-        $tid = ModUtil::apiFunc('Book', 'admin', 'deletearticle', array('art_id' => $art_id));
+        $tid = ModUtil::apiFunc('Book', 'admin', 'deletearticle', array('aid' => $aid));
         if ($tid != false) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Article(s) deleted.'));
             //an article was deleted, let the hooks, know about it
             // item deleted, so notify hooks of the event
-            $hook = new Zikula_ProcessHook('book.ui_hooks.articles.process_delete', $art_id);
+            $hook = new Zikula_ProcessHook('book.ui_hooks.articles.process_delete', $aid);
             $this->notifyHooks($hook);
         }
         
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'dodeletearticle'));
+        pnRedirect(pnModurl('Book', 'admin', 'dodeletearticle'));
 
         // Return
         return true;
@@ -1420,7 +1420,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
 
         if ($figData == false) {
-            pnRedirect(pnModURL('Book', 'admin', 'dodeletefigure'));
+            pnRedirect(pnModurl('Book', 'admin', 'dodeletefigure'));
             return LogUtil::registerError($this->__('There are no figures to delete.'));
         }
 
@@ -1433,13 +1433,13 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //make a menu of the last fifty figures
         $numFigures = count($figData);
         $fig_menu = array();
-        //get all the chapters for each book using the book_ids
+        //get all the chapters for each book using the bids
         //we can get this from the $books array
         for ($i = $numFigures - 1; $i > $numFigures - 50; $i--) {
             if ($i < 0)
                 break;
             $fig_item = $figData[$i];
-            $fig_menu[$fig_item['fig_id']] = $fig_item['fig_title'];
+            $fig_menu[$fig_item['fid']] = $fig_item['title'];
         }
 
         $render->assign('fig_list', $fig_menu);
@@ -1453,27 +1453,27 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
         }
         //get the figure id.
-        $fig_id = FormUtil::getPassedValue('fig_id2', isset($args['fig_id2']) ? $args['fig_id2'] : null);
+        $fid = FormUtil::getPassedValue('fid2', isset($args['fid2']) ? $args['fid2'] : null);
 
-        if ($fig_id == "") {
-            $fig_id = FormUtil::getPassedValue('fig_id1', isset($args['fig_id1']) ? $args['fig_id1'] : null);
+        if ($fid == "") {
+            $fid = FormUtil::getPassedValue('fid1', isset($args['fid1']) ? $args['fid1'] : null);
         }
 
 
         // Create output object
         $render = Zikula_View::getInstance('Book', false);
 
-        if (ModUtil::apiFunc('Book', 'admin', 'deletefigure', array('fig_id' => $fig_id))) {
+        if (ModUtil::apiFunc('Book', 'admin', 'deletefigure', array('fid' => $fid))) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Book figure deleted.'));
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'dodeletefigure'));
+        pnRedirect(pnModurl('Book', 'admin', 'dodeletefigure'));
 
         // Return
         return true;
@@ -1511,9 +1511,9 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             $term3[] = $glossary_terms[$i + 2];
             $term4[] = $glossary_terms[$i + 3];
         }
-        $last3 = array('term' => "", 'gloss_id' => "");
-        $last2 = array('term' => "", 'gloss_id' => "");
-        $last1 = array('term' => "", 'gloss_id' => "");
+        $last3 = array('term' => "", 'gid' => "");
+        $last2 = array('term' => "", 'gid' => "");
+        $last1 = array('term' => "", 'gid' => "");
         //$remainder will be the last 0, 1, 2, or 3
         switch ($remainder) {
             case 3:
@@ -1542,20 +1542,20 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         //get the glossary id.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
         }
         //get the figure id.
-        $gloss_id = FormUtil::getPassedValue('gloss_id', isset($args['gloss_id']) ? $args['gloss_id'] : null);
+        $gid = FormUtil::getPassedValue('gid', isset($args['gid']) ? $args['gid'] : null);
         $render = Zikula_View::getInstance('Book', false);
 
-        if (ModUtil::apiFunc('Book', 'admin', 'deleteglossary', array('gloss_id' => $gloss_id))) {
+        if (ModUtil::apiFunc('Book', 'admin', 'deleteglossary', array('gid' => $gid))) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Glossary item(s) deleted.'));
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModURL('Book', 'admin', 'dodeleteglossary'));
+        pnRedirect(pnModurl('Book', 'admin', 'dodeleteglossary'));
 
         // Return
         return true;
@@ -1564,7 +1564,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     /**
      * addglossary
      *
-     * @param $args['art_id'] the article ID to change
+     * @param $args['aid'] the article ID to change
      *
      * This is fired from a button diplayed on each page when in administration view. It will call
      * the api function that scans through the glossary and replaces each match with a definition.
@@ -1581,11 +1581,11 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
             return LogUtil::registerPermissionError();
         }
-        $art_id = FormUtil::getPassedValue('art_id', isset($args['art_id']) ? $args['art_id'] : null);
+        $aid = FormUtil::getPassedValue('aid', isset($args['aid']) ? $args['aid'] : null);
         //call the api function to do the work.
-        ModUtil::apiFunc('Book', 'admin', 'addglossaryitems', array('art_id' => $art_id));
+        ModUtil::apiFunc('Book', 'admin', 'addglossaryitems', array('aid' => $aid));
         //display the newly changed article
-        pnRedirect(pnModURL('Book', 'user', 'displayarticle', array('art_id' => $art_id)));
+        pnRedirect(pnModurl('Book', 'user', 'displayarticle', array('aid' => $aid)));
         return true;
     }
 
@@ -1654,7 +1654,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         $secure = FormUtil::getPassedValue('secure', isset($args['secure']) ? $args['secure'] : null);
         ModUtil::setVar('Book', 'securebooks', $secure == "makesecure");
-        pnRedirect(pnModURL('Book', 'admin', 'modifyconfig'));
+        pnRedirect(pnModurl('Book', 'admin', 'modifyconfig'));
         return true;
     }
 
@@ -1667,21 +1667,21 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      * the html and spits it out to be edited. As long as you don't mess with the
      * tags, it should import correctly.
      *
-     * @params	$args['chap_id']	The id of the chapter to export.
+     * @params	$args['cid']	The id of the chapter to export.
      */
     public function exportchapter($args) {
         if (!SecurityUtil::checkPermission('Book::', "::", ACCESS_EDIT)) {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
         }
 
         //get the book id to process
-        $book_id = FormUtil::getPassedValue('book', isset($args['book']) ? $args['book'] : null);
+        $bid = FormUtil::getPassedValue('book', isset($args['book']) ? $args['book'] : null);
         $inline_figures = FormUtil::getPassedValue('inline', isset($args['inline']) ? $args['inline'] : null);
-        $chap_to_get = 'chapter_' . $book_id;
-        $chap_id = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
+        $chap_to_get = 'chapter_' . $bid;
+        $cid = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
         //The presented text is almost xhtml compliant. I need to change the inline
         //figures which are with curly braces and then strip the glossary entries and it's
         //all set. I should also add a funciton that adds the references to the figures if a switch is
@@ -1696,27 +1696,27 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $text = "";
         if ($inline_figures == 'on') {
             //process the chapter adding links to the figures.
-            $text = pnModFunc('Book', 'user', 'displaychapter', array('chap_id' => $chap_id));
+            $text = pnModFunc('Book', 'user', 'displaychapter', array('cid' => $cid));
             $text = preg_replace('|<a class=\"glossary\".*?\'\)\">(.*?)</a>|', '$1', $text);
         } else {
 
-            $text = $this->exportchapter_noinline(array('chap_id' => $chap_id));
+            $text = $this->exportchapter_noinline(array('cid' => $cid));
         }   
         //remove amersands in urls
         //Author: TImothy Paustian date: August 1 2010
         //This was a tricky problem. I finally settled on a double search function
-        //we first pick out all the URLs, cause there is there the problem is,
+        //we first pick out all the urls, cause there is there the problem is,
         //I don't use & in my text. Now that the & is isolated, I can then
         //do another call to preg_replace. The tricky part was that the browser was
         //reading the entity and fixing it, so I have to add a
         //second amp; to get it to read right out of the form.
         $text = preg_replace_callback('|href="(.*?)"|', "Book_Controller_Admin::url_replace_func", $text);
         
-        $book = ModUtil::apiFunc('Book', 'user', 'get', array('book_id' => $book_id));
+        $book = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $bid));
         
         $render = Zikula_View::getInstance('Book');
         $render->assign('export_text', $text);
-        $render->assign('book_name', $book['book_name']);
+        $render->assign('name', $book['name']);
         $text = $render->fetch('book_admin_export.htm');
         return $text;
     }
@@ -1727,16 +1727,16 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         //get the chapter id
-        $chap_id = FormUtil::getPassedValue('chap_id', isset($args['chap_id']) ? $args['chap_id'] : null);
+        $cid = FormUtil::getPassedValue('cid', isset($args['cid']) ? $args['cid'] : null);
 
-        if (!isset($chap_id)) {
+        if (!isset($cid)) {
             return LogUtil::registerError(_MODARGSERROR);
         }
 
-        $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('chap_id' => $chap_id));
+        $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $cid));
 
 
-        $articles = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('chap_id' => $chap_id,
+        $articles = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('cid' => $cid,
             'get_content' => true));
         $render = Zikula_View::getInstance('Book', false);
 
@@ -1773,22 +1773,22 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      * the html and spits it out to be edited. As lon as you don't mess with the
      * tags, it should import correctly.
      *
-     * @params	$args['book_id']	The id of the book to export.
+     * @params	$args['bid']	The id of the book to export.
      */
     public function exportbook($args) {
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
         }
 
-        $book_id = FormUtil::getPassedValue('book', isset($args['book']) ? $args['book'] : null);
+        $bid = FormUtil::getPassedValue('book', isset($args['book']) ? $args['book'] : null);
 
-        if (!isset($book_id)) {
+        if (!isset($bid)) {
             return LogUtil::registerError(_MODARGSERROR);
         }
 
-        $book = ModUtil::apiFunc('Book', 'user', 'get', array('book_id' => $book_id));
+        $book = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $bid));
 
-        $chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $book_id));
+        $chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
 
 
         $render = Zikula_View::getInstance('Book', false);
@@ -1796,11 +1796,11 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //now cycle through each chapter delimiting its boundries.
         foreach ($chapters as $chap_item) {
             //flank the return text with chapter xml
-            $export_text = $export_text . "<br />" . pnModFunc('Book', 'admin', 'exportchapter', array('chap_id' => $chap_item['chap_id']));
+            $export_text = $export_text . "<br />" . pnModFunc('Book', 'admin', 'exportchapter', array('cid' => $chap_item['cid']));
         }
 
         $render->assign('export_text', $export_text);
-        $render->assign('book_name', $book['book_name']);
+        $render->assign('name', $book['name']);
         return $render->fetch('book_admin_export.htm');
     }
 
@@ -1836,7 +1836,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         //security check
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
         }
 
         $in_data = FormUtil::getPassedValue('chap_to_import', isset($args['chap_to_import']) ? $args['chap_to_import'] : null);
@@ -1847,15 +1847,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $matches = array();
         $pattern = '|<!--\(bookname\)(.*?)\(\/bookname\)-->|';
         preg_match($pattern, $in_data, $matches);
-        $book_name = $matches[1];
-        //grab book_id
+        $name = $matches[1];
+        //grab bid
         $pattern = '|<!--\(bookid\)([0-9]*?)\(\/bookid\)-->|';
         preg_match($pattern, $in_data, $matches);
-        $book_id = $matches[1];
+        $bid = $matches[1];
         //update the book data
-        if (!ModUtil::apiFunc('Book', 'admin', 'update', array('book_id' => $book_id, 'book_name' => $book_name))) {
+        if (!ModUtil::apiFunc('Book', 'admin', 'update', array('bid' => $bid, 'name' => $name))) {
             //if update fails, try create
-            if (!ModUtil::apiFunc('Book', 'admin', 'create', array('book_id' => $book_id, 'book_name' => $book_name))) {
+            if (!ModUtil::apiFunc('Book', 'admin', 'create', array('bid' => $bid, 'name' => $name))) {
                 //set an error message and return false
                 SessionUtil::setVar('error_msg', $this->__('Book import failed. Ha ha.'));
             }
@@ -1875,29 +1875,29 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             //grab the chapter id
             $pattern = '|<!--\(chapid\)([0-9]*)\(\/chapid\)-->|';
             preg_match($pattern, $chap_data, $matches);
-            $chap_id = $matches[1];
+            $cid = $matches[1];
             //grab chapter number
             $pattern = '|<!--\(chapnumber\)([0-9]*)\(\/chapnumber\)-->|';
             preg_match($pattern, $chap_data, $matches);
-            $chap_number = $matches[1];
+            $number = $matches[1];
             $pattern = '|<!--\(bookid\)([0-9]*?)\(\/bookid\)-->|';
             preg_match($pattern, $chap_data, $matches);
-            $book_id = $matches[1];
+            $bid = $matches[1];
             // Security check
-            if (!SecurityUtil::checkPermission('Book::Chapter', "$book[book_id]::$chapter[chap_id]", ACCESS_EDIT)) {
+            if (!SecurityUtil::checkPermission('Book::Chapter', "$book[bid]::$chapter[cid]", ACCESS_EDIT)) {
                 return LogUtil::registerPermissionError();
             }
             //update the chapter data
-            if (!ModUtil::apiFunc('Book', 'admin', 'updatechapter', array('book_id' => $book_id, 'chap_name' => $chap_title, 'chap_number' => $chap_number, 'chap_id' => $chap_id))) {
+            if (!ModUtil::apiFunc('Book', 'admin', 'updatechapter', array('bid' => $bid, 'name' => $chap_title, 'number' => $number, 'cid' => $cid))) {
                 //if update fails, try create
-                if (!ModUtil::apiFunc('Book', 'admin', 'createchapter', array('book_id' => $book_id, 'chap_name' => $chap_title, 'chap_number' => $chap_number, 'chap_id' => $chap_id))) {
+                if (!ModUtil::apiFunc('Book', 'admin', 'createchapter', array('bid' => $bid, 'name' => $chap_title, 'number' => $number, 'cid' => $cid))) {
                     //set an error message and return false
                     SessionUtil::setVar('error_msg', $this->__('Chapter update failed. Ha ha.'));
                 }
             }
             //debugging code do not remove
-            //return "chap title $chap_title <br> chap id: $chap_id <br> chap number:$chap_number
-            //		<br>book id: $book_id <br>" ;
+            //return "chap title $chap_title <br> chap id: $cid <br> chap number:$number
+            //		<br>book id: $bid <br>" ;
             //now match each section
             $pattern = '|<!--\(section\)-->(.*?)<!--\(\/section\)-->|s';
             preg_match_all($pattern, $chap_data, $matches, PREG_PATTERN_ORDER);
@@ -1905,10 +1905,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             foreach ($matches[1] as $match_item) {
                 //extract the data for each article
                 //and then update it.
-                //<p class="art_art_id}1</p>
+                //<p class="art_aid}1</p>
                 $pattern = '|<!--\(artartid\)([0-9]*)\(\/artartid\)-->|';
                 preg_match($pattern, $match_item, $art_match);
-                $art_id = $art_match[1];
+                $aid = $art_match[1];
 
                 //{art_counter}78{/p>
                 $pattern = '|<!--\(artcounter\)([0-9]*)\(\/artcounter\)-->|';
@@ -1930,10 +1930,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                 preg_match($pattern, $match_item, $art_match);
                 $art_prev = $art_match[1];
 
-                //{art_number}1{/p>
+                //{aid}1{/p>
                 $pattern = '|<!--\(artnumber\)([0-9]*)\(\/artnumber\)-->|';
                 preg_match($pattern, $match_item, $art_match);
-                $art_number = $art_match[1];
+                $aid = $art_match[1];
 
                 //{div class="contents}....{/div>
                 $pattern = '|<!--\(content\)-->(.*?)<!--\(\/content\)-->|s';
@@ -1948,25 +1948,25 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                 //Now that we have all the data, update the article
 
                 /* Debugging code, do not remove
-                 * $ret_text .= "<p>art_id: $art_id<br>art_counter: $art_counter<br>art_lang:$art_lang<br>" .
-                  "art_next:$art_next<br>art_prev:$art_prev<br>art_number:$art_number<br>" .
+                 * $ret_text .= "<p>aid: $aid<br>art_counter: $art_counter<br>art_lang:$art_lang<br>" .
+                  "art_next:$art_next<br>art_prev:$art_prev<br>aid:$aid<br>" .
                   "art_title: $art_title<br>art_contents: $art_content<br>";
                  */
 
-                if (!ModUtil::apiFunc('Book', 'admin', 'updatearticle', array('art_id' => $art_id,
-                            'book_id' => $book_id,
+                if (!ModUtil::apiFunc('Book', 'admin', 'updatearticle', array('aid' => $aid,
+                            'bid' => $bid,
                             'title' => $art_title,
                             'contents' => $art_content,
-                            'chap_id' => $chap_id,
+                            'cid' => $cid,
                             'lang' => $art_lang,
                             'next' => $art_next,
                             'prev' => $art_prev,
-                            'art_number' => $art_number))) {
+                            'aid' => $aid))) {
                     // failure
                     //try creating it then
-                    if (!ModUtil::apiFunc('Book', 'admin', 'createarticle', array('art_id' => $art_id, 'book_id' => $book_id, 'title' => $art_title, 'content' => $art_content, 'chap_id' => $chap_id, 'lang' => $art_lang, 'next' => $art_next, 'prev' => $art_prev, 'art_number' => $art_number))) {
-                        /* print "<p>art_id: $art_id<br>art_counter: $art_counter<br>art_lang:$art_lang<br>" .
-                          "art_next:$art_next<br>art_prev:$art_prev<br>art_number:$art_number<br>" .
+                    if (!ModUtil::apiFunc('Book', 'admin', 'createarticle', array('aid' => $aid, 'bid' => $bid, 'title' => $art_title, 'content' => $art_content, 'cid' => $cid, 'lang' => $art_lang, 'next' => $art_next, 'prev' => $art_prev, 'aid' => $aid))) {
+                        /* print "<p>aid: $aid<br>art_counter: $art_counter<br>art_lang:$art_lang<br>" .
+                          "art_next:$art_next<br>art_prev:$art_prev<br>aid:$aid<br>" .
                           "art_title: $art_title<br>art_contents: $art_content<br>";die; */
                         $prev_error = pnSessionGetVar('error_msg');
                         SessionUtil::setVar('errormsg', $this->__('Book import failed.') . $prev_error);
@@ -1979,9 +1979,9 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         SessionUtil::setVar('statusmsg', $this->__('Import succedeed'));
 
         //We now need to process the entire book, so send it along
-        ModUtil::apiFunc('Book', 'admin', 'processalldocuments', array('book_id' => $book_id));
+        ModUtil::apiFunc('Book', 'admin', 'processalldocuments', array('bid' => $bid));
 
-        pnRedirect(pnModURL('Book', 'admin', 'doimport'));
+        pnRedirect(pnModurl('Book', 'admin', 'doimport'));
 
         // Return
         return true;
@@ -2017,9 +2017,9 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
         }
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         $button = FormUtil::getPassedValue('submit');
 
         // Create output object
@@ -2027,10 +2027,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $render->caching = false;
 
         // The user API function is called
-        $figData = ModUtil::apiFunc('Book', 'user', 'getallfigures', array('book_id' => $book_id));
+        $figData = ModUtil::apiFunc('Book', 'user', 'getallfigures', array('bid' => $bid));
 
         if ($figData == false) {
-            pnRedirect(pnModURL('Book', 'admin', 'dolistbookfigures'));
+            pnRedirect(pnModurl('Book', 'admin', 'dolistbookfigures'));
             return LogUtil::registerError($this->__('There are no figures to list'));
         }
 
@@ -2049,28 +2049,28 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     public function modifyimagepaths($args) {
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
         }
 
-        $fig_ids = FormUtil::getPassedValue('fig_id');
+        $fids = FormUtil::getPassedValue('fid');
         $img_paths = FormUtil::getPassedValue('img_link');
 
         //we now have the figure paths and the ones we want to change. Walk through the list and change each one
-        foreach ($fig_ids as $fig_id) {
-            $new_path = $img_paths[$fig_id];
-            $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('fig_id' => $fig_id));
+        foreach ($fids as $fid) {
+            $new_path = $img_paths[$fid];
+            $figure = ModUtil::apiFunc('Book', 'user', 'getfigure', array('fid' => $fid));
 
-            $result = ModUtil::apiFunc('Book', 'admin', 'updatefigure', array('fig_id' => $figure['fig_id'],
+            $result = ModUtil::apiFunc('Book', 'admin', 'updatefigure', array('fid' => $figure['fid'],
                 'fig_number' => $figure['fig_number'],
-                'fig_title' => $figure['fig_title'],
-                'fig_content' => $figure['fig_content'],
+                'title' => $figure['title'],
+                'content' => $figure['content'],
                 'img_link' => $new_path,
-                'chap_number' => $figure['chap_number'],
-                'fig_perm' => $figure['fig_perm'],
-                'book_id' => $figure['book_id']));
+                'number' => $figure['number'],
+                'perm' => $figure['perm'],
+                'bid' => $figure['bid']));
             // Call apiupdate to do all the work
             if ($result) {
                 // Success
@@ -2081,7 +2081,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             }
         }
 
-        return pnRedirect(pnModURL('Book', 'admin', 'dolistbookfigures'));
+        return pnRedirect(pnModurl('Book', 'admin', 'dolistbookfigures'));
     }
 
     public function choose_verify_url() {
@@ -2089,7 +2089,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
         }
         //get the complete list of books
         $books = ModUtil::apiFunc('Book', 'user', 'getall', array('startnum' => 1));
@@ -2097,7 +2097,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($books == false) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::registerError($this->__('There are no URLS to check since you have not created a book.'));
+            return LogUtil::registerError($this->__('There are no urlS to check since you have not created a book.'));
         }
 
         $chapters = array();
@@ -2106,12 +2106,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //$j and $i will be equal. In that case, do not allow the funciton to
         //continue.
         $i = $j = 0;
-        //get all the chapters for each book using the book_ids
+        //get all the chapters for each book using the bids
         //we can get this from the $books array
         foreach ($books as $book_item) {
-            $book_id = $book_item['book_id'];
+            $bid = $book_item['bid'];
             //grab all the chapters for this book
-            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('book_id' => $book_id));
+            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
             //check to make sure they are legitimate. The function will
             //send back false if it fails
             $j++;
@@ -2126,7 +2126,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         //there are no chapters to delete
         if ($j == $i) {
-            return LogUtil::registerError($this->__('There are no chapters, so there are no URLS to check.'));
+            return LogUtil::registerError($this->__('There are no chapters, so there are no urlS to check.'));
         }
 
         // Start the table
@@ -2138,7 +2138,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         foreach ($books as $book_item) {
             $menuItem = array();
             foreach ($chapters[$i] as $chap_item) {
-                $menuItem[$chap_item['chap_id']] = $chap_item['chap_name'];
+                $menuItem[$chap_item['cid']] = $chap_item['name'];
             }
             $i++;
             $chap_menus[] = $menuItem;
@@ -2154,21 +2154,21 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
         }
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
-        $chap_to_get = 'chapter_' . $book_id;
-        $chap_id = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
+        $chap_to_get = 'chapter_' . $bid;
+        $cid = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
 
         $url_table = array();
-        if (isset($chap_id)) {
-            $chapter_info = ModUtil::apiFunc('Book', 'user', 'getchapter', array('chap_id' => $chap_id));
-            $articles = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('chap_id' => $chap_id));
+        if (isset($cid)) {
+            $chapter_info = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $cid));
+            $articles = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('cid' => $cid));
 
             foreach ($articles as $article_item) {
                 // Security check
-                if (SecurityUtil::checkPermission('Book::', "$book[book_id]::$chapter_info[chap_id]", ACCESS_EDIT)) {
-                    buildtable($article_item['contents'], $url_table, $chapter_info['chap_number'], $article_item['art_number']);
+                if (SecurityUtil::checkPermission('Book::', "$book[bid]::$chapter_info[cid]", ACCESS_EDIT)) {
+                    buildtable($article_item['contents'], $url_table, $chapter_info['number'], $article_item['aid']);
                 }
             }
         }
@@ -2200,8 +2200,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     /*
      * checkurls
      * parameters
-     * 	$args=>chap_id	the chapter id
-     *  $args=>book_id	the book id
+     * 	$args=>cid	the chapter id
+     *  $args=>bid	the book id
      *
      * Given a book id or chapter id, work through the articles in the book and find each
      * url. Then check them all. When the checking is done, a report lists all the bad urls
@@ -2210,8 +2210,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      */
 
     function checkurls($urls) {
-        //the URL to the current server
-        $baseURL = pnGetBaseURL();
+        //the url to the current server
+        $baseurl = pnGetBaseurl();
         $i = 0;
         foreach ($urls as $items) {
             //check to see if it is a valid url
@@ -2222,11 +2222,11 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                     $items['url'] = pnServerGetProtocol() . "://" . pnServerGetHost() . $items['url'];
                 } else {
                     //relative link
-                    $items['url'] = $baseURL . trim($items['url'], "/");
+                    $items['url'] = $baseurl . trim($items['url'], "/");
                 }
             }
             //this is an internal link
-            if (strpos(strtolower($items['url']), strtolower($baseURL)) !== FALSE) {
+            if (strpos(strtolower($items['url']), strtolower($baseurl)) !== FALSE) {
                 //check it internally
                 //first parse it.
                 $url_array = parse_url($items['url']);
@@ -2329,19 +2329,19 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //only admins can do this
 
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            LogUtil::registerPermissionError(pnModURL('Book', 'admin', 'view'));
+            LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
             return true;
         }
 
         $empty_defs = ModUtil::apiFunc('Book', 'admin', 'getemptyglossaryitems');
-        //put all the gloss_ids into an array, we use this for grabbing them later
-        $gloss_ids = array();
+        //put all the gids into an array, we use this for grabbing them later
+        $gids = array();
         foreach ($empty_defs as $def_item) {
-            $gloss_ids[] = $def_item['gloss_id'];
+            $gids[] = $def_item['gid'];
         }
         $render = Zikula_View::getInstance('Book', false);
 
-        $render->assign('gloss_ids', DataUtil::formatForDisplayHTML(serialize($gloss_ids)));
+        $render->assign('gids', DataUtil::formatForDisplayHTML(serialize($gids)));
         $render->assign('empty_defs', $empty_defs);
 
         return $render->fetch('book_admin_checkstudent_defs.htm');
@@ -2350,31 +2350,31 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     public function modifyglossaryitems($args) {
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            LogUtil::registerPermissionError(pnModURL('Book', 'admin', 'view'));
+            LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
             return true;
         }
         //grab the array listing all the gloss ids to be updated
-        $gloss_array = FormUtil::getPassedValue('gloss_ids', isset($args['gloss_ids']) ? $args['gloss_ids'] : null);
-        $gloss_ids = unserialize($gloss_array);
+        $gloss_array = FormUtil::getPassedValue('gids', isset($args['gids']) ? $args['gids'] : null);
+        $gids = unserialize($gloss_array);
 
         //each item in the table is defined by a combination
         //of what it is and the gloss id, farm each one out using
         //the array we just grabbed from the form.
-        foreach ($gloss_ids as $gloss_item) {
+        foreach ($gids as $gloss_item) {
             $term = FormUtil::getPassedValue('term_' . $gloss_item, isset($args['term_' . $gloss_item]) ? $args['term_' . $gloss_item] : null);
             $definition = FormUtil::getPassedValue('definition_' . $gloss_item, isset($args['definition_' . $gloss_item]) ? $args['definition_' . $gloss_item] : null);
             $delete = FormUtil::getPassedValue('delete_' . $gloss_item, isset($args['delete_' . $gloss_item]) ? $args['delete_' . $gloss_item] : null);
             //first check if we are supposed to delete it
             if ($delete == "on") {
-                if (!ModUtil::apiFunc('Book', 'admin', 'deleteglossary', array('gloss_id' => $gloss_item))) {
-                    LogUtil::registerError($this->__('Glossary deletion failed.'), null, pnModURL('Book', 'admin', 'checkstudentdefs'));
+                if (!ModUtil::apiFunc('Book', 'admin', 'deleteglossary', array('gid' => $gloss_item))) {
+                    LogUtil::registerError($this->__('Glossary deletion failed.'), null, pnModurl('Book', 'admin', 'checkstudentdefs'));
                     return false;
                 }
             } else {
 
                 //we don't want to delete, we want to modify
-                if (!ModUtil::apiFunc('Book', 'admin', 'updateglossary', array('gloss_id' => $gloss_item, 'term' => $term, 'definition' => $definition))) {
-                    LogUtil::registerError($this->__('Glossary modification failed.'), null, pnModURL('Book', 'admin', 'checkstudentdefs'));
+                if (!ModUtil::apiFunc('Book', 'admin', 'updateglossary', array('gid' => $gloss_item, 'term' => $term, 'definition' => $definition))) {
+                    LogUtil::registerError($this->__('Glossary modification failed.'), null, pnModurl('Book', 'admin', 'checkstudentdefs'));
                     return false;
                 }
             }
@@ -2382,13 +2382,13 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         //if we get here we were successful,
         SessionUtil::setVar('statusmsg', $this->__('Book glossary updated.'));
-        pnRedirect(pnModURL('Book', 'admin', 'checkstudentdefs'));
+        pnRedirect(pnModurl('Book', 'admin', 'checkstudentdefs'));
         return true;
     }
 
     public function importglossaryitems($args) {
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
         }
         $render = Zikula_View::getInstance('Book', false);
 
@@ -2399,7 +2399,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
         }
         $gloss_data = FormUtil::getPassedValue('gloss_text', isset($args['gloss_text']) ? $args['gloss_text'] : null);
         //The glossary text is set up as a xml file
@@ -2424,7 +2424,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             //update the glossary with the item
             ModUtil::apiFunc('Book', 'admin', 'createglossary', array('term' => $term, 'definition' => $def));
         }
-        pnRedirect(pnModURL('Book', 'admin', 'view'));
+        pnRedirect(pnModurl('Book', 'admin', 'view'));
         return true;
     }
 
@@ -2439,7 +2439,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     public function dosearchreplace1() {
         //you have to have edit permission to do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_EDIT)) {
-            return LogUtil::registerPermissionError(pnModURL('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
         }
         // Create output object - this object will store all of our output so that
         // we can return it easily when required
@@ -2456,26 +2456,26 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModURL('Book', 'admin', 'dosearchreplace2'));
+            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dosearchreplace2'));
         }
 
 //grab the serach and replace information
-        $book_id = FormUtil::getPassedValue('book_id', isset($args['book_id']) ? $args['book_id'] : null);
+        $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         $search_pat = FormUtil::getPassedValue('search_pat', isset($args['search_pat']) ? $args['search_pat'] : null);
         $replace_pat = FormUtil::getPassedValue('replace_pat', isset($args['replace_pat']) ? $args['replace_pat'] : null);
         $preview = FormUtil::getPassedValue('preview', isset($args['preview']) ? $args['preview'] : null);
-        $chap_to_get = 'chapter_' . $book_id;
-        $chap_id = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
+        $chap_to_get = 'chapter_' . $bid;
+        $cid = FormUtil::getPassedValue($chap_to_get, isset($args[$chap_to_get]) ? $args[$chap_to_get] : null);
         $preview_text = "";
-        if ($chap_id == 0) {
+        if ($cid == 0) {
             //do the whole book
-            $preview_text = ModUtil::apiFunc('Book', 'admin', 'dosearchreplacebook', array('book_id' => $book_id,
+            $preview_text = ModUtil::apiFunc('Book', 'admin', 'dosearchreplacebook', array('bid' => $bid,
                 'search_pat' => $search_pat,
                 'replace_pat' => $replace_pat,
                 'preview' => $preview === 'on'));
         } else {
-            $preview_text = ModUtil::apiFunc('Book', 'admin', 'dosearchreplacechap', array('book_id' => $book_id,
-                'chap_id' => $chap_id,
+            $preview_text = ModUtil::apiFunc('Book', 'admin', 'dosearchreplacechap', array('bid' => $bid,
+                'cid' => $cid,
                 'search_pat' => $search_pat,
                 'replace_pat' => $replace_pat,
                 'preview' => $preview === 'on'));
@@ -2486,13 +2486,13 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             $render->assign('preview_text', $preview_text);
             $render->assign('search_pat', $search_pat);
             $render->assign('replace_pat', $replace_pat);
-            $render->assign('chap_id', $chap_id);
+            $render->assign('cid', $cid);
             $chap_menus = $this->_generate_chapter_menu($render);
             $render->assign('chapters', $chap_menus);
             return $render->fetch('book_admin_dosearchreplace1.htm');
         }
 
-        return pnRedirect(pnModURL('Book', 'admin', 'dosearchreplace1'));
+        return pnRedirect(pnModurl('Book', 'admin', 'dosearchreplace1'));
     }
 }
 

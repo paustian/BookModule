@@ -40,27 +40,27 @@ function book_pntables()
     $bookName = DBUtil::getLimitedTablename('book');
    
     //set up a table with chapter names and id
-    $table['book_name'] = $bookName;
-    $table['book_name_column'] = array (  'book_id' => $bookName . '_id',
-                                        'book_name' => $bookName . '_name');
+    $table['name'] = $bookName;
+    $table['name_column'] = array (  'bid' => $bookName . '_id',
+                                        'name' => $bookName . '_name');
 	
-    $table['book_name_column_def'] = array (  'book_id' => 'I(5) NOTNULL AUTO PRIMARY',
-                                        		'book_name' => 'X'); 
+    $table['name_column_def'] = array (  'bid' => 'I(5) NOTNULL AUTO PRIMARY',
+                                        		'name' => 'X'); 
     
     //get a name for the chapter table
     $bookChap = DBUtil::getLimitedTablename('book_chap');
     
     //set up a table with chapter names and id
     $table['book_chaps'] = $bookChap;
-    $table['book_chaps_column'] = array (  'chap_id' => $bookChap . '_id',
-                                        'chap_number' => $bookChap . '_number',
-                                        'book_id' => $bookChap . '_book_id',
-                                        'chap_name' => $bookChap . '_name');
+    $table['book_chaps_column'] = array (  'cid' => $bookChap . '_id',
+                                        'number' => $bookChap . '_number',
+                                        'bid' => $bookChap . '_bid',
+                                        'name' => $bookChap . '_name');
     
-    $table['book_chaps_column_def'] = array (  'chap_id' => 'I(5) NOTNULL AUTO PRIMARY',
-                                            'chap_number' => 'I(5) NOTNULL DEFAULT 0',
-                                            'book_id' => 'I(5) NOTNULL DEFAULT 0',
-                                            'chap_name' => 'X');
+    $table['book_chaps_column_def'] = array (  'cid' => 'I(5) NOTNULL AUTO PRIMARY',
+                                            'number' => 'I(5) NOTNULL DEFAULT 0',
+                                            'bid' => 'I(5) NOTNULL DEFAULT 0',
+                                            'name' => 'X');
                                         
     // Get the name for the book item table.  This is not necessary
     // but helps in the following statements and keeps them readable
@@ -71,76 +71,76 @@ function book_pntables()
 
     // Set the column names.  Note that the array has been formatted
     // on-screen to be very easy to read by a user.
-    $table['book_column'] = array('art_id'    => $book . '_id',
+    $table['book_column'] = array('aid'    => $book . '_id',
                                     'title'   => $book . '_title',
-                                    'chap_id' => $book . '_chap_id',
-                                    'book_id' => $book . '_book_id',
+                                    'cid' => $book . '_cid',
+                                    'bid' => $book . '_bid',
                                     'contents' => $book . '_contents',
                                     'counter' => $book . '_counter',
                                     'lang'    => $book . '_lang',
                                     'next'    => $book . '_next',
                                     'prev'    => $book . '_prev',
-                                    'art_number' => $book . '_number');
+                                    'aid' => $book . '_number');
     
-    $table['book_column_def'] = array('art_id'    => 'I(10) NOTNULL AUTO PRIMARY',
+    $table['book_column_def'] = array('aid'    => 'I(10) NOTNULL AUTO PRIMARY',
                                     'title'   => "X NOTNULL DEFAULT ''",
-                                    'chap_id' => 'I(5) NOTNULL DEFAULT 0',
-                                    'book_id' => 'I(5) NOTNULL DEFAULT 0',
+                                    'cid' => 'I(5) NOTNULL DEFAULT 0',
+                                    'bid' => 'I(5) NOTNULL DEFAULT 0',
                                     'contents' => "XL DEFAULT ''",
                                     'counter' => 'I(11) NOTNULL DEFAULT 0',
                                     'lang'    => "C(30) NOTNULL DEFAULT 'eng'",
                                     'next'    => 'I(10) NOTNULL DEFAULT 0',
                                     'prev'    => 'I(10) NOTNULL DEFAULT 0',
-                                    'art_number' => 'I(10) NOTNULL DEFAULT 0');
+                                    'aid' => 'I(10) NOTNULL DEFAULT 0');
     
     $bookFigures = DBUtil::getLimitedTablename('book_figs');
     
     $table['book_figures'] = $bookFigures;
-    $table['book_figures_column'] = array (  'fig_id' => $bookFigures . '_fig_id',
+    $table['book_figures_column'] = array (  'fid' => $bookFigures . '_fid',
     										'fig_number' => $bookFigures . '_fig_number',
-                                        'chap_number' => $bookFigures . '_chap_number',
-                                        'book_id' => $bookFigures . '_book_id',
+                                        'number' => $bookFigures . '_number',
+                                        'bid' => $bookFigures . '_bid',
                                         'img_link' => $bookFigures . '_img_link',
-                                        'fig_title' => $bookFigures . '_fig_title',
-                                        'fig_perm' => $bookFigures . '_fig_perm',
-                                        'fig_content' => $bookFigures . '_content');
+                                        'title' => $bookFigures . '_title',
+                                        'perm' => $bookFigures . '_perm',
+                                        'content' => $bookFigures . '_content');
    	
-    $table['book_figures_column_def'] = array (  'fig_id' => 'I(11) NOTNULL AUTO PRIMARY',
+    $table['book_figures_column_def'] = array (  'fid' => 'I(11) NOTNULL AUTO PRIMARY',
     										'fig_number' => 'I(11) NOTNULL',
-                                        'chap_number' => 'I(5) NOTNULL',
-                                        'book_id' => 'I(5) NOTNULL',
+                                        'number' => 'I(5) NOTNULL',
+                                        'bid' => 'I(5) NOTNULL',
                                         'img_link' => "X NOTNULL DEFAULT ''",
-                                        'fig_title' => "X NOTNULL DEFAULT ''",
-                                        'fig_perm' => 'I(1) NOTNULL DEFAULT 1',
-                                        'fig_content' => "XL NOTNULL  DEFAULT ''");
+                                        'title' => "X NOTNULL DEFAULT ''",
+                                        'perm' => 'I(1) NOTNULL DEFAULT 1',
+                                        'content' => "XL NOTNULL  DEFAULT ''");
     
  
     $bookGlossary = DBUtil::getLimitedTablename('book_gloss');
     
     $table['book_glossary'] = $bookGlossary;
-    $table['book_glossary_column'] = array (  'gloss_id' => $bookGlossary . '_gloss_id',
+    $table['book_glossary_column'] = array (  'gid' => $bookGlossary . '_gid',
     					'term' => $bookGlossary . '_term',
                                         'definition' => $bookGlossary . '_definition',
 					'user' => $bookGlossary . '_user',
-                                        'URL' => $bookGlossary . '_URL');
+                                        'url' => $bookGlossary . '_url');
 	
-    $table['book_glossary_column_def'] = array (  'gloss_id' => 'I(11) NOTNULL AUTO PRIMARY',
+    $table['book_glossary_column_def'] = array (  'gid' => 'I(11) NOTNULL AUTO PRIMARY',
     										'term' => "X NOTNULL DEFAULT ''",
                                         'definition' => "XL NOTNULL DEFAULT ''",
 										'user' => "X NOTNULL DEFAULT ''",
-                                        'URL' => "X NOTNULL DEFAULT ''");
+                                        'url' => "X NOTNULL DEFAULT ''");
     
     $bookUserData = DBUtil::getLimitedTablename('book_user_data');
 	$table['book_user_data'] = $bookUserData;
 	$table['book_user_data_column'] = array(	'id' => $bookUserData . '_id',
 										'uid' => $bookUserData . '_uid',
-										'art_id' => $bookUserData . '_art_id',
+										'aid' => $bookUserData . '_aid',
 										'start' => $bookUserData . '_start',
 										'end' => $bookUserData . '_end');
 	
 	$table['book_user_data_column_def'] = array(	'id' => 'I(11) NOTNULL AUTO PRIMARY',
 										'uid' => 'I(11) NOTNULL',
-										'art_id' => 'I(10) NOTNULL',
+										'aid' => 'I(10) NOTNULL',
 										'start' => 'I(11) NOTNULL DEFAULT 0',
 										'end' => 'I(11) NOTNULL DEFAULT 0');
     // Return the table information

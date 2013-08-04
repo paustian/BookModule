@@ -12,12 +12,12 @@
             <tr><td><input type="checkbox" name="preview" checked />{gt text="Show preview of search"}</td><td></td></tr>
             {section name=i loop=$books}
             <tr><td>
-                    <input type="radio" name="book_id" value="{$books[i].book_id}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].book_name}
+                    <input type="radio" name="bid" value="{$books[i].bid}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].name}
                 </td>
                 <td>
-                    <select name="chapter_{$books[i].book_id}">
+                    <select name="chapter_{$books[i].bid}">
                         <option label="{gt text="Search/Replace Entire Book"}" value="0">{gt text="_BOOKSEARCHREPLACEALL"}</option>
-                        {html_options options=$chapters[i] selected=`$chap_id`}
+                        {html_options options=$chapters[i] selected=`$cid`}
                     </select>
                 </td></tr>
             {/section}

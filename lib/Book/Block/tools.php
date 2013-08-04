@@ -84,7 +84,7 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[book_id]::", ACCESS_OVERVIEW) || !pnUserLoggedIn()) {
+        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_OVERVIEW) || !pnUserLoggedIn()) {
             return false;
         }
         // Get variables from content block
@@ -95,40 +95,40 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
             return false;
         }
 
-        $url = pnGetCurrentURL();
+        $url = pnGetCurrenturl();
         //first try to get the book id
-        $pattern = '/book_id=([0-9]{1,3})/';
+        $pattern = '/bid=([0-9]{1,3})/';
         $matches = array();
         preg_match($pattern, $url, $matches);
-        $art_id = -1;
-        $book_id = -1;
+        $aid = -1;
+        $bid = -1;
         if ($matches[1] == "") {
-            //next try art_id
-            $pattern = '/art_id=([0-9]{1,3})/';
+            //next try aid
+            $pattern = '/aid=([0-9]{1,3})/';
             preg_match($pattern, $url, $matches);
             if ($matches[1] == "") {
-                //OK now try the chap_id
-                $pattern = '/chap_id=([0-9]{1,3})/';
+                //OK now try the cid
+                $pattern = '/cid=([0-9]{1,3})/';
                 preg_match($pattern, $url, $matches);
                 if ($matches[1] == "") {
                     //if we get here, we must not be in a book, so just return
                     return false;
                 }
-                $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('chap_id' => $matches[1]));
-                $book_id = $chapter['book_id'];
+                $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $matches[1]));
+                $bid = $chapter['bid'];
             } else {
-                /* art_id was found */
-                $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('art_id' => $matches[1]));
-                $book_id = $article['book_id'];
+                /* aid was found */
+                $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $matches[1]));
+                $bid = $article['bid'];
             }
         } else {
-            $book_id = $matches[1];
+            $bid = $matches[1];
         }
-        //print $book_id . "<br />";
+        //print $bid . "<br />";
         //print_r($matches); die;
 
-        $content = pnModFunc('Book', 'user', 'shorttoc', array('book_id' => $book_id,
-            'art_id' => $art_id));
+        $content = pnModFunc('Book', 'user', 'shorttoc', array('bid' => $bid,
+            'aid' => $aid));
 
         $blockinfo['content'] = $content;
         return pnBlockThemeBlock($blockinfo);

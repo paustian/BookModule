@@ -9,7 +9,7 @@ class Book_Version extends Zikula_AbstractVersion
     public function getMetaData()
     {
         $meta = array();
-        $meta['version']        = '2.1.0';
+        $meta['version']        = '2.2.0';
         $meta['displayname']    = $this->__('Book Writing');
         $meta['description']    = $this->__('A module for displying a large structured document, creating figure descriptions for the book, and a glossary.');
         // this defines the module's url and should be in lowercase without space
@@ -32,6 +32,10 @@ class Book_Version extends Zikula_AbstractVersion
         $bundle->addEvent('display_view', 'book.ui_hooks.articles.display_view');
         $bundle->addEvent('process_edit', 'book.ui_hooks.articles.process_edit');
         $bundle->addEvent('process_delete', 'book.ui_hooks.articles.process_delete');
+        $bundle->addEvent('form_edit', 'book.ui_hooks.articles.form_edit');
+        $bundle->addEvent('form_delete', 'book.ui_hooks.articles.form_delete');
+        $bundle->addEvent('validate_edit', 'book.ui_hooks.articles.validate_edit');
+        $bundle->addEvent('validate_delete', 'book.ui_hooks.articles.validate_delete');
         $this->registerHookSubscriberBundle($bundle);
     }
 }

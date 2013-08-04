@@ -10,15 +10,15 @@
 </tr>
 <tr>
 	<td>{gt text="Chapter Number"}</td>
-	<td><input type="text" name="chap_number" size="3" maxlength="10"/></td>
+	<td><input type="text" name="number" size="3" maxlength="10"/></td>
 </tr>
 <tr>
-	<td><input type="checkbox" name="fig_perm" checked /></td>
+	<td><input type="checkbox" name="perm" checked /></td>
 	<td>{gt text="Permission Granted"}</td>
 </tr>
 <tr>
 	<td>{gt text="Book"}</td>
-	<td><select name="book_id">
+	<td><select name="bid">
 		{html_options options=$books}
 		</select>	
 	</td>
@@ -26,13 +26,13 @@
 <tr>
 	<td>{gt text="Figure Title"}</td>
 	<td>
-  		<input type="text" name="fig_title" size="40" maxlength="256"/>
+  		<input type="text" name="title" size="40" maxlength="256"/>
 	</td>
 </tr>
 <tr>
 	<td>{gt text="Figure Legend"}</td>
 	<td>
-  <textarea name="fig_content" rows="10" cols="80" wrap="virutal"></textarea>
+  <textarea name="content" rows="10" cols="80" wrap="virutal"></textarea>
   </td>
 </tr>
 <tr>
@@ -42,3 +42,4 @@
 </table>
 <input name="submit" type="submit" value="{gt text="Create Figure"}" />
 </form>
+{notifydisplayhooks eventname='book.ui_hooks.articles.form_edit' id=$fid}

@@ -8,10 +8,10 @@
     <table>
 		{section name=i loop=$books}
 		<tr><td>
-		<input type="radio" name="book_id" value="{$books[i].book_id|pnvarcensor}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].book_name|pnvarcensor}
+		<input type="radio" name="bid" value="{$books[i].bid|pnvarcensor}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].name|pnvarcensor}
 		</td>
 		<td>
-		<select name="chapter_{$books[i].book_id|pnvarcensor}">
+		<select name="chapter_{$books[i].bid|pnvarcensor}">
 			{html_options options=$chapters[i]}
 		</select>
 		</td></tr>

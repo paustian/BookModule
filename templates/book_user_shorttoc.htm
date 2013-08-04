@@ -4,7 +4,7 @@
  <form class="form" name="highlight" action="{pnmodurl modname="Book" type="user" func="dohighlight"}" method="post" enctype="application/x-www-form-urlencoded">
  	<input type="button" value="{gt text="Toggle Highlight"}" name="highlight" onmousedown="document.highlight.text.value = getSelText();document.highlight.submit()" onmouseover="return escape('{gt text="_BOOKHIGHLIGHTTIP"}')">
  	<input type="hidden" name="text">
- 	<input type='hidden' name="art_id" value="{$art_id}">
+ 	<input type='hidden' name="aid" value="{$aid}">
  </form>
  <form class="form" name="collect_highlights" action="{pnmodurl modname="Book" type="user" func="collecthighlights"}" method="post" enctype="application/x-www-form-urlencoded">
  	<table>
@@ -12,9 +12,9 @@
  			<td><input type="button" value="{gt text="Collect Highlights"}" name="collect_highlights" onmousedown="document.collect_highlights.text.value = getSelText();document.collect_highlights.submit()"
  				onmouseover="return escape('{gt text="Choose the chapters in the list box on the right then click this button. All the highlights that you have made for the choosen chapter(s) will be displayed."}')"></td>
  		<td>
-	 	<select name="chap_ids[]" size="5" multiple>
+	 	<select name="cids[]" size="5" multiple>
 		{foreach item=chapter from=$chapters}
-			<option label="Chapter {$chapter.chap_number}" value="{$chapter.chap_number}">Chapter {$chapter.chap_number}</option>
+			<option label="Chapter {$chapter.number}" value="{$chapter.number}">Chapter {$chapter.number}</option>
 		{/foreach}
 		</select>
 		</td>
@@ -47,7 +47,7 @@
 <input type="hidden" name="t3" value="Y">
 <input type="hidden" name="sra" value="1">
 <input type="hidden" name="custom" value="{$custom}">
-<!--The below value has to be changed from your web site. Point it at the correct URL-->
+<!--The below value has to be changed from your web site. Point it at the correct url-->
 <input type="hidden" name="notify_url" value="http://www.microbiologytext.com/index.php?module=WebsiteFee&amp;unc=paypalsubscribe" />
 </form>
 <hr />
@@ -63,7 +63,7 @@
     ---------
    </option>
   {foreach item=chapter from=$chapters}
-   <option value="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" chap_id=$chapter.chap_id}">{$chapter.chap_number} - {$chapter.chap_name}</option>
+   <option value="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" cid=$chapter.cid}">{$chapter.number} - {$chapter.name}</option>
   {/foreach} 
   </select>
   <input type="submit" value="Go" />

@@ -3,7 +3,7 @@
 <h2>{gt text="Edit Glossary"}</h2>
 <form class="form" action="{pnmodurl modname="book" type="admin" func="updateglossary"}" method="post" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
-<p>{gt text="Glossary ID"}{$glossary.gloss_id}<input type="hidden" name="gloss_id" value="{$glossary.gloss_id}"></p>
+<p>{gt text="Glossary ID"}{$glossary.gid}<input type="hidden" name="gid" value="{$glossary.gid}"></p>
 <table>
 <tr>
 	<td>{gt text="Glossary Term"}</td>

@@ -3,7 +3,7 @@
 <h2>{$chapter|pnvarcensor}</h2>
 <table>
 {section name=i loop=$titles}
-<tr><td>{$section_number[i]|pnvarcensor}</td><td> <a href="{pnmodurl modname="Book" func="displayarticle" art_id=$ids[i]}">{$titles[i]|pnvarcensor}</a></td></tr>
+<tr><td>{$section_number[i]|pnvarcensor}</td><td> <a href="{pnmodurl modname="Book" func="displayarticle" aid=$ids[i]}">{$titles[i]|pnvarcensor}</a></td></tr>
 {/section}
 </table>
 </div>

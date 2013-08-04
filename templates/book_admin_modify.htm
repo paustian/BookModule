@@ -7,7 +7,7 @@
      <tr><td>{gt text="Edit Book"}</td><td>{gt text="Book Name"}</td></tr>
     {section name=i loop=$books}
    <tr><td>
-    <input type="radio" name="book_id" value="{$books[i].book_id}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].book_id}</td><td><input type="text" size="50" max="256" name="{$books[i].book_id|pnvarcensor}" value="{$books[i].book_name|pnvarcensor}"></td></tr>
+    <input type="radio" name="bid" value="{$books[i].bid}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].bid}</td><td><input type="text" size="50" max="256" name="{$books[i].bid|pnvarcensor}" value="{$books[i].name|pnvarcensor}"></td></tr>
 	{/section}
 	</table>
 	<p><input name="submit" type="submit" value="{gt text="Update Book"}" /></p>

@@ -41,7 +41,7 @@ class Book_Api_Search extends Zikula_AbstractApi {
         $pntable = DBUtil::getTables();
         $bookcolumn = $pntable['book_column'];
 
-        $where = search_construct_where($args, array($bookcolumn['title'],
+        $where = Search_Api_User::construct_where($args, array($bookcolumn['title'],
             $bookcolumn['contents']));
 
         $sessionId = session_id();
@@ -60,7 +60,7 @@ class Book_Api_Search extends Zikula_AbstractApi {
             $obj['title'] = DataUtil::formatForStore($story['title']);
             $contents = $this->shorten_text($story['contents']);
             $obj['text'] = DataUtil::formatForStore($contents);
-            $obj['extra'] = DataUtil::formatForStore($story['art_id']);
+            $obj['extra'] = DataUtil::formatForStore($story['aid']);
             $obj['module'] = 'Book';
             $obj['created'] = DataUtil::formatForStore(date("Y-m-d H:i:s"));
             $obj['session'] = DataUtil::formatForStore($sessionId);
@@ -91,17 +91,17 @@ class Book_Api_Search extends Zikula_AbstractApi {
     }
 
     /**
-     * Do last minute access checking and assign URL to items
+     * Do last minute access checking and assign url to items
      *
      * Access checking is ignored since access check has
-     * already been done. But we do add a URL to the found item
+     * already been done. But we do add a url to the found item
      */
     public function search_check($args) {
 
-        //stopped here. have to make right URL. Also, does not work with search form
+        //stopped here. have to make right url. Also, does not work with search form
         $datarow = &$args['datarow'];
         $artId = $datarow['extra'];
-        $datarow['url'] = ModUtil::url('Book', 'user', 'displayarticle', array('art_id' => $artId));
+        $datarow['url'] = ModUtil::url('Book', 'user', 'displayarticle', array('aid' => $artId));
         //var_dump(debug_backtrace()); die;
         return true;
     }
@@ -114,7 +114,7 @@ class Book_ResultChecker
     // A return value of true means "keep result" - false means "discard".
     function checkResult(&$item)
     {
-        $ok = (SecurityUtil::checkPermission('Book::', "$item[book_id]::$item[chapter_id]", ACCESS_OVERVIEW));
+        $ok = (SecurityUtil::checkPermission('Book::', "$item[bid]::$item[chapter_id]", ACCESS_OVERVIEW));
         return $ok;
     }
 }

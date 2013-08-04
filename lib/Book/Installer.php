@@ -41,33 +41,41 @@ class Book_Installer extends Zikula_AbstractInstaller {
         // we currently just want the first item, which is the official
         // database handle.  For pnDBGetTables() we want to keep the entire
         // tables array together for easy reference later on
-// Create table
-        if (!DBUtil::createTable('book_name')) {
+        // Create table
+        try {
+            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_Book'));
+        } catch (Exception $e) {
             return false;
         }
-        if (!DBUtil::createTable('book_chaps')) {
+        try {
+            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookArticles'));
+        } catch (Exception $e) {
             return false;
         }
-
-        if (!DBUtil::createTable('book')) {
+        try {
+            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookChapters'));
+        } catch (Exception $e) {
             return false;
         }
-
-        if (!DBUtil::createTable('book_figures')) {
+        try {
+            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookFigures'));
+        } catch (Exception $e) {
             return false;
         }
-
-        if (!DBUtil::createTable('book_glossary')) {
+        try {
+            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookGloss'));
+        } catch (Exception $e) {
             return false;
         }
-
-        if (!DBUtil::createTable('book_user_data')) {
+        try {
+            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookUserData'));
+        } catch (Exception $e) {
             return false;
         }
         // These are used in the searching functions.
-        pnModSetVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
-        pnModSetVar('Book', 'BOOKS_LABEL', __('Books'));
-        pnModSetVar('Book', 'securebooks', false);
+        ModUtil::setVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
+        ModUtil::setVar('Book', 'BOOKS_LABEL', __('Books'));
+        ModUtil::setVar('Book', 'securebooks', false);
         
         HookUtil::registerSubscriberBundles($this->version->getHookSubscriberBundles());
         // Initialisation successful
@@ -96,7 +104,7 @@ class Book_Installer extends Zikula_AbstractInstaller {
 
                 // Code to upgrade from version 1.0 goes here
                 //add the permission field to the figure table
-                $sql = "ALTER TABLE $bookFigures ADD $bookFigList[fig_perm] TINYINT DEFAULT 1 NOT NULL";
+                $sql = "ALTER TABLE $bookFigures ADD $bookFigList[perm] TINYINT DEFAULT 1 NOT NULL";
                 $dbconn->Execute($sql);
 
                 // Check for an error with the database code, and if so set an
@@ -107,7 +115,7 @@ class Book_Installer extends Zikula_AbstractInstaller {
 
                 $bookGlossary = $pntable['book_glossary'];
                 $bookGlssaryList = &$pntable['book_glossary_column'];
-                $sql = "ALTER TABLE $bookGlossary ADD $bookGlssaryList[user] TEXT DEFAULT '', ADD $bookGlssaryList[URL] TEXT DEFAULT ''";
+                $sql = "ALTER TABLE $bookGlossary ADD $bookGlssaryList[user] TEXT DEFAULT '', ADD $bookGlssaryList[url] TEXT DEFAULT ''";
 
                 $dbconn->Execute($sql);
 
@@ -122,6 +130,62 @@ class Book_Installer extends Zikula_AbstractInstaller {
             case 2.0:
                 // No code is needed to upgrade to 2.0 from 1.0
                 break;
+            case 2.1:
+                //we need to add code that changes the table names and gets rid of book_
+                //in front of table names and book_fig and book_gloss and book_user_data
+                $connection = Doctrine_Manager::getInstance()->getConnection('default');
+                $sqlStatements = array();
+                //Change the Book table
+                $sqlStatements[] = "ALTER TABLE  `book` CHANGE  `bid`  `bid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
+                    CHANGE  `name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
+                
+                //Change the articles table
+                $sqlStatements[] = "ALTER TABLE  `book_art` CHANGE  `book_aid`  `aid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                    CHANGE  `book_art_title`  `art_title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_art_cid`  `cid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_art_bid`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_art_contents`  `contents` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+                    CHANGE  `book_art_counter`  `counter` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_art_lang`  `lang` VARCHAR( 30 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  'eng',
+                    CHANGE  `book_art_next`  `next` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_art_prev`  `prev` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_aid`  `number` BIGINT( 20 ) NOT NULL DEFAULT  '0'";
+                //Change the chapters table
+                $sqlStatements[] = "ALTER TABLE  `book_chap` CHANGE  `book_cid`  `cid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                    CHANGE  `book_number`  `number` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_chap_bid`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
+                //Change the Figures table
+                $sqlStatements[] = "ALTER TABLE  `book_figs` CHANGE  `book_figs_fid`  `fid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                    CHANGE  `book_figs_fig_number`  `fig_number` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_figs_number`  `number` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_figs_bid`  `bid` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_figs_img_link`  `img_link` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_figs_title`  `title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_figs_perm`  `perm` TINYINT( 4 ) NOT NULL DEFAULT  '1',
+                    CHANGE  `book_figs_content`  `content` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL";
+                //Change the Glossary Table
+                $sqlStatements[] = "ALTER TABLE  `book_gloss` CHANGE  `book_gloss_gid`  `gid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                    CHANGE  `book_gloss_term`  `term` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_gloss_definition`  `definition` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_gloss_user`  `user` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_gloss_url`  `url` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL";
+                //Finally changet the user data table
+                $sqlStatements[] = "ALTER TABLE  `book_user_data` CHANGE  `book_user_data_id`  `udid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                    CHANGE  `book_user_data_uid`  `uid` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_user_data_aid`  `aid` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_user_data_start`  `start` BIGINT( 20 ) NOT NULL DEFAULT  '0',
+                    CHANGE  `book_user_data_end`  `end` BIGINT( 20 ) NOT NULL DEFAULT  '0'";
+                
+                foreach ($sqlStatements as $sql) {
+                    $stmt = $connection->prepare($sql);
+                    try {
+                        $stmt->execute();
+                    } catch (Exception $e) {
+                        // trap and toss exceptions if you need to.
+                    }
+                }
+                
         }
 
         // Update successful
@@ -135,31 +199,15 @@ class Book_Installer extends Zikula_AbstractInstaller {
      */
     public function uninstall() {
         //drop the tables
-        if (!DBUtil::dropTable('book_name')) {
-            return false;
-        }
-        if (!DBUtil::dropTable('book_chaps')) {
-            return false;
-        }
-
-        if (!DBUtil::dropTable('book')) {
-            return false;
-        }
-
-        if (!DBUtil::dropTable('book_figures')) {
-            return false;
-        }
-
-        if (!DBUtil::dropTable('book_glossary')) {
-            return false;
-        }
-
-        if (!DBUtil::dropTable('book_user_data')) {
-            return false;
-        }
+        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_Book'));
+        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookArticles'));
+        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookChapters'));
+        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookFigures'));
+        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookGloss'));
+        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookUserData'));
 
         // Delete any module variables
-        pnModDelVar('Book', 'securebooks', false);
+        ModUtil::delVar('Book', 'securebooks', false);
 
         // Deletion successful
         return true;

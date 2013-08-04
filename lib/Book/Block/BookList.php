@@ -85,12 +85,12 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[book_id]::", ACCESS_READ)) {
+        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_READ)) {
             return LogUtil::registerPermissionError();
         }
 
         // Get variables from content block
-        $vars = BlockUtil::varsFromContent($blockinfo['book_id']);
+        $vars = BlockUtil::varsFromContent($blockinfo['bid']);
 
 
         // Check if the Book module is available. 
@@ -115,7 +115,7 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
         $books = array();
         // Display each item, permissions permitting
         foreach ($items as $item) {
-            $item['toc'] = ModUtil::func('Book', 'user', 'toc', array('book_id' => $item['book_id']));
+            $item['toc'] = ModUtil::func('Book', 'user', 'toc', array('bid' => $item['bid']));
             $books[]=$item;
         }
         

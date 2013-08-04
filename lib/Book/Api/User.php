@@ -48,12 +48,12 @@ class Book_Api_User extends Zikula_AbstractApi {
                 'component_left' => 'Book',
                 'component_middle' => '',
                 'component_right' => '',
-                'instance_left' => 'book_id',
+                'instance_left' => 'bid',
                 'instance_middle' => '',
                 'instance_right' => '',
                 'level' => ACCESS_OVERVIEW));
 
-        $items = DBUtil::selectObjectArray('book_name', '', 'book_id', 0, $numitems, '', $permFilter);
+        $items = DBUtil::selectObjectArray('name', '', 'bid', 0, $numitems, '', $permFilter);
 
         if ($items === false) {
             return LogUtil::registerError(_GETFAILED);
@@ -63,16 +63,16 @@ class Book_Api_User extends Zikula_AbstractApi {
     }
 
     /**
-     * given a book_id return the data for that book
-     * @param $args['book_id'] id of book item to get
+     * given a bid return the data for that book
+     * @param $args['bid'] id of book item to get
      * @returns array
      */
     public function get($args) {
-        $book_id = $args['book_id'];
+        $bid = $args['bid'];
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
-        if (!isset($book_id)) {
-            LogUtil::registerError(__('book_id not set in userapi_get'));
+        if (!isset($bid)) {
+            LogUtil::registerError(__('bid not set in userapi_get'));
             return false;
         }
         // create a empty result set
@@ -81,12 +81,12 @@ class Book_Api_User extends Zikula_AbstractApi {
                 'component_left' => 'Book',
                 'component_middle' => '',
                 'component_right' => '',
-                'instance_left' => 'book_id',
+                'instance_left' => 'bid',
                 'instance_middle' => '',
                 'instance_right' => '',
                 'level' => ACCESS_OVERVIEW));
 
-        $item = DBUtil::selectObjectByID('book_name', $book_id, 'book_id', null, $permFilter);
+        $item = DBUtil::selectObjectByID('name', $bid, 'bid', null, $permFilter);
 
         if ($item === false) {
             return LogUtil::registerError(_GETFAILED);
@@ -98,10 +98,10 @@ class Book_Api_User extends Zikula_AbstractApi {
     /**
      * getallchapters
      *
-     * given a book_id retrieve all chapter
+     * given a bid retrieve all chapter
      * information that corresponds to it.
      *
-     * @param book_id the id of the book
+     * @param bid the id of the book
      * @param all_chapters a switch if you want to get all chapters
      * @return array of arrays, the data for the chapter.
      */
@@ -110,7 +110,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
 
-        if (!isset($args['book_id'])) {
+        if (!isset($args['bid'])) {
             //you cannot say just one books chapters
             //and not specify a book id
             $all_chapters = true;
@@ -121,9 +121,9 @@ class Book_Api_User extends Zikula_AbstractApi {
                 'component_left' => 'Book',
                 'component_middle' => '',
                 'component_right' => 'Chapter',
-                'instance_left' => 'book_id',
+                'instance_left' => 'bid',
                 'instance_middle' => '',
-                'instance_right' => 'chap_id',
+                'instance_right' => 'cid',
                 'level' => ACCESS_OVERVIEW));
 
         // Get datbase setup
@@ -132,10 +132,10 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Get item
 
         if ($all_chapters) {
-            $items = DBUtil::selectObjectArray('book_chaps', '', 'chap_number', -1, -1, '', $permFilter);
+            $items = DBUtil::selectObjectArray('book_chaps', '', 'number', -1, -1, '', $permFilter);
         } else {
-            $where = "WHERE " . $bookChapList['book_id'] . " = '" . DataUtil::formatForStore($args['book_id']) . "'";
-            $items = DBUtil::selectObjectArray('book_chaps', $where, 'chap_number', -1, -1, '', $permFilter);
+            $where = "WHERE " . $bookChapList['bid'] . " = '" . DataUtil::formatForStore($args['bid']) . "'";
+            $items = DBUtil::selectObjectArray('book_chaps', $where, 'number', -1, -1, '', $permFilter);
         }
         if ($items === false) {
             return LogUtil::registerError(__("Getting chapters failed"));
@@ -146,16 +146,16 @@ class Book_Api_User extends Zikula_AbstractApi {
 
     /**
      * get a specific chapter
-     * @param $args['chap_id'] id of example item to get
+     * @param $args['cid'] id of example item to get
      * @returns array
      * @return item array, or false on failure
      */
     public function getchapter($args) {
         // Get arguments from argument array
-        $chap_id = $args['chap_id'];
+        $cid = $args['cid'];
 
         // Argument check
-        if (!isset($chap_id)) {
+        if (!isset($cid)) {
             LogUtil::registerError(_MODARGSERROR . "getchapter");
             return false;
         }
@@ -165,12 +165,12 @@ class Book_Api_User extends Zikula_AbstractApi {
                 'component_left' => 'Book',
                 'component_middle' => '',
                 'component_right' => 'Chapter',
-                'instance_left' => 'book_id',
+                'instance_left' => 'bid',
                 'instance_middle' => '',
-                'instance_right' => 'chap_id',
+                'instance_right' => 'cid',
                 'level' => ACCESS_OVERVIEW));
 
-        $item = DBUtil::selectObjectByID('book_chaps', $chap_id, 'chap_id', null, $permFilter);
+        $item = DBUtil::selectObjectByID('book_chaps', $cid, 'cid', null, $permFilter);
 
         if ($item === false) {
             return LogUtil::registerError(_GETFAILED);
@@ -183,31 +183,31 @@ class Book_Api_User extends Zikula_AbstractApi {
      * given a chapter id, return all articles that
      * are in that chapter.
      * The item array will be an array of arrays each containing
-     * 	art_id
+     * 	aid
      * 	title
-     * 	chap_id
+     * 	cid
      * 	contents
      * 	count
      * 	next
      * 	prev
-     * art_number
+     * aid
      *
      * I may want to optimize this if returning all the text slows it down.
-     * @param	chap_id the id of the chapter
+     * @param	cid the id of the chapter
      * @return item array, or false on failure
      *
      *
      */
     public function getallarticles($args) {
         // Get arguments from argument array
-        $chap_id = $args['chap_id'];
+        $cid = $args['cid'];
         $get_content = $args['get_content'];
 
         if ((!isset($get_content))) {
             $get_content = true;
         }
         // Argument check
-        if (!isset($chap_id)) {
+        if (!isset($cid)) {
             LogUtil::registerError(_MODARGSERROR . "getallarticles");
             return false;
         }
@@ -216,7 +216,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Get datbase setup
         $pntable = & DBUtil::getTables();
         $bookArtList = &$pntable['book_column'];
-        $where = "WHERE $bookArtList[chap_id] = '" . DataUtil::formatForStore($chap_id) . "'";
+        $where = "WHERE $bookArtList[cid] = '" . DataUtil::formatForStore($cid) . "'";
 
         $items = array();
         if ($get_content) {
@@ -224,23 +224,23 @@ class Book_Api_User extends Zikula_AbstractApi {
                     'component_left' => 'Book',
                     'component_middle' => '',
                     'component_right' => 'Chapter',
-                    'instance_left' => 'book_id',
+                    'instance_left' => 'bid',
                     'instance_middle' => '',
-                    'instance_right' => 'chap_id',
+                    'instance_right' => 'cid',
                     'level' => ACCESS_READ));
-            $items = DBUtil::selectObjectArray('book', $where, 'art_number', -1, -1, '', $permFilter);
+            $items = DBUtil::selectObjectArray('book', $where, 'aid', -1, -1, '', $permFilter);
         } else {
             //anyone can look at chapters and book titles
             $permFilter = array(array('realm' => 0,
                     'component_left' => 'Book',
                     'component_middle' => '',
                     'component_right' => 'Chapter',
-                    'instance_left' => 'book_id',
+                    'instance_left' => 'bid',
                     'instance_middle' => '',
-                    'instance_right' => 'chap_id',
+                    'instance_right' => 'cid',
                     'level' => ACCESS_OVERVIEW));
-            $columns = array('title', 'art_id', 'book_id', 'counter', 'lang', 'next', 'prev', 'art_number');
-            $items = DBUtil::selectObjectArray('book', $where, 'art_number', -1, -1, '', $permFilter, null, $columns);
+            $columns = array('title', 'aid', 'bid', 'counter', 'lang', 'next', 'prev', 'aid');
+            $items = DBUtil::selectObjectArray('book', $where, 'aid', -1, -1, '', $permFilter, null, $columns);
         }
 
         if ($items === false) {
@@ -252,15 +252,15 @@ class Book_Api_User extends Zikula_AbstractApi {
 
     /**
      * get a specific article
-     * @param $args['art_id'] id of example item to get
+     * @param $args['aid'] id of example item to get
      * @returns array
      * @return item array, or false on failure
      */
     public function getarticle($args) {
-        $art_id = $args['art_id'];
+        $aid = $args['aid'];
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
-        if (!isset($art_id)) {
+        if (!isset($aid)) {
             LogUtil::registerError(_MODARGSERROR . "get");
             return false;
         }
@@ -270,12 +270,12 @@ class Book_Api_User extends Zikula_AbstractApi {
                 'component_left' => 'Book',
                 'component_middle' => '',
                 'component_right' => 'Chapter',
-                'instance_left' => 'book_id',
+                'instance_left' => 'bid',
                 'instance_middle' => '',
-                'instance_right' => 'chap_id',
+                'instance_right' => 'cid',
                 'level' => ACCESS_READ));
 
-        $item = DBUtil::selectObjectByID('book', $art_id, 'art_id', null, $permFilter);
+        $item = DBUtil::selectObjectByID('book', $aid, 'aid', null, $permFilter);
 
         if ($item === false) {
             return LogUtil::registerError(_GETFAILED);
@@ -286,15 +286,15 @@ class Book_Api_User extends Zikula_AbstractApi {
 
     /**
      * get a the next article as specifed by the article number and chapter
-     * @param $args['art_number'] the article number of the next article
-     * @param $args['chap_id'] the chapter id of the article.
+     * @param $args['aid'] the article number of the next article
+     * @param $args['cid'] the chapter id of the article.
      * @returns array
      * @return item array, or false on failure
      */
     public function getarticlebyartnumber($args) {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
-        if (!isset($args['art_number']) || !isset($args['chap_id'])) {
+        if (!isset($args['aid']) || !isset($args['cid'])) {
             LogUtil::registerError(_MODARGSERROR . "get");
             return false;
         }
@@ -303,15 +303,15 @@ class Book_Api_User extends Zikula_AbstractApi {
                 'component_left' => 'Book',
                 'component_middle' => '',
                 'component_right' => 'Chapter',
-                'instance_left' => 'book_id',
+                'instance_left' => 'bid',
                 'instance_middle' => '',
-                'instance_right' => 'chap_id',
+                'instance_right' => 'cid',
                 'level' => ACCESS_READ));
         //set up the where clause
         $pntable = & DBUtil::getTables();
         $artFigList = &$pntable['book_column'];
-        $where = "WHERE $artFigList[art_number]= '" . DataUtil::formatForStore($args['art_number']) . "'" .
-                " AND $artFigList[chap_id] = '" . DataUtil::formatForStore($args['chap_id']) . "'";
+        $where = "WHERE $artFigList[aid]= '" . DataUtil::formatForStore($args['aid']) . "'" .
+                " AND $artFigList[cid] = '" . DataUtil::formatForStore($args['cid']) . "'";
 
         $item = DBUtil::selectObject('book', $where, '', $permFilter);
 
@@ -323,32 +323,32 @@ class Book_Api_User extends Zikula_AbstractApi {
     }
 
     public function getallfigures($args) {
-        if ((!isset($args['book_id']))) {
-            $book_id = -1;
+        if ((!isset($args['bid']))) {
+            $bid = -1;
         } else {
-            $book_id = $args['book_id'];
+            $bid = $args['bid'];
         }
         $items = array();
         //set up the where clause
         $pntable = & DBUtil::getTables();
         $bookFigList = &$pntable['book_figures_column'];
-        $where = "WHERE $bookFigList[book_id]= '" . DataUtil::formatForStore($book_id) . "'";
+        $where = "WHERE $bookFigList[bid]= '" . DataUtil::formatForStore($bid) . "'";
 
         //set up the premission filter
         $permFilter = array(array('realm' => 0,
                 'component_left' => 'Book',
                 'component_middle' => '',
                 'component_right' => '',
-                'instance_left' => 'book_id',
+                'instance_left' => 'bid',
                 'instance_middle' => '',
                 'instance_right' => '',
                 'level' => ACCESS_OVERVIEW));
         // Get item
 
-        if ($book_id == -1) {
-            $items = DBUtil::selectObjectArray('book_figures', '', 'chap_number', -1, -1, '', $permFilter);
+        if ($bid == -1) {
+            $items = DBUtil::selectObjectArray('book_figures', '', 'number', -1, -1, '', $permFilter);
         } else {
-            $items = DBUtil::selectObjectArray('book_figures', $where, 'chap_number', -1, -1, '', $permFilter);
+            $items = DBUtil::selectObjectArray('book_figures', $where, 'number', -1, -1, '', $permFilter);
         }
         //check for errors
         if ($items === false) {
@@ -365,7 +365,7 @@ class Book_Api_User extends Zikula_AbstractApi {
      * return all glossary items
      *
      * @param get_definitions Also return all the defnitions as well as the terms
-     * @return an array of all glossary items (gloss_id, terms, definitions (optional))
+     * @return an array of all glossary items (gid, terms, definitions (optional))
      */
     public function getallglossary($args) {
         // Argument check - make sure that all required arguments are present, if
@@ -388,7 +388,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         if ($get_defs) {
             $items = DBUtil::selectObjectArray('book_glossary', '', 'term');
         } else {
-            $columns = array('gloss_id', 'term');
+            $columns = array('gid', 'term');
             $items = DBUtil::selectObjectArray('book_glossary', '', 'term', -1, -1, '', null, null, $columns);
         }
 
@@ -434,19 +434,19 @@ class Book_Api_User extends Zikula_AbstractApi {
     /**
      * getglossary
      *
-     * Given a specific gloss_id, return the term and definition
+     * Given a specific gid, return the term and definition
      *
-     * @param gloss_id the id of the glossary item
+     * @param gid the id of the glossary item
      * @return an array of the glossary data for that item
      */
     public function getglossary($args) {
         // Get arguments from argument array
-        $gloss_id = $args['gloss_id'];
+        $gid = $args['gid'];
         $user = $args['user'];
 
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
-        if (!isset($gloss_id) && !isset($user)) {
+        if (!isset($gid) && !isset($user)) {
             LogUtil::registerError(_MODARGSERROR . "getglossary");
             return false;
         }
@@ -456,8 +456,8 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
         $item = array();
         // Get item
-        if (isset($gloss_id)) {
-            $item = DBUtil::selectObjectByID('book_glossary', $gloss_id, 'gloss_id');
+        if (isset($gid)) {
+            $item = DBUtil::selectObjectByID('book_glossary', $gid, 'gid');
         } else {
             $item = DBUtil::selectObjectByID('book_glossary', $user, 'user');
         }
@@ -471,22 +471,22 @@ class Book_Api_User extends Zikula_AbstractApi {
 
     /**
      * get a specific figure
-     * @param 'fig_id' id of figure to get
+     * @param 'fid' id of figure to get
      * @returns array
      * @return item array, or false on failure
      */
     public function getfigure($args) {
         //you can find a figure by id or by book, chapter and figure number
-        if (!isset($args['fig_id'])) {
-            if (!isset($args['fig_number']) || !isset($args['chap_number']) || !isset($args['book_id'])) {
+        if (!isset($args['fid'])) {
+            if (!isset($args['fig_number']) || !isset($args['number']) || !isset($args['bid'])) {
                 LogUtil::registerError(__('Variable error getfigure'));
                 return false;
             }
             $fig_number = $args['fig_number'];
-            $chap_number = $args['chap_number'];
-            $book_id = $args['book_id'];
+            $number = $args['number'];
+            $bid = $args['bid'];
         } else {
-            $fig_id = $args['fig_id'];
+            $fid = $args['fid'];
         }
 
         // Get datbase setup
@@ -494,13 +494,13 @@ class Book_Api_User extends Zikula_AbstractApi {
         $bookFigList = &$pntable['book_figures_column'];
         $item = array();
         // Get all the information on the item.
-        if (isset($fig_id)) {
-            $item = DBUtil::selectObjectByID('book_figures', $fig_id, 'fig_id');
+        if (isset($fid)) {
+            $item = DBUtil::selectObjectByID('book_figures', $fid, 'fid');
         } else {
             $items = array();
             $where = "WHERE $bookFigList[fig_number]='" . DataUtil::formatForStore($fig_number) . "'" .
-                    " AND $bookFigList[chap_number]='" . DataUtil::formatForStore($chap_number) . "'" .
-                    " AND  $bookFigList[book_id]='" . DataUtil::formatForStore($book_id) . "'";
+                    " AND $bookFigList[number]='" . DataUtil::formatForStore($number) . "'" .
+                    " AND  $bookFigList[bid]='" . DataUtil::formatForStore($bid) . "'";
             //This should pick out a unqiue item
             $item = DBUtil::selectObject('book_figures', $where);
         }
@@ -518,26 +518,26 @@ class Book_Api_User extends Zikula_AbstractApi {
      * @return number of items held by this module
      */
     public function countitems() {
-        $count = DBUtil::selectObjectCount('book_name');
+        $count = DBUtil::selectObjectCount('name');
         return $count;
     }
 
     /**
      * count_chapters
      * utility function to count the number of chapters in a book
-     * @param $args['book_id'] the ID of the book in question
+     * @param $args['bid'] the ID of the book in question
      * @rerturns the number of chapters in the book
      */
     public function countchapters($args) {
 
-        $book_id = $args['book_id'];
+        $bid = $args['bid'];
 
-        if (!(isset($book_id))) {
+        if (!(isset($bid))) {
             return false;
         }
         $pntable = & DBUtil::getTables();
         $chapList = $pntable['book_chaps_column'];
-        $where = "WHERE " . $chapList['book_id'] . "=" . DataUtil::formatForStore($book_id);
+        $where = "WHERE " . $chapList['bid'] . "=" . DataUtil::formatForStore($bid);
         $count = DBUtil::selectObjectCount('book_chaps', $where);
         return $count;
     }
@@ -547,22 +547,22 @@ class Book_Api_User extends Zikula_AbstractApi {
      * Set the counter on a specific article ID. Note that you have to pass in
      * the number that you want for the counter. In this way it is possible to
      * reset the counter if you want at some point.
-     * @param	$art_id the id of the article to set the count of
+     * @param	$aid the id of the article to set the count of
      * @param	$counter the value to set the counter to
      *
      * @returns true or false depending upon whether the setting was successful.
      *
      */
     public function setcounter($args) {
-        $art_id = $args['art_id'];
+        $aid = $args['aid'];
         $counter = $args['counter'];
 
-        if (!isset($art_id) || !isset($counter)) {
+        if (!isset($aid) || !isset($counter)) {
             LogUtil::registerError(_MODARGSERROR . "incrementcounter");
             return false;
         }
 
-        $res = DBUtil::incrementObjectFieldByID('book', 'counter', $art_id, 'art_id');
+        $res = DBUtil::incrementObjectFieldByID('book', 'counter', $aid, 'aid');
 
         if ($res === false) {
             return LogUtil::registerError(_GETFAILED);
@@ -573,7 +573,7 @@ class Book_Api_User extends Zikula_AbstractApi {
     /**
      * gethighlights
      *
-     * Given a uid and an art_id, find the highlights delimeters
+     * Given a uid and an aid, find the highlights delimeters
      * and return them
      *
      */
@@ -584,7 +584,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
         // Get arguments from argument array
         $uid = $args['uid'];
-        $art_id = $args['art_id'];
+        $aid = $args['aid'];
 
         if (!isset($uid)) {
             LogUtil::registerError(_MODARGSERROR . "gethighlights");
@@ -596,9 +596,9 @@ class Book_Api_User extends Zikula_AbstractApi {
         $bookDataList = &$pntable['book_user_data_column'];
         $order_by = "ORDER BY $bookDataList[start] ASC";
 
-        if (isset($art_id)) {
+        if (isset($aid)) {
             $where = "WHERE $bookDataList[uid] = '" . DataUtil::formatForStore($uid) . "'
-				AND  $bookDataList[art_id] = '" . DataUtil::formatForStore($art_id) . "'";
+				AND  $bookDataList[aid] = '" . DataUtil::formatForStore($aid) . "'";
         } else {
             $where = "WHERE $bookDataList[uid] = '" . DataUtil::formatForStore($uid) . "'";
         }

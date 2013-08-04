@@ -9,10 +9,10 @@
 
     {section name=i loop=$books}
 		<tr><td>
-		<input type="radio" name="book" value="{$books[i].book_id|pnvarcensor}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].book_name|pnvarcensor}
+		<input type="radio" name="book" value="{$books[i].bid|pnvarcensor}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].name|pnvarcensor}
 		</td>
 		<td>
-		<select name="chapter_{$books[i].book_id|pnvarcensor}">
+		<select name="chapter_{$books[i].bid|pnvarcensor}">
 			{html_options options=$chapters[i]}
 		</select>
 		</td></tr>
@@ -39,10 +39,10 @@
 	<td>{gt text="Previous"}</td><td><input type="text" name="prev" size="4" max="5"></td>
 </tr>
 <tr>
-	<td>{gt text="Article Number"}</td><td><input type="text" name="art_number" value="1" size="4" max="5"></td>
+	<td>{gt text="Article Number"}</td><td><input type="text" name="aid" value="1" size="4" max="5"></td>
 </tr>
 </table>
 <p><input name="submit" type="submit" value="{gt text="Add Article"}" /></p>
 </form>
-  
+{notifydisplayhooks eventname='book.ui_hooks.articles.form_edit' id=$aid}
   
