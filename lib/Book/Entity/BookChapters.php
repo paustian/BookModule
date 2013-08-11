@@ -76,17 +76,17 @@ class Book_Entity_BookChapters extends Zikula_EntityAccess
         $this->number = $number;
     }
     
-    public function getBook_id()
+    public function getBid()
     {
         return $this->bid;
     }
 
-    public function setBook_id($bid)
+    public function setBid($bid)
     {
         $this->bid = $bid;
     }
     
-    public function getNname()
+    public function getName()
     {
         return $this->name;
     }

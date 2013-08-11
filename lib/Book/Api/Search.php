@@ -10,7 +10,6 @@
  * @package
  * @subpackage Book
  */
-
 class Book_Api_Search extends Zikula_AbstractApi {
 
     /**
@@ -38,24 +37,28 @@ class Book_Api_Search extends Zikula_AbstractApi {
      * */
     public function search($args) {
         ModUtil::dbInfoLoad('Search');
-        $pntable = DBUtil::getTables();
-        $bookcolumn = $pntable['book_column'];
 
-        $where = Search_Api_User::construct_where($args, array($bookcolumn['title'],
-            $bookcolumn['contents']));
+        $where = Search_Api_User::construct_where($args, array('a.title', 'a.contents'));
 
         $sessionId = session_id();
 
-        ModUtil::loadApi('Book', 'user');
-
-        $permChecker = new Book_ResultChecker();
-        $stories = DBUtil::selectObjectArrayFilter('book', $where, null, null, null, '', $permChecker, null);
-        if (!$stories) {
-            //not found, return true
-            return true;
+        if (!empty($where)) {
+            $where = trim(substr(trim($where), 1, -1));
         }
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('a')
+                ->from('Book_Entity_BookArticles', 'a')
+                ->where($where);
+        $query = $qb->getQuery();
+        $results = $query->getResult();
         $objArray = array();
+
         foreach ($stories as $story) {
+            //make sure we have permission for this object.
+            if (!SecurityUtil::checkPermission('Book::', $story['bid'] . "::" . $story['cid'], ACCESS_OVERVIEW)) {
+                continue;
+            }
             $obj = array();
             $obj['title'] = DataUtil::formatForStore($story['title']);
             $contents = $this->shorten_text($story['contents']);
@@ -66,9 +69,8 @@ class Book_Api_Search extends Zikula_AbstractApi {
             $obj['session'] = DataUtil::formatForStore($sessionId);
             $objArray[] = $obj;
         }
-        $insertResult = DBUtil::insertObjectArray($objArray, 'search_result');
-        if (!$insertResult) {
-            return LogUtil::registerError(_GETFAILED);
+        if (!DBUtil::insertObjectArray($objArray, 'search_result')) {
+            return LogUtil::registerError($this->__('Error! Could not save the search results.'));
         }
 
         return true;
@@ -108,14 +110,4 @@ class Book_Api_Search extends Zikula_AbstractApi {
 
 }
 
-class Book_ResultChecker
-{
-    // This method is called by DBUtil::selectObjectArrayFilter() for each and every search result.
-    // A return value of true means "keep result" - false means "discard".
-    function checkResult(&$item)
-    {
-        $ok = (SecurityUtil::checkPermission('Book::', "$item[bid]::$item[chapter_id]", ACCESS_OVERVIEW));
-        return $ok;
-    }
-}
 ?>

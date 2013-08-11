@@ -18,7 +18,7 @@
 
 class Book_Entity_Repository_BookUserData extends Doctrine\ORM\EntityRepository
 {
-     public function getArticles($orderBy='', $where='')
+     public function getUserData($orderBy='', $where='')
     {
         $dql = "SELECT a FROM Book_Entity_BookUserData a";
         
@@ -36,7 +36,53 @@ class Book_Entity_Repository_BookUserData extends Doctrine\ORM\EntityRepository
         try {
             $result = $query->getResult();
         } catch (Exception $e) {
-            echo "<pre>";
+            echo "<pre>getUserData failed\n";
+            var_dump($e->getMessage());
+            var_dump($query->getDQL());
+            var_dump($query->getParameters());
+            var_dump($query->getSQL());
+            die;
+        }
+        return $result;
+    }
+    public function removeHighlightsForArticle($aid){
+        $dql = "DELETE FROM Book_Entity_BookUserData a WHERE a.aid = " . $aid;
+        // generate query
+        $query = $this->_em->createQuery($dql);
+
+        try {
+            $result = $query->execute();
+            $this->_em->flush();
+        } catch (Exception $e) {
+            echo "<pre>removeHighlightsForArticle Failed\n";
+            var_dump($e->getMessage());
+            var_dump($query->getDQL());
+            var_dump($query->getParameters());
+            var_dump($query->getSQL());
+            die;
+        }
+        return $result;
+    }
+    
+    public function getHighlights($uid, $aid){
+       
+        if (isset($aid)) {
+            $where = "WHERE a.uid = '" . DataUtil::formatForStore($uid) . "'
+				AND  u.aid = '" . DataUtil::formatForStore($aid) . "'";
+        } else {
+            $where = "WHERE a.uid = '" . DataUtil::formatForStore($uid) . "'";
+        }
+        
+        $dql = "SELECT a FROM Book_Entity_BookUserData a " . $where . " ORDER BY a.start ASC";
+        
+         // generate query
+        $query = $this->_em->createQuery($dql);
+
+
+        try {
+            $result = $query->getResult();
+        } catch (Exception $e) {
+            echo "<pre>getUserData failed\n";
             var_dump($e->getMessage());
             var_dump($query->getDQL());
             var_dump($query->getParameters());

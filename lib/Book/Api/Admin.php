@@ -76,12 +76,12 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
 
 
-        if (!isset($arts['number']) || ($args['number'] < 1)) {
+        if (!isset($args['number']) || ($args['number'] < 1)) {
             //we need to generate a chapter number. Count the number of
             //chapters and then add a 1 to it. This may fail if a
             //chapter is missing, but its not fatal to have two chapters
             //with the same number
-            $args['number'] = ModUtil::apiFunc('Book', 'user', 'countchapters', array('bid' => $book)) + 1;
+            $args['number'] = ModUtil::apiFunc('Book', 'user', 'countchapters', array('bid' => $args['bid'])) + 1;
         }
         // Security check - important to do this as early on as possible to
         // avoid potential security holes or just too much wasted processing
@@ -377,9 +377,17 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        if (!DBUtil::deleteObjectByID('book_glossary', $args['gid'], 'gid')) {
-            return LogUtil::registerError(__('Deleting the glossary item failed.'));
+        
+        $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
+        $gloss = $repository->find($args['gid']);
+        
+        if ($gloss == false) {
+            //we don't throw an error, we depend on the caling funciton to do that.
+            return false;
         }
+        
+        $gloss->remove();
+        $this->entityManager->flush();
 
         // Let the calling process know that we have finished successfully
         return true;
@@ -399,26 +407,21 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
         $bid = $args['bid'];
-        // The user API function is called.  This takes the item ID which
-        // we obtained from the input and gets us the information on the
-        // appropriate item.  If the item does not exist we post an appropriate
-        // message and return
-        $item = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $bid));
-
-        if ($item == false) {
-            //we don't throw an error, we depend on the caling funciton to do that.
-            return false;
-        }
-
         // Security check
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$item[bid]::.*", ACCESS_EDIT)) {
+        if (!SecurityUtil::checkPermission('Book::Chapter', "$bid::.*", ACCESS_EDIT)) {
             LogUtil::registerPermissionError();
             return false;
         }
 
-        $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
-        $article = $repository->find($args['aid']);
-        $article->merge($item);
+        $repository = $this->entityManager->getRepository('Book_Entity_Book');
+        $book = $repository->find($args['bid']);
+        
+        if ($book == false) {
+            //we don't throw an error, we depend on the caling funciton to do that.
+            return false;
+        }
+        
+        $book->merge($args);
         $this->entityManager->flush();
 
         // Let the calling process know that we have finished successfully
@@ -459,11 +462,9 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             ;
             return false;
         }
-
-        if (!DBUtil::updateObject($args, 'book_chaps', '', 'cid')) {
-            return LogUtil::registerError(__('Updating the chapter failed.'));
-        }
-
+        
+        $item->merge($args);
+        $this->entityManager->flush();
 
         //Now we have to change the articles if the book id has changed.
         if ($item['bid'] != $args['bid']) {
@@ -471,14 +472,9 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             //is missing in the args array, it is left untouched by the updateObject function
             //So, even though our args array only contains bid and cid information,
             //it still works, without destroying the contents of the articles
-            $pntable = & DBUtil::getTables();
-            $artList = &$pntable['book_column'];
-            $where = "WHERE $artList[bid]=" . DataUtil::formatForStore($item['bid']) .
-                    " AND $artList[cid]=" . DataUtil::formatForStore($args['cid']);
-
-            if (!DBUtil::updateObject($args, 'book', $where, 'aid')) {
-                return LogUtil::registerError(__('Updating the chapter failed.'));
-            }
+            $articles = $this->entityManager->getRepository('Book_Entity_BookArticles');
+            
+            $articles->updateBookIdForChapter($args['cid'], $args['bid']);
         }
         // Let the calling process know that we have finished successfully
         return true;
@@ -516,20 +512,16 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
 
-        $pntable = & DBUtil::getTables();
         //delete any highlight data for this article since we just edited it.
-        $userList = &$pntable['book_user_data_column'];
-        $where = "WHERE $userList[aid] = '" . DataUtil::formatForStore($args['aid']) . "'";
-        //delete the objects
-        if (!DBUtil::DeleteObject(null, 'book_user_data', $where)) {
-            //TODO, this has to be checked to make sure its working. Have not done it yet
-            return LogUtil::registerError(__('Deleting the highlighting for this object failed.'));
-        }
-
+        $userData = $this->entityManager->getRepository('Book_Entity_BookUserData');
+        $userData->removeHighlightsForArticle($args['aid']);
+        
+        
         //now update the article
-        if (!DBUtil::updateObject($args, 'book', '', 'aid')) {
-            return LogUtil::registerError(__('Updating the book object failed.'));
-        }
+        $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
+        $article = $repository->find($args['aid']);
+        $article->merge($args);
+        $this->entityManager->flush();
         
         //notify the hook that we deletd the article
         $this->notifyHooks(new Zikula_ProcessHook('book.ui_hooks.articles.process_edit', $aid));
@@ -562,11 +554,11 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
 
-        //now update the article
-        if (!DBUtil::updateObject($args, 'book_figures', '', 'fid')) {
-            return LogUtil::registerError(__('Updating the figure failed.'));
-        }
-
+        $repository = $this->entityManager->getRepository('Book_Entity_BookFigures');
+        $fig= $repository->find($args['fid']);
+        $fig->merge($args);
+        $this->entityManager->flush();
+        
         return true;
     }
 
@@ -586,17 +578,19 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-
-        if (!DBUtil::updateObject($args, 'book_glossary', '', 'gid')) {
-            return LogUtil::registerError(__('Updating the glossary failed.'));
-        }
+        
+        //update the glossary entry
+        $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
+        $gloss = $repository->find($args['aid']);
+        $gloss->merge($args);
+        $this->entityManager->flush();
+        
 
         return true;
     }
 
     public function createhighlight($args) {
-        //This is not always working, and I am suspicious of whether this is really working
-        //I suspect this may be because of puncuation?
+        
         //print "uid:$uid art:$aid, start:$start end:$end";die;
         // Argument check
         //we make sure that all the arguments are there
@@ -626,25 +620,26 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        //insert a new object. The bid is inserted into the $args array
-        if (!DBUtil::insertObject($args, 'book_user_data')) {
-            return LogUtil::registerError(__('Creating that highlight failed.'));
-        }
-
+        //save the user data
+        $userData = new Book_Entity_BookUserData();
+        $userData->merge($args);
+        $this->entityManager->persist($userData);
+        $this->entityManager->flush();
+        
         return true;
     }
 
     public function deletehighlight($args) {
         // Argument check
-        if (!isset($args['id'])) {
+        if (!isset($args['udid'])) {
             LogUtil::registerArgsError();
             return false;
         }
-
-        if (!DBUtil::deleteObjectByID('book_user_data', $args['id'])) {
-            return LogUtil::registerError(__('Deleting the highlight failed.'));
-        }
-
+        
+        //Delete the user data
+        $highlight= $this->entityManager->getRepository('Book_Entity_BookUserData')->find($args['udid']);
+        $this->entityManager->remove($highlight);
+        $this->entityManager->flush();
         // Let the calling process know that we have finished successfully
         return true;
     }
@@ -655,11 +650,10 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             return false;
         }
         // Build the where clause
-        $pntable = & DBUtil::getTables();
-        $bookGlossList = &$pntable['book_glossary_column'];
-        $where = "WHERE $bookGlossList[definition]=''";
+        $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
+        $where = 'a.definition = \'\'';
         //$orderby = "ORDER BY $bookGlossList[term]";
-        $items = DBUtil::selectObjectArray('book_glossary', $where); //, $orderby, -1, -1, 'term');
+        $items = $repository->getItems('term', $where);
         // Return the item array
         return $items;
     }
@@ -712,6 +706,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if ($args['preview']) {
             $replace_pat = "<b>$replace_pat</b>";
         }
+        $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
         foreach ($art_items as $item) {
             $count;
             $old = $item['contents'];
@@ -729,14 +724,14 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 $new = preg_replace($search_pat, $replace_pat, $old, -1, $count);
                 $item['contents'] = $new;
                 if ($count > 0) {
-                    if (!DBUtil::updateObject($item, 'book', '', 'aid')) {
-                        return LogUtil::registerError(__('Updating the article failed during Search and Replace function.'));
-                    }
+                    //get the new article and merge the new data
+                    $article = $repository->find($item['aid']);
+                    $article->merge($item);
                 }
             }
         }
+        $this->entityManager->flush();
         return $preview_text;
-        //TODO I am in the midst of debugging this
     }
 
     public function addglossaryitems($args) {

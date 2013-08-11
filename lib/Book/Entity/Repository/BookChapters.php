@@ -45,6 +45,30 @@ class Book_Entity_Repository_BookChapters extends Doctrine\ORM\EntityRepository
         }
         return $result;
     }
+    
+    public function countChapters($where=''){
+        $dql = "SELECT count(a.cid) FROM Book_Entity_BookChapters a ";
+        
+        if (!empty($where)) {
+            $dql .= ' WHERE ' . $where;
+        }
+        // generate query
+        $query = $this->_em->createQuery($dql);
+        
+        try {
+            $result = $query->getScalarResult();
+        } catch (Exception $e) {
+            echo "<pre>";
+            var_dump($e->getMessage());
+            var_dump($query->getDQL());
+            var_dump($query->getParameters());
+            var_dump($query->getSQL());
+            die;
+        }
+        //we wamt the count of the chapters, which is always in this weird array. 
+        //Works for me.
+        return $result[0][1];
+    }
 }
 
 ?>

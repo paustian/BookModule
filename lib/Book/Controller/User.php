@@ -471,7 +471,7 @@ class Book_Controller_User extends Zikula_AbstractController {
 
         //all the work is done in this funcion
         $pattern = "|<a class=\"glossary\">(.*?)</a>|";
-        $ret_text = preg_replace_callback($pattern, 'Book_Controller_User::glossary_add', $in_text);
+        $ret_text = preg_replace_callback($pattern, array($this, 'glossary_add'), $in_text);
 
         return $ret_text;
     }
@@ -485,18 +485,17 @@ class Book_Controller_User extends Zikula_AbstractController {
      * @param $matches
      * @return the match text to insert 
      */
-    static public function glossary_add($matches) {
+    public function glossary_add($matches) {
         $term = $matches[1];
         $item = array();
-        $pntable = & DBUtil::getTables();
-        $glossaryList = &$pntable['book_glossary_column'];
-        $where = "WHERE $glossaryList[term]='" . DataUtil::formatForStore($term) . "'";
-        $item = DBUtil::selectObject('book_glossary', $where);
-
+        $where = "a.term=' " . DataUtil::formatForStore($term) . "'";
+        
+        $item = $this->entityManager->getRepository('Book_Entity_BookGloss')->getGloss('', $where);
+        
         if ($item === false) {
             //This did not work, try searching for match instead
-            $where = "WHERE $glossaryList[term] LIKE '" . DataUtil::formatForStore($term) . "%'";
-            $item = DBUtil::selectObject('book_glossary', $where);
+            $where = "a.term LIKE '" . DataUtil::formatForStore($term) . "%'";
+            $item = $this->entityManager->getRepository('Book_Entity_BookGloss')->getGloss('', $where);
         }
         // Check for an error and if so
         //just return. This is not an error, we just won't replace it
@@ -1125,7 +1124,10 @@ class Book_Controller_User extends Zikula_AbstractController {
      * use the same account for access to the book.
      *
      * This funciton does make assumptions about the sessions table, but hopefully they
-     * will hold for version 0.8. Right now, it looks like it will hold true
+     * will hold for version 1.3.5. Right now, it looks like it will hold true
+     * 
+     * I cannot update to Doctrine yet in this function because the users module, where
+     * I get this data is still not using doctrine. So I have to wait and use the old one
      */
     public function checkuserstatus() {
 

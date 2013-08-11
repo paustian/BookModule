@@ -36,27 +36,15 @@ class Book_Api_User extends Zikula_AbstractApi {
      */
     public function getall($args) {
 
-        //check to see how many books there are
-        $numitems = ModUtil::apiFunc('Book', 'user', 'countitems');
-        if ($numitems == 0) {
-            SessionUtil::setVar('errormsg', __('There are no books defined. Create a book first.'));
-            return false;
-        }
+        $this->throwForbiddenUnless(SecurityUtil::checkPermission('Book::', '::', ACCESS_OVERVIEW), LogUtil::getErrorMsgPermission());
         // create a empty result set
-        $items = array();
-        $permFilter = array(array('realm' => 0,
-                'component_left' => 'Book',
-                'component_middle' => '',
-                'component_right' => '',
-                'instance_left' => 'bid',
-                'instance_middle' => '',
-                'instance_right' => '',
-                'level' => ACCESS_OVERVIEW));
+        $repository = $this->entityManager->getRepository('Book_Entity_Book');
 
-        $items = DBUtil::selectObjectArray('name', '', 'bid', 0, $numitems, '', $permFilter);
+        $items = $repository->getBooks();
 
         if ($items === false) {
-            return LogUtil::registerError(_GETFAILED);
+            SessionUtil::setVar('errormsg', __('There are no books defined. Create a book first.'));
+            return false;
         }
         // Return the items
         return $items;
@@ -76,24 +64,19 @@ class Book_Api_User extends Zikula_AbstractApi {
             return false;
         }
         // create a empty result set
-        $item = array();
-        $permFilter = array(array('realm' => 0,
-                'component_left' => 'Book',
-                'component_middle' => '',
-                'component_right' => '',
-                'instance_left' => 'bid',
-                'instance_middle' => '',
-                'instance_right' => '',
-                'level' => ACCESS_OVERVIEW));
-        I need the change this to Doctrine I need to figure out the permissions 
-        and how to handle them wiht doctrine. May not be able to.
-        $item = DBUtil::selectObjectByID('name', $bid, 'bid', null, $permFilter);
+        $repository = $this->entityManager->getRepository('Book_Entity_Book');
 
-        if ($item === false) {
-            return LogUtil::registerError(_GETFAILED);
+        $book = $repository->find($bid);
+
+        if ($book === false) {
+            SessionUtil::setVar('errormsg', __('There are no books defined. Create a book first.'));
+            return false;
         }
+
+        //now check permisions
+        $this->throwForbiddenUnless(SecurityUtil::checkPermission('Book::', "$bid::", ACCESS_READ), LogUtil::getErrorMsgPermission());
         // Return the items
-        return $item;
+        return $book;
     }
 
     /**
@@ -117,32 +100,27 @@ class Book_Api_User extends Zikula_AbstractApi {
             $all_chapters = true;
         }
 
-        //anyone can look at chapters and book titles
-        $permFilter = array(array('realm' => 0,
-                'component_left' => 'Book',
-                'component_middle' => '',
-                'component_right' => 'Chapter',
-                'instance_left' => 'bid',
-                'instance_middle' => '',
-                'instance_right' => 'cid',
-                'level' => ACCESS_OVERVIEW));
-
-        // Get datbase setup
-        $pntable = & DBUtil::getTables();
-        $bookChapList = &$pntable['book_chaps_column'];
-        // Get item
-
+        $chapters = array();
+        $repository = $this->entityManager->getRepository('Book_Entity_BookChapters');
         if ($all_chapters) {
-            $items = DBUtil::selectObjectArray('book_chaps', '', 'number', -1, -1, '', $permFilter);
+            $chapters = $repository->getChapters();
         } else {
-            $where = "WHERE " . $bookChapList['bid'] . " = '" . DataUtil::formatForStore($args['bid']) . "'";
-            $items = DBUtil::selectObjectArray('book_chaps', $where, 'number', -1, -1, '', $permFilter);
+            $where = "a.bid = '" . DataUtil::formatForStore($args['bid']) . "'";
+            $chapters = $repository->getChapters('', $where);
         }
-        if ($items === false) {
+        if ($chapters === false) {
             return LogUtil::registerError(__("Getting chapters failed"));
         }
+        $ret_items = array();
+        //now check permissions on chapters
+        foreach ($chapters as $chap) {
+            //now check permisions
+            if (SecurityUtil::checkPermission('Book::', "$chap->getBid()::$chap->getCid()", ACCESS_READ)) {
+                $ret_items[] = $chap;
+            }
+        }
         // Return the item array
-        return $items;
+        return $ret_items;
     }
 
     /**
@@ -160,24 +138,20 @@ class Book_Api_User extends Zikula_AbstractApi {
             LogUtil::registerError(_MODARGSERROR . "getchapter");
             return false;
         }
-        // create a empty result set
-        $item = array();
-        $permFilter = array(array('realm' => 0,
-                'component_left' => 'Book',
-                'component_middle' => '',
-                'component_right' => 'Chapter',
-                'instance_left' => 'bid',
-                'instance_middle' => '',
-                'instance_right' => 'cid',
-                'level' => ACCESS_OVERVIEW));
 
-        $item = DBUtil::selectObjectByID('book_chaps', $cid, 'cid', null, $permFilter);
+        $repository = $this->entityManager->getRepository('Book_Entity_BookChapters');
+        $chap = $repository->find($args['cid']);
 
-        if ($item === false) {
+        if ($chap == false) {
+            //we don't throw an error, we depend on the caling funciton to do that.
+            return false;
+        }
+
+        if ($chap === false) {
             return LogUtil::registerError(_GETFAILED);
         }
         // Return the items
-        return $item;
+        return $chap;
     }
 
     /**
@@ -212,41 +186,24 @@ class Book_Api_User extends Zikula_AbstractApi {
             LogUtil::registerError(_MODARGSERROR . "getallarticles");
             return false;
         }
+        //build where clause
+        $where = "a.cid = '" . DataUtil::formatForStore($cid) . "'";
 
+        $repository = $this->entityManager->getRepository('Book_Entity_BookArticle');
+        $articles = $repository->getArticles('number', $where);
 
-        // Get datbase setup
-        $pntable = & DBUtil::getTables();
-        $bookArtList = &$pntable['book_column'];
-        $where = "WHERE $bookArtList[cid] = '" . DataUtil::formatForStore($cid) . "'";
-
-        $items = array();
+        //workout the acess level
+        $access = ACCESS_OVERVIEW;
         if ($get_content) {
-            $permFilter = array(array('realm' => 0,
-                    'component_left' => 'Book',
-                    'component_middle' => '',
-                    'component_right' => 'Chapter',
-                    'instance_left' => 'bid',
-                    'instance_middle' => '',
-                    'instance_right' => 'cid',
-                    'level' => ACCESS_READ));
-            $items = DBUtil::selectObjectArray('book', $where, 'aid', -1, -1, '', $permFilter);
-        } else {
-            //anyone can look at chapters and book titles
-            $permFilter = array(array('realm' => 0,
-                    'component_left' => 'Book',
-                    'component_middle' => '',
-                    'component_right' => 'Chapter',
-                    'instance_left' => 'bid',
-                    'instance_middle' => '',
-                    'instance_right' => 'cid',
-                    'level' => ACCESS_OVERVIEW));
-            $columns = array('title', 'aid', 'bid', 'counter', 'lang', 'next', 'prev', 'aid');
-            $items = DBUtil::selectObjectArray('book', $where, 'aid', -1, -1, '', $permFilter, null, $columns);
+            $access = ACCESS_READ;
+        }
+        $items = array();
+        foreach ($articles as $article) {
+            if (SecurityUtil::checkPermission('Book::', $item['bid'] . "::" . $item['cid'], $access)) {
+                $items[] = $article;
+            }
         }
 
-        if ($items === false) {
-            return LogUtil::registerError(_GETFAILED);
-        }
         // Return the items
         return $items;
     }
@@ -262,24 +219,16 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
         if (!isset($aid)) {
-            LogUtil::registerError(_MODARGSERROR . "get");
+            LogUtil::registerError($this->__('Error no article id for getarticle'));
             return false;
         }
-        // create a empty result set
-        $item = array();
-        $permFilter = array(array('realm' => 0,
-                'component_left' => 'Book',
-                'component_middle' => '',
-                'component_right' => 'Chapter',
-                'instance_left' => 'bid',
-                'instance_middle' => '',
-                'instance_right' => 'cid',
-                'level' => ACCESS_READ));
 
-        $item = DBUtil::selectObjectByID('book', $aid, 'aid', null, $permFilter);
+        $repository = $this->entityManager->getRepository('Book_Entity_BookArticle');
+        $item = $repository->find($aid);
 
-        if ($item === false) {
-            return LogUtil::registerError(_GETFAILED);
+        //make sure we have access.
+        if (!SecurityUtil::checkPermission('Book::', $item['bid'] . "::" . $item['cid'], ACCESS_READ)) {
+            return false;
         }
         // Return the items
         return $item;
@@ -296,25 +245,17 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
         if (!isset($args['aid']) || !isset($args['cid'])) {
-            LogUtil::registerError(_MODARGSERROR . "get");
+            LogUtil::registerError($this->__('getarticlebyartnumber argument error'));
             return false;
         }
 
-        $permFilter = array(array('realm' => 0,
-                'component_left' => 'Book',
-                'component_middle' => '',
-                'component_right' => 'Chapter',
-                'instance_left' => 'bid',
-                'instance_middle' => '',
-                'instance_right' => 'cid',
-                'level' => ACCESS_READ));
-        //set up the where clause
-        $pntable = & DBUtil::getTables();
-        $artFigList = &$pntable['book_column'];
-        $where = "WHERE $artFigList[aid]= '" . DataUtil::formatForStore($args['aid']) . "'" .
-                " AND $artFigList[cid] = '" . DataUtil::formatForStore($args['cid']) . "'";
+        if (!SecurityUtil::checkPermission('Book::', ".*::" . $item['cid'], ACCESS_READ)) {
+            return false;
+        }
 
-        $item = DBUtil::selectObject('book', $where, '', $permFilter);
+        $where = "a.cid = " . DataUtil::formatForStore($args['cid']) . " AND a.aid = " . DataUtil::formatForStore($args['aid']);
+        $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
+        $item = $repository->getArticle('', $where);
 
         if ($item === false) {
             return LogUtil::registerError(_GETFAILED);
@@ -324,37 +265,20 @@ class Book_Api_User extends Zikula_AbstractApi {
     }
 
     public function getallfigures($args) {
-        if ((!isset($args['bid']))) {
-            $bid = -1;
-        } else {
-            $bid = $args['bid'];
-        }
+        $bid = $args['bid'];
         $items = array();
-        //set up the where clause
-        $pntable = & DBUtil::getTables();
-        $bookFigList = &$pntable['book_figures_column'];
-        $where = "WHERE $bookFigList[bid]= '" . DataUtil::formatForStore($bid) . "'";
-
-        //set up the premission filter
-        $permFilter = array(array('realm' => 0,
-                'component_left' => 'Book',
-                'component_middle' => '',
-                'component_right' => '',
-                'instance_left' => 'bid',
-                'instance_middle' => '',
-                'instance_right' => '',
-                'level' => ACCESS_OVERVIEW));
-        // Get item
-
-        if ($bid == -1) {
-            $items = DBUtil::selectObjectArray('book_figures', '', 'number', -1, -1, '', $permFilter);
+        //set up the where clause and check permissions
+        if (isset($bid)) {
+            if (!SecurityUtil::checkPermission('Book::', $bid . "::.*", ACCESS_OVERVIEW)) {
+                return false;
+            }
+            $where = "WHERE a.bid = '" . DataUtil::formatForStore($bid) . "'";
         } else {
-            $items = DBUtil::selectObjectArray('book_figures', $where, 'number', -1, -1, '', $permFilter);
+            if (!SecurityUtil::checkPermission('Book::', ".*::.*", ACCESS_OVERVIEW)) {
+                return false;
+            }
         }
-        //check for errors
-        if ($items === false) {
-            return LogUtil::registerError(_GETFAILED);
-        }
+        $item = $this->entityManager->getRepository('Book_Entity_Book')->getFigures('fig_number', $where);
 
         // Return the item array
         return $items;
@@ -383,20 +307,17 @@ class Book_Api_User extends Zikula_AbstractApi {
         //Check general permissions, they must have read access for the glossary
         // Security check -
         if (!SecurityUtil::checkPermission('Book::Chapter', ".*::.*", ACCESS_READ)) {
-            return DataUtil::formatForDisplayHTML(__('You do not have permission to view that book.'));
+            return DataUtil::formatForDisplayHTML($this->__('You do not have permission to view that book.'));
         }
-
+        $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
+        
         if ($get_defs) {
-            $items = DBUtil::selectObjectArray('book_glossary', '', 'term');
+            $items = $repository->getGloss('term');
         } else {
             $columns = array('gid', 'term');
-            $items = DBUtil::selectObjectArray('book_glossary', '', 'term', -1, -1, '', null, null, $columns);
+            $items = $repository->getGloss('term', '', $columns);
         }
 
-        //check for errors
-        if ($items === false) {
-            return LogUtil::registerError(_GETFAILED);
-        }
 
         // Return the item array
         return $items;
@@ -413,14 +334,13 @@ class Book_Api_User extends Zikula_AbstractApi {
         if (!isset($term)) {
             return true;
         }
-        $pntable = & DBUtil::getTables();
-        $glossaryList = &$pntable['book_glossary_column'];
-        $where = "WHERE $glossaryList[term] LIKE '%" . DataUtil::formatForStore($term) . "%'";
-
-        $items = array();
-        $columns = array('term');
-        $items = DBUtil::selectObjectArray('book_glossary', $where, '', -1, -1, '', null, null, $columns);
-        //check for errors
+        
+        $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
+        $qb = $repository->createQueryBuilder('a');
+        $qb->where("a.term LIKE $term");
+        $query = $repository->getQuery();
+        $item = $query->getResult();
+        
         if ($items === false) {
             return LogUtil::registerError(_GETFAILED);
         }
@@ -457,10 +377,12 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
         $item = array();
         // Get item
+        $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
         if (isset($gid)) {
-            $item = DBUtil::selectObjectByID('book_glossary', $gid, 'gid');
+            $item = $repository->find($gid);
         } else {
-            $item = DBUtil::selectObjectByID('book_glossary', $user, 'user');
+            $where = 'a.user = ' . DataUtil::formatForStore($user);
+            $item = $repository->getGloss('gid', $where);
         }
         //check for errors
         if ($item === false) {
@@ -480,7 +402,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         //you can find a figure by id or by book, chapter and figure number
         if (!isset($args['fid'])) {
             if (!isset($args['fig_number']) || !isset($args['chap_number']) || !isset($args['bid'])) {
-                LogUtil::registerError(__('Variable error getfigure'));
+                LogUtil::registerError($this->__('Variable error getfigure'));
                 return false;
             }
             $fig_number = $args['fig_number'];
@@ -490,25 +412,23 @@ class Book_Api_User extends Zikula_AbstractApi {
             $fid = $args['fid'];
         }
 
-        // Get datbase setup
-        $pntable = & DBUtil::getTables();
-        $bookFigList = &$pntable['book_figures_column'];
+        
         $item = array();
         // Get all the information on the item.
+        $repository = $this->entityManager->getRepository('Book_Entity_BookFigures');
         if (isset($fid)) {
-            $item = DBUtil::selectObjectByID('book_figures', $fid, 'fid');
+            $item = $repository->find($fid);
         } else {
-            $items = array();
-            $where = "WHERE $bookFigList[fig_number]='" . DataUtil::formatForStore($fig_number) . "'" .
-                    " AND $bookFigList[chap_number]='" . DataUtil::formatForStore($chap_number) . "'" .
-                    " AND  $bookFigList[bid]='" . DataUtil::formatForStore($bid) . "'";
+            $where = "WHERE a.fig_number ='" . DataUtil::formatForStore($fig_number) . "'" .
+                    " AND a.chap_number ='" . DataUtil::formatForStore($chap_number) . "'" .
+                    " AND  a.bid ='" . DataUtil::formatForStore($bid) . "'";
             //This should pick out a unqiue item
-            $item = DBUtil::selectObject('book_figures', $where);
+            $item = $repository->getFigures('fid', $where);
         }
         if ($item === false) {
-            return LogUtil::registerError(_GETFAILED);
+            return LogUtil::registerError($this->__('getfigure failed.'));
         }
-        // We should never get here
+        
         return $item;
     }
 
@@ -519,8 +439,7 @@ class Book_Api_User extends Zikula_AbstractApi {
      * @return number of items held by this module
      */
     public function countitems() {
-        $count = DBUtil::selectObjectCount('name');
-        return $count;
+        return $this->entityManager->getRepository('Book_Entity_Book')->countBooks();
     }
 
     /**
@@ -536,10 +455,8 @@ class Book_Api_User extends Zikula_AbstractApi {
         if (!(isset($bid))) {
             return false;
         }
-        $pntable = & DBUtil::getTables();
-        $chapList = $pntable['book_chaps_column'];
-        $where = "WHERE " . $chapList['bid'] . "=" . DataUtil::formatForStore($bid);
-        $count = DBUtil::selectObjectCount('book_chaps', $where);
+        $where = "a.bid = '" . DataUtil::formatForStore($bid) . "'";
+        $count = $this->entityManager->getRepository('Book_Entity_BookChapters')->countChapters($where);
         return $count;
     }
 
@@ -562,9 +479,9 @@ class Book_Api_User extends Zikula_AbstractApi {
             LogUtil::registerError(_MODARGSERROR . "incrementcounter");
             return false;
         }
-
-        $res = DBUtil::incrementObjectFieldByID('book', 'counter', $aid, 'aid');
-
+        $res = $this->entityManager->getRepository('Book_Entity_BookArticles')->setCounter($aid, $counter);
+        
+        
         if ($res === false) {
             return LogUtil::registerError(_GETFAILED);
         }
@@ -593,21 +510,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
 
         // Get datbase setup
-        $pntable = & DBUtil::getTables();
-        $bookDataList = &$pntable['book_user_data_column'];
-        $order_by = "ORDER BY $bookDataList[start] ASC";
-
-        if (isset($aid)) {
-            $where = "WHERE $bookDataList[uid] = '" . DataUtil::formatForStore($uid) . "'
-				AND  $bookDataList[aid] = '" . DataUtil::formatForStore($aid) . "'";
-        } else {
-            $where = "WHERE $bookDataList[uid] = '" . DataUtil::formatForStore($uid) . "'";
-        }
-        $items = DBUtil::selectObjectArray('book_user_data', $where, $order_by);
-
-        if ($items === false) {
-            return LogUtil::registerError(_GETFAILED);
-        }
+        $items = $this->entityManager->getRepository('Book_Entity_BookUserData')->getHighlights($uid, $aid);
 
         // Return the item array
         return $items;

@@ -18,7 +18,7 @@
 
 class Book_Entity_Repository_BookFigures extends Doctrine\ORM\EntityRepository
 {
-     public function getArticles($orderBy='', $where='')
+     public function getFigures($orderBy='', $where='')
     {
         $dql = "SELECT a FROM Book_Entity_BookFigures a";
         

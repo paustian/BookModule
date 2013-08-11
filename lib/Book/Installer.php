@@ -89,11 +89,6 @@ class Book_Installer extends Zikula_AbstractInstaller {
     public function upgrade($oldversion) {
         // Upgrade dependent on old version number
         switch ($oldversion) {
-            case 0.1:
-                if (!DBUtil::createTable('book_user_data')) {
-                    return false;
-                }
-
             case 1.0:
                 //We can leave this as mysql specific code because you could not use anything but mysql before 2.0
                 $dbconn = & pnDBGetConn(true);

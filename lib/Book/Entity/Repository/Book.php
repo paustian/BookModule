@@ -17,7 +17,7 @@
 // see http://www.doctrine-project.org/docs/orm/2.1/en/reference/query-builder.html
 class Book_Entity_Repository_Book extends Doctrine\ORM\EntityRepository
 {
-     public function getArticles($orderBy='', $where='')
+     public function getBooks($orderBy='', $where='')
     {
         $dql = "SELECT a FROM Book_Entity_Book a";
         
@@ -43,6 +43,28 @@ class Book_Entity_Repository_Book extends Doctrine\ORM\EntityRepository
             die;
         }
         return $result;
+    }
+    
+    public function countBooks($where=''){
+        $dql = "SELECT count(a.bid) FROM Book_Entity_Book a ";
+        
+        if (!empty($where)) {
+            $dql .= ' WHERE ' . $where;
+        }
+        // generate query
+        $query = $this->_em->createQuery($dql);
+        
+        try {
+            $result = $query->getScalarResult();
+        } catch (Exception $e) {
+            echo "<pre>";
+            var_dump($e->getMessage());
+            var_dump($query->getDQL());
+            var_dump($query->getParameters());
+            var_dump($query->getSQL());
+            die;
+        }
+        return $result[0][1];
     }
 }
 

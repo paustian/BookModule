@@ -18,9 +18,17 @@
 
 class Book_Entity_Repository_BookGloss extends Doctrine\ORM\EntityRepository
 {
-     public function getArticles($orderBy='', $where='')
+     public function getGloss($orderBy='', $where='', $columns='')
     {
-        $dql = "SELECT a FROM Book_Entity_BookGloss a";
+        $dql = "SELECT ";
+        if($columns != ''){
+            foreach($columns as $column){
+                $dql .= "$column ";
+            }
+        } else {
+            $dql .= "a ";
+        }
+         $dql .= "FROM Book_Entity_BookGloss a";
         
         if (!empty($where)) {
             $dql .= ' WHERE ' . $where;
