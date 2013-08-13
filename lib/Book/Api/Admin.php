@@ -283,7 +283,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
         //delete all the chapters associated with this book
         //this will in turn delete al the articles
-        $where = "WHERE a.bid = '" . DataUtil::formatForStore($args['bid']) . "'";
+        $where = "a.bid = '" . DataUtil::formatForStore($args['bid']) . "'";
         $repository = $this->entityManager->getRepository('Book_Entity_BookChapters');
         $chaps_of_book = $repository->getChapters('cid', $where);
         foreach ($chaps_of_book as $chap) {
@@ -313,7 +313,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        $where = "WHERE a.cid = '" . DataUtil::formatForStore($args['cid']) . "'";
+        $where = "a.cid = '" . DataUtil::formatForStore($args['cid']) . "'";
         $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
         $articles_of_book = $repository->getArticles('aid', $where);
 
@@ -749,8 +749,19 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $aid));
         //add glossary terms
         $article['contents'] = $this->add_glossary_terms(array('in_text' => $article['contents']));
-        //save the article
-        return ModUtil::apiFunc('book', 'admin', 'updatearticle', $article);
+        //save the article, we can't just pass article because it is a object 
+        //and does not traslate well to an array
+        return ModUtil::apiFunc('book', 'admin', 'updatearticle', 
+                               array('aid' => $article['aid'],
+                                    'title' => $article['title'],
+                                    'cid' => $article['cid'],
+                                    'bid' => $article['bid'],
+                                    'contents' => $article['contents'],
+                                    'counter' => $article['counter'],
+                                    'lang' => $article['lang'],
+                                    'next' => $article['next'],
+                                   'prev' => $article['prev'],
+                                   'number' => $article['number']));
     }
 
 //glossary addition code
@@ -798,16 +809,9 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if ($result != "") {
             $contents = $result;
         }
-
-        //replace the figures with a link to just the figure
-//    $pattern = "/([^\d][^\"][> ])Figure ([0-9]*)-([0-9]*)/";
-//    $replacement = "$1<a href=\"" . $url . "&amp;bid=$bid&amp;fig_number=$3&amp;chap_number=$2\">Figure $2-$3</a>";
-//    $contents = preg_replace($pattern, $replacement, $contents);
-
+        
         return $key_terms . $contents . "\n";
 
-//update the object. It knows which one to update from the
-//aid stored in the item
     }
 
     /**

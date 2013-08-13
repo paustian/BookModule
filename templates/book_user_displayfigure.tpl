@@ -1,0 +1,10 @@
+{*  book_user_displayfigure.tpl,v 1.4 2006/01/17 03:57:05 paustian Exp  *}
+<div class="book_figure">
+<h3>Figure {$chap_number}-{$fig_number} {$title|pnvarcensor}</h3>
+<div class="image">
+{$img_link}
+</div>
+{if $content_empty == true}
+<p class="figure">{$content}</p>
+{/if}
+</div>

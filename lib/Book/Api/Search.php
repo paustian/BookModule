@@ -26,7 +26,7 @@ class Book_Api_Search extends Zikula_AbstractApi {
     public function options($args) {
         if (SecurityUtil::checkPermission('Book::', '::', ACCESS_READ)) {
             $view = Zikula_View::getInstance('Book');
-            return $view->fetch('book_search_options.htm');
+            return $view->fetch('book_search_options.tpl');
         }
 
         return '';
