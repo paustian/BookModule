@@ -381,7 +381,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if (!SecurityUtil::confirmAuthKey()) {
             return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newglossary'));
         }
-
+        
         // The API function is called.
         $gid = ModUtil::apiFunc('Book', 'admin', 'createglossary', array('term' => $term,
                     'definition' => $definition));
@@ -2098,12 +2098,11 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             foreach ($articles as $article_item) {
                 // Security check
                 if (SecurityUtil::checkPermission('Book::', "$book[bid]::$chapter_info[cid]", ACCESS_EDIT)) {
-                    buildtable($article_item['contents'], $url_table, $chapter_info['number'], $article_item['aid']);
+                    $this->buildtable($article_item['contents'], $url_table, $chapter_info['number'], $article_item['number']);
                 }
             }
         }
-
-        $this->view = new pnRender('Book');
+        $this->view->assign('chapter_num', $chapter_info['number']);
         $this->view->assign('url_table', $url_table);
 
         return $this->view->fetch('book_admin_verify_urls.htm');
@@ -2121,7 +2120,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             $url_row['article_no'] = $article_no;
             $new_urls[] = $url_row;
         }
-        $new_urls = checkurls($new_urls);
+        $new_urls = $this->checkurls($new_urls);
         $url_table = array_merge($url_table, $new_urls);
     }
 
@@ -2145,7 +2144,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $i = 0;
         foreach ($urls as $items) {
             //check to see if it is a valid url
-            if (!is_url($items['url'])) {
+            if (!$this->is_url($items['url'])) {
                 if (preg_match("/^\\//", $items['url'])) {
                     //root directory. Append the host and stop
                     //remove the first /
@@ -2177,14 +2176,14 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                 } else {
                     $func = 'main';
                 }
-                $modfunc = "{$modname}_{$type}_{$func}";
-                if (pnModLoad($modname, $type) && function_exists($modfunc)) {
+                //check to see if we can actually call this function
+                if (ModUtil::getCallable($modname, $type, $func)) {
                     $urls[$i]['present'] = 1;
                 } else {
                     $urls[$i]['present'] = -1;
                 }
             } else {
-                $urls[$i]['present'] = check_http_link($items);
+                $urls[$i]['present'] = $this->check_http_link($items);
             }
             $i++;
         }
@@ -2201,7 +2200,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     }
 
     function check_http_link($inItem) {
-        if (!is_valid_url($inItem['url'])) {
+        if (!$this->is_valid_url($inItem['url'])) {
             return -1;
         } else {
             return 1;

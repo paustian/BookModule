@@ -225,10 +225,20 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-
-        $gloss = new Book_Entity_BookGloss();
-        $gloss->merge($args);
-        $this->entityManager->persist($gloss);
+        //First lets see if we can find it
+        $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
+        $where = "a.term = '" . DataUtil::formatForStore($args['term']). "'";
+        $item = $repository->getGloss('term', $where);
+        $gloss = '';
+        if ($item) {
+            $gloss = $item[0];
+            $gloss->merge($args);
+        } else {
+            $gloss = new Book_Entity_BookGloss();
+            $gloss->merge($args);
+            $this->entityManager->persist($gloss);
+        }
+       
         try {
             $this->entityManager->flush();
         } catch (Zikula_Exception $e) {
@@ -652,8 +662,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         // Build the where clause
         $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
         $where = 'a.definition = \'\'';
-        //$orderby = "ORDER BY $bookGlossList[term]";
-        $items = $repository->getItems('term', $where);
+        $items = $repository->getGloss('term', $where);
         // Return the item array
         return $items;
     }
