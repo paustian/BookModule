@@ -5,7 +5,7 @@
 <div>
     <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
     {section name=i loop=$books}
-    <input type="radio" name="bid" value="{$books[i].bid}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].bid|pnvarcensor} - {$books[i].name|pnvarcensor}
+    <input type="radio" name="bid" value="{$books[i].bid}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].bid} - {$books[i].name|pnvarcensor}
 	<br/>
 	{/section}
         <p>{pnbutton src=folder_documents.gif set=icons/small alt="List Figures" title="List Figures" value="listfigs"}{gt text="List Figures"}</p>

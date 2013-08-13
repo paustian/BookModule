@@ -65,10 +65,11 @@ class Book_Entity_Repository_BookArticles extends Doctrine\ORM\EntityRepository 
     public function setCounter($aid, $counter){
         $dql = "UPDATE Book_Entity_BookArticles a set a.counter = ". $counter .  " WHERE a.aid = " . $aid;
         $query = $this->_em->createQuery($dql);
-        
+        $result = false;
         try {
-            $result = $query->execute();
-            $this->_em->flush();    
+            $query->execute();
+            $this->_em->flush();
+            $result = true;
         } catch (Exception $e) {
             echo "<pre>incrementCounter failed.\n";
             var_dump($e->getMessage());

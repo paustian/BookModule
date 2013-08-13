@@ -396,17 +396,17 @@ class Book_Controller_User extends Zikula_AbstractController {
         }
         if ($article['next'] == 0) {
             //no link assigned, lets see if we can find the next one
-            $next_art = ModUtil::apiFunc('Book', 'user', 'getarticlebyartnumber', array('aid' => $article['aid'] + 1, 'cid' => $article['cid']));
+            $next_art = ModUtil::apiFunc('Book', 'user', 'getarticlebyartnumber', array('number' => $article['number'] + 1, 'cid' => $article['cid']));
             $article['next'] = $next_art['aid'];
         }
-        if (($article['prev'] == 0) || ($article['art_numner'] != 1)) {
+        if (($article['prev'] == 0) || ($article['number'] != 1)) {
             //no link assigned, lets see if we can find the next one
-            $prev_art = ModUtil::apiFunc('Book', 'user', 'getarticlebyartnumber', array('aid' => $article['aid'] - 1, 'cid' => $article['cid']));
+            $prev_art = ModUtil::apiFunc('Book', 'user', 'getarticlebyartnumber', array('number' => $article['number'] - 1, 'cid' => $article['cid']));
             $article['prev'] = $prev_art['aid'];
         }
         $render->assign('aid', $article['aid']);
         $render->assign('cid', $article['cid']);
-        $render->assign('section_id', $article['aid']);
+        $render->assign('art_number', $article['number']);
         $render->assign('number', $chapter['number']);
         $render->assign('content', $content);
         $render->assign('counter', $article['counter']);
@@ -587,7 +587,7 @@ class Book_Controller_User extends Zikula_AbstractController {
     public function displayfigure($args) {
 
         $fig_number = FormUtil::getPassedValue('fig_number', isset($args['fig_number']) ? $args['fig_number'] : null);
-        $chap_number = FormUtil::getPassedValue('number', isset($args['chap_number']) ? $args['number'] : null);
+        $chap_number = FormUtil::getPassedValue('chap_number', isset($args['chap_number']) ? $args['chap_number'] : null);
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         $stand_alone = FormUtil::getPassedValue('stand_alone', isset($args['stand_alone']) ? $args['stand_alone'] : null);
         $width = FormUtil::getPassedValue('width', isset($args['width']) ? $args['width'] : null);

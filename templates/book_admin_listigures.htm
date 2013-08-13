@@ -4,13 +4,13 @@
 <form class="form" action="{pnmodurl modname="Book" type="admin" func="modifyfigure2"}" method="post" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
 <table>
-{section name=i loop=$figData}
+{foreach from=$figData item=i}
 <tr>
-	<td><input type="radio" name="fid2" value="{$figData[i.index].fid}"></td>
-	<td>{$figData[i.index].chap_number}-{$figData[i.index].fig_number} {$figData[i.index].title}</td>
-	<td>{$figData[i.index].content}</td>
+	<td><input type="radio" name="fid2" value="{$i.fid}"></td>
+	<td>{$i.chap_number}-{$i.fig_number} {$i.title}</td>
+	<td>{$i.content}</td>
 </tr>
-{/section}
+{/foreach}
 </table>
 <p><input name="submit" type="submit" value="{gt text="Edit Figure"}" /></p>
 

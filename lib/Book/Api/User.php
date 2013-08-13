@@ -106,7 +106,7 @@ class Book_Api_User extends Zikula_AbstractApi {
             $chapters = $repository->getChapters();
         } else {
             $where = "a.bid = '" . DataUtil::formatForStore($args['bid']) . "'";
-            $chapters = $repository->getChapters('', $where);
+            $chapters = $repository->getChapters('number', $where);
         }
         if ($chapters === false) {
             return LogUtil::registerError(__("Getting chapters failed"));
@@ -189,7 +189,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         //build where clause
         $where = "a.cid = '" . DataUtil::formatForStore($cid) . "'";
 
-        $repository = $this->entityManager->getRepository('Book_Entity_BookArticle');
+        $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
         $articles = $repository->getArticles('number', $where);
 
         //workout the acess level
@@ -223,7 +223,7 @@ class Book_Api_User extends Zikula_AbstractApi {
             return false;
         }
 
-        $repository = $this->entityManager->getRepository('Book_Entity_BookArticle');
+        $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
         $item = $repository->find($aid);
 
         //make sure we have access.
@@ -244,7 +244,7 @@ class Book_Api_User extends Zikula_AbstractApi {
     public function getarticlebyartnumber($args) {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
-        if (!isset($args['aid']) || !isset($args['cid'])) {
+        if (!isset($args['number']) || !isset($args['cid'])) {
             LogUtil::registerError($this->__('getarticlebyartnumber argument error'));
             return false;
         }
@@ -253,15 +253,15 @@ class Book_Api_User extends Zikula_AbstractApi {
             return false;
         }
 
-        $where = "a.cid = " . DataUtil::formatForStore($args['cid']) . " AND a.aid = " . DataUtil::formatForStore($args['aid']);
+        $where = "a.cid = " . DataUtil::formatForStore($args['cid']) . " AND a.number = " . DataUtil::formatForStore($args['number']);
         $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
-        $item = $repository->getArticle('', $where);
+        $article = $repository->getArticles('', $where);
 
-        if ($item === false) {
+        if ($article === false) {
             return LogUtil::registerError(_GETFAILED);
         }
         // Return the items
-        return $item;
+        return $article[0];
     }
 
     public function getallfigures($args) {
@@ -272,16 +272,16 @@ class Book_Api_User extends Zikula_AbstractApi {
             if (!SecurityUtil::checkPermission('Book::', $bid . "::.*", ACCESS_OVERVIEW)) {
                 return false;
             }
-            $where = "WHERE a.bid = '" . DataUtil::formatForStore($bid) . "'";
+            $where = "a.bid = '" . DataUtil::formatForStore($bid) . "'";
         } else {
             if (!SecurityUtil::checkPermission('Book::', ".*::.*", ACCESS_OVERVIEW)) {
                 return false;
             }
         }
-        $item = $this->entityManager->getRepository('Book_Entity_Book')->getFigures('fig_number', $where);
+        $item = $this->entityManager->getRepository('Book_Entity_BookFigures')->getFigures('chap_number', $where);
 
         // Return the item array
-        return $items;
+        return $item;
     }
 
     /**
@@ -419,11 +419,12 @@ class Book_Api_User extends Zikula_AbstractApi {
         if (isset($fid)) {
             $item = $repository->find($fid);
         } else {
-            $where = "WHERE a.fig_number ='" . DataUtil::formatForStore($fig_number) . "'" .
+            $where = "a.fig_number ='" . DataUtil::formatForStore($fig_number) . "'" .
                     " AND a.chap_number ='" . DataUtil::formatForStore($chap_number) . "'" .
                     " AND  a.bid ='" . DataUtil::formatForStore($bid) . "'";
             //This should pick out a unqiue item
-            $item = $repository->getFigures('fid', $where);
+            $result = $repository->getFigures('fid', $where);
+            $item = $result[0];
         }
         if ($item === false) {
             return LogUtil::registerError($this->__('getfigure failed.'));

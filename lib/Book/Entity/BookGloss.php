@@ -84,7 +84,7 @@ class Book_Entity_BookGloss extends Zikula_EntityAccess {
         return $this->definition;
     }
 
-    public function setDefnition($definition) {
+    public function setDefinition($definition) {
         $this->definition = $definition;
     }
     

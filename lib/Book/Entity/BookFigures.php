@@ -84,7 +84,7 @@ class Book_Entity_BookFigures extends Zikula_EntityAccess {
     }
 
     public function getFid() {
-        return $this->aid;
+        return $this->fid;
     }
 
     public function setFid($fid) {
@@ -108,11 +108,11 @@ class Book_Entity_BookFigures extends Zikula_EntityAccess {
         $this->chap_number = $chap_number;
     }
 
-    public function getBook_id() {
+    public function getBid() {
         return $this->bid;
     }
 
-    public function setBook_id($bid) {
+    public function setBid($bid) {
         $this->bid = $bid;
     }
 
@@ -140,12 +140,12 @@ class Book_Entity_BookFigures extends Zikula_EntityAccess {
         $this->perm = $perm;
     }
     
-    public function getContents() {
-        return $this->contents;
+    public function getContent() {
+        return $this->content;
     }
 
-    public function setContents($contents) {
-        $this->contents = $contents;
+    public function setContent($content) {
+        $this->content = $content;
     }
 
 }

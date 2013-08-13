@@ -99,6 +99,7 @@ class Book_Entity_BookArticles extends Zikula_EntityAccess {
         $this->next = 0;
         $this->prev = 0;
         $this->aid = 0;
+        $this->number = 0;
     }
 
     public function getAid() {
@@ -117,19 +118,19 @@ class Book_Entity_BookArticles extends Zikula_EntityAccess {
         $this->title = $title;
     }
 
-    public function getChap_id() {
+    public function getCid() {
         return $this->cid;
     }
 
-    public function setChap_id($cid) {
+    public function setCid($cid) {
         $this->cid = $cid;
     }
 
-    public function getBook_id() {
+    public function getBid() {
         return $this->bid;
     }
 
-    public function setBook_id($bid) {
+    public function setBid($bid) {
         $this->bid = $bid;
     }
 

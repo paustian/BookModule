@@ -132,11 +132,11 @@ class Book_Installer extends Zikula_AbstractInstaller {
                 $sqlStatements = array();
                 //Change the Book table
                 $sqlStatements[] = "ALTER TABLE  `book` CHANGE  `book_id`  `bid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
-                    CHANGE  `name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
+                    CHANGE  `book_name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
                 
                 //Change the articles table
                 $sqlStatements[] = "ALTER TABLE  `book_art` CHANGE  `book_art_id`  `aid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
-                    CHANGE  `book_art_title`  `art_title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_art_title`  `title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
                     CHANGE  `book_art_chap_id`  `cid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
                     CHANGE  `book_art_book_id`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
                     CHANGE  `book_art_contents`  `contents` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
@@ -151,16 +151,16 @@ class Book_Installer extends Zikula_AbstractInstaller {
                     CHANGE  `book_chap_book_id`  `bid` BIGINT( 20 ) NOT NULL DEFAULT  '0',
                     CHANGE  `book_chap_name`  `name` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL";
                 //Change the Figures table
-                $sqlStatements[] = "ALTER TABLE  `book_figs` CHANGE  `book_figs_fid`  `fid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                $sqlStatements[] = "ALTER TABLE  `book_figs` CHANGE  `book_figs_fig_id`  `fid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
                     CHANGE  `book_figs_fig_number`  `fig_number` BIGINT( 20 ) NOT NULL ,
                     CHANGE  `book_figs_chap_number`  `chap_number` BIGINT( 20 ) NOT NULL ,
                     CHANGE  `book_figs_book_id`  `bid` BIGINT( 20 ) NOT NULL ,
                     CHANGE  `book_figs_img_link`  `img_link` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-                    CHANGE  `book_figs_title`  `title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-                    CHANGE  `book_figs_perm`  `perm` TINYINT( 4 ) NOT NULL DEFAULT  '1',
+                    CHANGE  `book_figs_fig_title`  `title` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+                    CHANGE  `book_figs_fig_perm`  `perm` TINYINT( 4 ) NOT NULL DEFAULT  '1',
                     CHANGE  `book_figs_content`  `content` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL";
                 //Change the Glossary Table
-                $sqlStatements[] = "ALTER TABLE  `book_gloss` CHANGE  `book_gloss_gid`  `gid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
+                $sqlStatements[] = "ALTER TABLE  `book_gloss` CHANGE  `book_gloss_gloss_id`  `gid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
                     CHANGE  `book_gloss_term`  `term` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
                     CHANGE  `book_gloss_definition`  `definition` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
                     CHANGE  `book_gloss_user`  `user` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
@@ -168,7 +168,7 @@ class Book_Installer extends Zikula_AbstractInstaller {
                 //Finally changet the user data table
                 $sqlStatements[] = "ALTER TABLE  `book_user_data` CHANGE  `book_user_data_id`  `udid` BIGINT( 20 ) NOT NULL AUTO_INCREMENT ,
                     CHANGE  `book_user_data_uid`  `uid` BIGINT( 20 ) NOT NULL ,
-                    CHANGE  `book_user_data_aid`  `aid` BIGINT( 20 ) NOT NULL ,
+                    CHANGE  `book_user_data_art_id`  `aid` BIGINT( 20 ) NOT NULL ,
                     CHANGE  `book_user_data_start`  `start` BIGINT( 20 ) NOT NULL DEFAULT  '0',
                     CHANGE  `book_user_data_end`  `end` BIGINT( 20 ) NOT NULL DEFAULT  '0'";
                 

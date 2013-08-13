@@ -29,7 +29,7 @@
 // ----------------------------------------------------------------------
 class Book_Api_Admin extends Zikula_AbstractApi {
 
-                public function create($args) {
+    public function create($args) {
         // Argument check
         if ((!isset($args['name']))) {
             LogUtil::registerArgsError();
@@ -54,7 +54,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             echo "</pre>";
             die;
         }
-        
+
         // Return the id of the newly created item to the calling process
         return $book->getBid();
     }
@@ -89,7 +89,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        
+
         $chapter = new Book_Entity_BookChapters();
         $chapter->merge($args);
         $this->entityManager->persist($chapter);
@@ -127,7 +127,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 (!isset($args['contents'])) ||
                 (!isset($args['next'])) ||
                 (!isset($args['prev'])) ||
-                (!isset($args['aid'])) ||
+                (!isset($args['number'])) ||
                 (!isset($args['cid'])) || ($args['cid'] < 1) ||
                 (!isset($args['lang']))) {
             LogUtil::registerArgsError();
@@ -150,7 +150,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        
+
         $article = new Book_Entity_BookArticles();
         $article->merge($args);
         $this->entityManager->persist($article);
@@ -188,7 +188,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        
+
         $fig = new Book_Entity_BookFigures();
         $fig->merge($args);
         $this->entityManager->persist($fig);
@@ -225,7 +225,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        
+
         $gloss = new Book_Entity_BookGloss();
         $gloss->merge($args);
         $this->entityManager->persist($gloss);
@@ -270,22 +270,22 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        
+
         //delete all the chapters associated with this book
         //this will in turn delete al the articles
         $where = "WHERE a.bid = '" . DataUtil::formatForStore($args['bid']) . "'";
         $repository = $this->entityManager->getRepository('Book_Entity_BookChapters');
-        $chaps_of_book = $repository->getChapters('cid',$where);
+        $chaps_of_book = $repository->getChapters('cid', $where);
         foreach ($chaps_of_book as $chap) {
             //we call the module controller to make sure it communicates with any hooked modules.
             ModUtil::func('Book', 'admin', 'deletechapter', array('cid' => $article['cid']));
         }
-        
+
         //Now delete the book
         $book = $this->entityManager->getRepository('Book_Entity_Book')->find($item['bid']);
         $this->entityManager->remove($book);
         $this->entityManager->flush();
-       
+
 
         // Let the calling process know that we have finished successfully
         return true;
@@ -305,8 +305,8 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
         $where = "WHERE a.cid = '" . DataUtil::formatForStore($args['cid']) . "'";
         $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
-        $articles_of_book = $repository->getArticles('aid',$where);
-        
+        $articles_of_book = $repository->getArticles('aid', $where);
+
         foreach ($articles_of_book as $article) {
             //we call the module controller to make sure it communicates with any hooked modules.
             ModUtil::func('Book', 'admin', 'deletearticle', array('aid' => $article['aid']));
@@ -377,16 +377,16 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        
+
         $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
         $gloss = $repository->find($args['gid']);
-        
+
         if ($gloss == false) {
             //we don't throw an error, we depend on the caling funciton to do that.
             return false;
         }
-        
-        $gloss->remove();
+
+        $this->entityManager->remove($gloss);
         $this->entityManager->flush();
 
         // Let the calling process know that we have finished successfully
@@ -415,12 +415,12 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
         $repository = $this->entityManager->getRepository('Book_Entity_Book');
         $book = $repository->find($args['bid']);
-        
+
         if ($book == false) {
             //we don't throw an error, we depend on the caling funciton to do that.
             return false;
         }
-        
+
         $book->merge($args);
         $this->entityManager->flush();
 
@@ -462,7 +462,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             ;
             return false;
         }
-        
+
         $item->merge($args);
         $this->entityManager->flush();
 
@@ -473,7 +473,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             //So, even though our args array only contains bid and cid information,
             //it still works, without destroying the contents of the articles
             $articles = $this->entityManager->getRepository('Book_Entity_BookArticles');
-            
+
             $articles->updateBookIdForChapter($args['cid'], $args['bid']);
         }
         // Let the calling process know that we have finished successfully
@@ -515,14 +515,14 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         //delete any highlight data for this article since we just edited it.
         $userData = $this->entityManager->getRepository('Book_Entity_BookUserData');
         $userData->removeHighlightsForArticle($args['aid']);
-        
-        
+
+
         //now update the article
         $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
         $article = $repository->find($args['aid']);
         $article->merge($args);
         $this->entityManager->flush();
-        
+
         //notify the hook that we deletd the article
         $this->notifyHooks(new Zikula_ProcessHook('book.ui_hooks.articles.process_edit', $aid));
 
@@ -555,10 +555,10 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
 
         $repository = $this->entityManager->getRepository('Book_Entity_BookFigures');
-        $fig= $repository->find($args['fid']);
+        $fig = $repository->find($args['fid']);
         $fig->merge($args);
         $this->entityManager->flush();
-        
+
         return true;
     }
 
@@ -578,19 +578,19 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerPermissionError();
             return false;
         }
-        
+
         //update the glossary entry
         $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
-        $gloss = $repository->find($args['aid']);
+        $gloss = $repository->find($args['gid']);
         $gloss->merge($args);
         $this->entityManager->flush();
-        
+
 
         return true;
     }
 
     public function createhighlight($args) {
-        
+
         //print "uid:$uid art:$aid, start:$start end:$end";die;
         // Argument check
         //we make sure that all the arguments are there
@@ -625,7 +625,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         $userData->merge($args);
         $this->entityManager->persist($userData);
         $this->entityManager->flush();
-        
+
         return true;
     }
 
@@ -635,9 +635,9 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             LogUtil::registerArgsError();
             return false;
         }
-        
+
         //Delete the user data
-        $highlight= $this->entityManager->getRepository('Book_Entity_BookUserData')->find($args['udid']);
+        $highlight = $this->entityManager->getRepository('Book_Entity_BookUserData')->find($args['udid']);
         $this->entityManager->remove($highlight);
         $this->entityManager->flush();
         // Let the calling process know that we have finished successfully

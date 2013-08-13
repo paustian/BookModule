@@ -28,7 +28,9 @@ class Book_Entity_Repository_BookFigures extends Doctrine\ORM\EntityRepository
         
         if(!empty($orderBy)){
             $dql .= " ORDER BY a.$orderBy";
-        } 
+        } else {
+            $dql .= " ORDER BY a.chap_number";
+        }
         // generate query
         $query = $this->_em->createQuery($dql);
 

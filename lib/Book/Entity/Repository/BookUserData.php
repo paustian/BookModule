@@ -68,7 +68,7 @@ class Book_Entity_Repository_BookUserData extends Doctrine\ORM\EntityRepository
        
         if (isset($aid)) {
             $where = "WHERE a.uid = '" . DataUtil::formatForStore($uid) . "'
-				AND  u.aid = '" . DataUtil::formatForStore($aid) . "'";
+				AND  a.aid = '" . DataUtil::formatForStore($aid) . "'";
         } else {
             $where = "WHERE a.uid = '" . DataUtil::formatForStore($uid) . "'";
         }
