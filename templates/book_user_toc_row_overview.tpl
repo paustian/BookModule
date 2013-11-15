@@ -1,7 +1,8 @@
-<li><a href="{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" cid=$chapter.cid}">{gt text="Chapter "} {$chapter.number} {$chapter.name}</a>
-<ul>
-{foreach item=article from=$articles}
-<li>{$chapter.number}-{$article.aid} {$article.title}{if $show_internals}artid:{$article.aid}; next:{$article.next}; prev:{$article.prev}{/if}</li>
-{/foreach}
-</ul>
-</li>
+<h3 class="acc_header"><a href="{modurl modname="Book" type="user" func="displayarticlesinchapter" cid=$chapter.cid}">Chapter {$chapter.number} {$chapter.name} {if $show_internals}Chapter id:{$chapter.cid}{/if}</a></h3>
+<div>
+    {foreach item=article from=$articles}
+        <p>
+           {$chapter.number}-{$article.number} {$article.title}
+        </p>
+    {/foreach}
+</div>

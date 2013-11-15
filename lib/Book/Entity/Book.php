@@ -8,7 +8,7 @@
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * StrainID2 entity class
+ * Book entity class
  *
  * Annotations define the entity mappings to database.
  *

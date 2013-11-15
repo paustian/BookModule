@@ -8,7 +8,7 @@
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * StrainID2 entity class
+ * BookUserData entity class
  *
  * Annotations define the entity mappings to database.
  *
@@ -81,12 +81,12 @@ class Book_Entity_BookUserData extends Zikula_EntityAccess
         $this->uid = $uid;
     }
     
-    public function getArt_id()
+    public function getAid()
     {
         return $this->aid;
     }
 
-    public function setArt_id($aid)
+    public function setAid($aid)
     {
         $this->aid = $aid;
     }

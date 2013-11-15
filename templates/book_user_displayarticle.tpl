@@ -6,6 +6,7 @@
 {else}
 <p>({$counter} Reads)</p>
 {/if}
+{themesetvar name="number" value=$number}
 {if $show_internals}
 <form class="form" action="{pnmodurl modname="Book" type="admin" func="modifyarticle2"}" method="post" enctype="application/x-www-form-urlencoded">
    <p><input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
@@ -32,7 +33,7 @@
 |
 {/if}
 {if $next!=0}
-<a href="{pnmodurl modname="Book" func="displayarticle" aid=$next}">[{gt text="Next"}]</a><br />
+<a href="{modurl modname="Book" func="displayarticle" aid=$next}">[{gt text="Next"}]</a><br />
 {/if}
 {$content|pnvarcensor}
 

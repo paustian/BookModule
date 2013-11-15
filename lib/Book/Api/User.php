@@ -337,8 +337,8 @@ class Book_Api_User extends Zikula_AbstractApi {
         
         $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
         $qb = $repository->createQueryBuilder('a');
-        $qb->where("a.term LIKE $term");
-        $query = $repository->getQuery();
+        $qb->where("a.term LIKE '%$term%'");
+        $query = $qb->getQuery();
         $item = $query->getResult();
         
         if ($items === false) {
@@ -381,7 +381,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         if (isset($gid)) {
             $item = $repository->find($gid);
         } else {
-            $where = 'a.user = ' . DataUtil::formatForStore($user);
+            $where = "a.user = '" . DataUtil::formatForStore($user) . "'";
             $item = $repository->getGloss('gid', $where);
         }
         //check for errors

@@ -94,21 +94,34 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         if (!ModUtil::available('Book')) {
             return false;
         }
-
-        $url = pnGetCurrenturl();
+        $short_urls = System::getVar('shorturls');
+        $url = System::getCurrentUrl();
         //first try to get the book id
-        $pattern = '/bid=([0-9]{1,3})/';
+        $pattern = '';
+        if ($short_urls) {
+            $pattern = '|bid/([0-9]{1,3})|';
+        } else {
+            $pattern = '|bid=([0-9]{1,3})|';
+        }
         $matches = array();
         preg_match($pattern, $url, $matches);
         $aid = -1;
         $bid = -1;
         if ($matches[1] == "") {
             //next try aid
-            $pattern = '/aid=([0-9]{1,3})/';
+            if ($short_urls) {
+                $pattern = '|aid/([0-9]{1,3})|';
+            } else {
+                $pattern = '|aid=([0-9]{1,3})|';
+            }
             preg_match($pattern, $url, $matches);
             if ($matches[1] == "") {
                 //OK now try the cid
-                $pattern = '/cid=([0-9]{1,3})/';
+                if ($short_urls) {
+                    $pattern = '|cid/([0-9]{1,3})|';
+                } else {
+                    $pattern = '|cid=([0-9]{1,3})|';
+                }
                 preg_match($pattern, $url, $matches);
                 if ($matches[1] == "") {
                     //if we get here, we must not be in a book, so just return
@@ -124,14 +137,12 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         } else {
             $bid = $matches[1];
         }
-        //print $bid . "<br />";
-        //print_r($matches); die;
 
-        $content = pnModFunc('Book', 'user', 'shorttoc', array('bid' => $bid,
-            'aid' => $aid));
+        $content = ModUtil::func('Book', 'user', 'shorttoc', array('bid' => $bid,
+                    'aid' => $aid));
 
         $blockinfo['content'] = $content;
-        return pnBlockThemeBlock($blockinfo);
+        return BlockUtil::themeBlock($blockinfo);
     }
 
     /**

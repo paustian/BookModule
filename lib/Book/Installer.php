@@ -178,6 +178,8 @@ class Book_Installer extends Zikula_AbstractInstaller {
                         $stmt->execute();
                     } catch (Exception $e) {
                         // trap and toss exceptions if you need to.
+                        echo($e);
+                        die;
                     }
                 }
                 
