@@ -474,7 +474,7 @@ class Book_Controller_User extends Zikula_AbstractController {
     public function glossary_add($matches) {
         $term = $matches[1];
         $item = array();
-        $where = "a.term=' " . DataUtil::formatForStore($term) . "'";
+        $where = "a.term='" . DataUtil::formatForStore($term) . "'";
 
         $item = $this->entityManager->getRepository('Book_Entity_BookGloss')->getGloss('', $where);
 
@@ -490,7 +490,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         if ($item === false) {
             return $matches[0];
         }
-        $definition = $item['definition'];
+        $definition = $item[0]['definition'];
         $lcterm = strtolower($term);
         $url = DataUtil::formatForDisplayHTML(pnModurl('Book', 'user', 'displayglossary')) . "#$lcterm";
         $ret_text = "<a class=\"glossary\" href=\"$url\" onmouseover=\"tooltip.pop(this, '$definition') \">$term</a>";

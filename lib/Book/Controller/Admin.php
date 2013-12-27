@@ -754,7 +754,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $lang = FormUtil::getPassedValue('lang', isset($args['lang']) ? $args['lang'] : null);
         $next = FormUtil::getPassedValue('next', isset($args['next']) ? $args['next'] : null);
         $prev = FormUtil::getPassedValue('prev', isset($args['prev']) ? $args['prev'] : null);
-        $aid = FormUtil::getPassedValue('aid', isset($args['aid']) ? $args['aid'] : null);
+        $number = FormUtil::getPassedValue('number', isset($args['number']) ? $args['number'] : null);
 
         // Call apiupdate to do all the work
         if (ModUtil::apiFunc('Book', 'admin', 'updatearticle', array('aid' => $aid, 'bid' => $bid,
@@ -764,7 +764,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                     'lang' => $lang,
                     'next' => $next,
                     'prev' => $prev,
-                    'aid' => $aid))) {
+                    'number' => $number))) {
             // Success
             SessionUtil::setVar('statusmsg', $this->__('Article updated.'));
         } else {

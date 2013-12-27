@@ -54,16 +54,16 @@ class Book_Api_Search extends Zikula_AbstractApi {
         $results = $query->getResult();
         $objArray = array();
 
-        foreach ($stories as $story) {
+        foreach ($results as $article) {
             //make sure we have permission for this object.
-            if (!SecurityUtil::checkPermission('Book::', $story['bid'] . "::" . $story['cid'], ACCESS_OVERVIEW)) {
+            if (!SecurityUtil::checkPermission('Book::', $article['bid'] . "::" . $article['cid'], ACCESS_OVERVIEW)) {
                 continue;
             }
             $obj = array();
-            $obj['title'] = DataUtil::formatForStore($story['title']);
-            $contents = $this->shorten_text($story['contents']);
+            $obj['title'] = DataUtil::formatForStore($article['title']);
+            $contents = $this->shorten_text($article['contents']);
             $obj['text'] = DataUtil::formatForStore($contents);
-            $obj['extra'] = DataUtil::formatForStore($story['aid']);
+            $obj['extra'] = DataUtil::formatForStore($article['aid']);
             $obj['module'] = 'Book';
             $obj['created'] = DataUtil::formatForStore(date("Y-m-d H:i:s"));
             $obj['session'] = DataUtil::formatForStore($sessionId);
