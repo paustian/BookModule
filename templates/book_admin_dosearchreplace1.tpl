@@ -2,7 +2,7 @@
 {include file="book_admin_menu.tpl"}
 <h2>{gt text="Search and Replace in a Chapter/Book"}</h2>
 <h2>{gt text="This is a powerful, but dangerous function. Construct your expresions carefully!"}</h2>
-<form class="form" action="{pnmodurl modname="Book" type="admin" func="dosearchreplace2"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="Book" type="admin" func="dosearchreplace2"}" method="post" enctype="application/x-www-form-urlencoded">
       <div>
         <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
 

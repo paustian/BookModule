@@ -1,7 +1,7 @@
 {*  book_admin_newfigure.tpl,v 1.3 2007/01/13 20:45:36 paustian Exp  *}
 {include file="book_admin_menu.tpl"}
 <h2>{gt text="New Figure"}</h2>
-<form class="form" action="{pnmodurl modname="book" type="admin" func="createfigure"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="book" type="admin" func="createfigure"}" method="post" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
 <table>
 <tr>

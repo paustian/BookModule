@@ -2,17 +2,17 @@
 {include file="book_admin_menu.tpl"}
 <hr>
 <h2>{gt text="Create a new article"}</h2>
-<form class="form" action="{pnmodurl modname="book" type="admin" func="createarticle"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="book" type="admin" func="createarticle"}" method="post" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
 
 <table>
 
     {section name=i loop=$books}
 		<tr><td>
-		<input type="radio" name="book" value="{$books[i].bid|pnvarcensor}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].name|pnvarcensor}
+		<input type="radio" name="book" value="{$books[i].bid|}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].name|}
 		</td>
 		<td>
-		<select name="chapter_{$books[i].bid|pnvarcensor}">
+		<select name="chapter_{$books[i].bid|}">
 			{html_options options=$chapters[i]}
 		</select>
 		</td></tr>
@@ -24,11 +24,10 @@
 
 <p>{gt text="Contents"}</p>
 <p><textarea name="contents" id="contents" cols="100" rows="18" wrap="virtual"></textarea></p>
-{pnconfiggetvar name='multilingual' assign='multilingual'}
-{if $multilingual}
+{if $modvars.ZConfig.multilingual}
 <div class="z-formrow">
     <label for="book_language">{gt text='Language'}</label>
-    {languagelist id='book_language' name='lang' all=true installed=true selected=$language}
+    {html_select_locales id='lang' name='lang' selected=$modvars.ZConfig.language_i18n installed=1 all=false class='form-control'}
 </div>
 {/if}
 <table>

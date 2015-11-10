@@ -5,6 +5,6 @@
 <p>
 	{$content[i]}
 </p>
-<p><a href="{pnmodurl modname="Book" type="user" func="displayarticle" aid=$aids[i]}">{gt text="link to content..."}</a>
+<p><a href="{modurl modname="Book" type="user" func="displayarticle" aid=$aids[i]}">{gt text="link to content..."}</a>
 <hr>
 {/section}

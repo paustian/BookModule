@@ -1,11 +1,11 @@
 {*  book_admin_modifyarticle2.tpl,v 1.4 2006/01/02 01:51:12 paustian Exp  *}
 {include file="book_admin_menu.tpl"}
 <h2>{gt text="Edit Article"}</h2>
-<form class="form" action="{pnmodurl modname="Book" type="admin" func="updatearticle"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="Book" type="admin" func="updatearticle"}" method="post" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
     <input type="hidden" name="aid" value="{$aid}" />
     <input type="hidden" name="bid" value="{$bid}" />
-<p>Book: {$book|pnvarcensor}</p>
+<p>Book: {$book}</p>
 <p>Chapter: 
 	<select name="chapter_id">
 			{html_options options=$chap_menu selected=$selected_chapter}
@@ -16,11 +16,10 @@
 
 <p>{gt text="Content"}</p>
 <p><textarea id="book_article_contents" name="contents" cols="100" rows="18">{$contents}</textarea></p>
-{pnconfiggetvar name='multilingual' assign='multilingual'}
-{if $multilingual}
+{if $modvars.ZConfig.multilingual}
 <div class="z-formrow">
     <label for="book_language">{gt text='Language'}</label>
-    {languagelist id='book_language' name='lang' all=true installed=true selected=$language}
+    {html_select_locales id='lang' name='lang' selected=$modvars.ZConfig.language_i18n installed=1 all=false class='form-control'}
 </div>
 {/if}
 <table>

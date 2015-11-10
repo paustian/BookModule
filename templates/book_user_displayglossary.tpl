@@ -2,12 +2,12 @@
 <div class="book_glossary">
 <h3>Glossary</h3>
 {section name=i loop=$glossary}
-<a name="{$glossary[i].term|pnvarcensor|lower}"></a>
+<a name="{$glossary[i].term}"></a>
 <p class="glossterm">
-{$glossary[i].term|pnvarcensor}
+{$glossary[i].term}
 </p>
 <p class="glossdef">
-{$glossary[i].definition|pnvarcensor}
+{$glossary[i].definition}
 </p>
 {/section}
 </div>

@@ -1,7 +1,7 @@
 {*  book_admin_modifyglossary1.tpl,v 1.2 2005/08/30 19:29:32 paustian Exp  *}
 {include file="book_admin_menu.tpl"}
 <h2>{gt text="Edit Glossary"}</h2>
-<form class="form" action="{pnmodurl modname="Book" type="admin" func="modifyglossary2"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="Book" type="admin" func="modifyglossary2"}" method="post" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
     <p>{gt text="Glossary Term ID:"}<input type="text" name="gid" size="5" maxlength="5"/></p>
 	<p><input name="submit" type="submit" value="{gt text="Edit Glossary"}" /></p>

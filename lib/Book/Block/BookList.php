@@ -114,8 +114,9 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
         // Note that for a block the corresponding module must be passed.
         $books = array();
         // Display each item, permissions permitting
+        
         foreach ($items as $item) {
-            $item['toc'] = ModUtil::func('Book', 'user', 'toc', array('bid' => $item['bid']));
+            $item['toc'] = ModUtil::apiFunc('Book', 'user', 'toc', array('bid' => $item['bid']));
             $books[]=$item;
         }
         

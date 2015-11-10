@@ -27,10 +27,20 @@
 // Original Author of file: Timothy Paustian
 // Purpose of file:  Book user display functions
 // ----------------------------------------------------------------------
+
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 class Book_Controller_User extends Zikula_AbstractController {
 
     private $maxpixels = 595;
 
+   
+    protected function postInitialize()
+    {
+        // In this controller we do not want caching.
+        $this->view->setCaching(Zikula_View::CACHE_DISABLED);
+    }
+    
     /**
      * the main user function
      * This function is the default function, and is called whenever the module is
@@ -40,7 +50,7 @@ class Book_Controller_User extends Zikula_AbstractController {
      * function (often this is the view() function)
      */
     public function main() {
-       // Security check
+        // Security check
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_READ)) {
             return LogUtil::registerPermissionError();
         }
@@ -53,15 +63,15 @@ class Book_Controller_User extends Zikula_AbstractController {
 
         if ($bookItems == 0) {
             //if we dont' have a book, then you
-            //cannot have chapters
-            return LogUtil::registerError(__('There are no books to display'));
+            //cannot have chapters. This is not an error however.
+            return true;
         }
         //I now need to convert this to a new array
         $bookTitleArray = array();
         foreach ($bookItems as $item) {
 
             if (SecurityUtil::checkPermission('Book::', "$item[bid]::.*", ACCESS_READ)) {
-                $bookTitleArray[] = array('url' => pnModurl('Book', 'user', 'toc', array('bid' => $item['bid'])), 'title' => $item['name']);
+                $bookTitleArray[] = array('url' => ModUtil::url('Book', 'user', 'toc', array('bid' => $item['bid'])), 'title' => $item['name']);
             } else {
                 $bookTitleArray[] = array('title' => $item['title']);
             }
@@ -90,7 +100,7 @@ class Book_Controller_User extends Zikula_AbstractController {
 
         //Make sure the book exists
         if (!$book) {
-            return LogUtil::registerError(__('That book does not exist.'));
+            return LogUtil::addWarningPopup(__('That book does not exist.'));
         }
         // The API function is called.  The arguments to the function are passed in
         // as their own arguments array
@@ -99,7 +109,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         // The return value of the function is checked here, and if the function
         // suceeded then an appropriate message is posted.
         if (!$chapters) {
-            return LogUtil::registerError(__('No chapters are present'));
+            return LogUtil::addWarningPopup(__('No chapters are present'));
         }
 
         // Loop through each chapter and extract the text we need for display.
@@ -119,7 +129,7 @@ class Book_Controller_User extends Zikula_AbstractController {
                         $art_array[] = $article_item;
                     }
                 }
-                
+
                 $this->view->assign('chapter', $chapter_item);
                 $this->view->assign('articles', $art_array);
                 $this->view->caching = false;
@@ -169,10 +179,10 @@ class Book_Controller_User extends Zikula_AbstractController {
         // The return value of the function is checked here, and if the function
         // suceeded then an appropriate message is posted.
         if (!$chapters) {
-            return LogUtil::registerError(__('There are no chapters.'));
+            return LogUtil::addWarningPopup(__('There are no chapters.'));
         }
 
-       
+
         // Loop through each chapter and extract the text we need for display.
         //$toc_string = "<ol>\n";
         $chapter_data = array();
@@ -242,7 +252,7 @@ class Book_Controller_User extends Zikula_AbstractController {
 
         //Make sure the book exists
         if (!$book) {
-            return LogUtil::registerError(__('That book does not exist.'));
+            return LogUtil::addWarningPopup(__('That book does not exist.'));
         }
         // The API function is called.  The arguments to the function are passed in
         // as their own arguments array
@@ -251,9 +261,9 @@ class Book_Controller_User extends Zikula_AbstractController {
         // The return value of the function is checked here, and if the function
         // suceeded then an appropriate message is posted.
         if (!$chapters) {
-            return LogUtil::registerError(__('There are no chapters for this book.'));
+            return LogUtil::addWarningPopup(__('There are no chapters for this book.'));
         }
-        
+
         // Loop through each chapter and extract the text we need for display.
         $chapter_titles = array();
         $chapter_ids = array();
@@ -309,7 +319,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         //get the chapter title
         $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $cid));
         if (!$chapter) {
-            return LogUtil::registerError(__('There are no chapters.'));
+            return LogUtil::addWarningPopup(__('There are no chapters.'));
         }
         $this->view->assign('chapter', $chapter['name']);
         //Get the article data. We do not need the content information
@@ -319,7 +329,7 @@ class Book_Controller_User extends Zikula_AbstractController {
 
         //Did we get the chatpers data?
         if (!$articles) {
-            return LogUtil::registerError(__('There are no articles.'));
+            return LogUtil::addWarningPopup(__('There are no articles.'));
         }
         //extract the articles to display.
         $art_titles = array();
@@ -361,7 +371,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         if (!isset($do_glossary)) {
             $do_glossary = true;
         }
-        pnModFunc('book', 'user', 'checkuserstatus');
+        ModUtil::apiFunc('book', 'user', 'checkuserstatus');
 
         //get the chapter title
         $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $aid));
@@ -401,26 +411,25 @@ class Book_Controller_User extends Zikula_AbstractController {
         $this->view->assign('prev', $article['prev']);
         $this->view->assign('bid', $article['bid']);
         //this code is used for the hook
-        $return_url = new Zikula_ModUrl('Book', 'User', 'displayarticle', '', array(aid => $aid));
+        $return_url = ModUtil::url('Book', 'User', 'displayarticle',  array('aid' => $aid));
         $this->view->assign('returnurl', $return_url);
 
         //call the user api to increment the counter
-        if (!ModUtil::apiFunc('Book', 'user', 'setcounter', array('aid' => $aid, 'counter' => $article['counter']))) {
-            return LogUtil::registerError(__('Count not set book counter.'));
-        }
+        ModUtil::apiFunc('Book', 'user', 'setcounter', array('aid' => $aid, 'counter' => $article['counter']));
+
         if (SecurityUtil::checkPermission('Book::Chapter', "$article[bid]::$article[cid]", ACCESS_EDIT)) {
             $this->view->assign('show_internals', true);
         }
-
+        
         $return_text = $this->view->fetch('book_user_displayarticle.tpl');
-
+        
         $return_text = $this->addfigures($return_text);
-
+        
         //work in the glossary items
-        if ($do_glossary) {
+            if ($do_glossary) {
             $return_text = $this->add_glossary_defs(array('in_text' => $return_text));
         }
-
+        
         return $return_text;
     }
 
@@ -492,7 +501,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         }
         $definition = $item[0]['definition'];
         $lcterm = strtolower($term);
-        $url = DataUtil::formatForDisplayHTML(pnModurl('Book', 'user', 'displayglossary')) . "#$lcterm";
+        $url = DataUtil::formatForDisplayHTML(ModUtil::url('Book', 'user', 'displayglossary')) . "#$lcterm";
         $ret_text = "<a class=\"glossary\" href=\"$url\" onmouseover=\"tooltip.pop(this, '$definition') \">$term</a>";
         return $ret_text;
     }
@@ -560,7 +569,7 @@ class Book_Controller_User extends Zikula_AbstractController {
             $height = 0;
         }
 
-        $figure = pnModFunc('Book', 'user', 'displayfigure', array('fig_number' => $fig_number,
+        $figure = ModUtil::func('Book', 'user', 'displayfigure', array('fig_number' => $fig_number,
             'chap_number' => $chap_number,
             'bid' => $book_number,
             'stand_alone' => false,
@@ -612,7 +621,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         } else {
             $this->view->assign('content_empty', "false");
         }
-
+        
         $this->view->assign('content', $figure['content']);
         $this->view->assign('title', $figure['title']);
         $this->view->assign('img_link', $visible_link);
@@ -624,6 +633,8 @@ class Book_Controller_User extends Zikula_AbstractController {
         if (SecurityUtil::checkPermission('Book::', '::', ACCESS_ADMIN)) {
             $this->view->assign('show_internals', true);
         }
+        //clear the cache because there may be more than one figure per page.
+        $this->view->clear_cache('book_user_displayfigure.tpl');
         return $this->view->fetch('book_user_displayfigure.tpl');
     }
 
@@ -639,21 +650,25 @@ class Book_Controller_User extends Zikula_AbstractController {
             fclose($file_link);
         } else
         if ((strstr($link, ".gif")) || (strstr($link, ".jpg")) || (strstr($link, ".png"))) {
-            $image_data = getimagesize($link);
-            if ($width == 0) {
-                $width = $image_data[0];
+            //This was added to prevent failures on file missing. For some reason getimagesize sometimes throws 
+            //an error, even though the path to the file is correct
+            if (file_exists($link)) {
+                $image_data = getimagesize($link);
+                if ($width == 0) {
+                    $width = $image_data[0];
+                }
+                if ($height == 0) {
+                    $height = $image_data[1];
+                }
+                //if the image is too wide, then shrink it to be no larger than max pixels.
+                if (!$stand_alone && $width > $this->maxpixels) {
+                    $height = round($height * $this->maxpixels / $width);
+                    $width = $this->maxpixels;
+                }
+                $ret_link = "<p class=\"image\"><img class=\"image\" src=\"" . $link . "\" width=\"" . $width . "\" height=\"" . $height . "\" alt=\""  . $alt_link . "\" /></p>";
+            } else {
+                $ret_link = "<p class=\"image\"><img class=\"image\" src=\"" . $link . "\" alt=\""  . $alt_link . "\"/></p>";
             }
-            if ($height == 0) {
-                $height = $image_data[1];
-            }
-            //print $width;die;
-            //if the image is too wide, then shrink it to be no larger than max pixels.
-            if (!$stand_alone && $width > $this->maxpixels) {
-                $height = $height * $this->maxpixels / $width;
-                $width = $this->maxpixels;
-            }
-
-            $ret_link = "<p class=\"image\"><img class=\"image\" src=\"" . $link . "\" width=\"" . $width . "\" height=\"" . $height . "\" /></p>";
         } else
         if (strstr($link, ".mov")) {
             if (($width == 0) || ($height == 0)) {
@@ -697,7 +712,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         if (!SecurityUtil::checkPermission('Book::', "::", ACCESS_OVERVIEW)) {
             return LogUtil::registerPermissionError();
         }
-        
+
         $gloss_data = ModUtil::apiFunc('Book', 'user', 'getallglossary');
         $this->view->assign('glossary', $gloss_data);
 
@@ -715,7 +730,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         extract($args);
 
         if (!isset($bid)) {
-            return LogUtil::registerArgError();
+            return LogUtil::addErrorPopup($this->__('Argument error in displaybook.'));
         }
 
 // Security check -
@@ -730,7 +745,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         $chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
         foreach ($chapters as $chap_item) {
             if (SecurityUtil::checkPermission('Book::Chapter', "$bid::$chap_item[cid]", ACCESS_READ)) {
-                $ret_text = $ret_text . pnModFunc('Book', 'user', 'displaychapter', array('cid' => $chap_item['cid']));
+                $ret_text = $ret_text . ModUtil::apiFunc('Book', 'user', 'displaychapter', array('cid' => $chap_item['cid']));
             }
         }
         return $ret_text;
@@ -748,7 +763,7 @@ class Book_Controller_User extends Zikula_AbstractController {
 // Get parameters
         $cid = FormUtil::getPassedValue('cid', isset($args['cid']) ? $args['cid'] : null);
 
-       
+
 //grab the chapter data
         $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $cid));
         if (!SecurityUtil::checkPermission('Book::Chapter', "$chapter[bid]::$chapter[cid]", ACCESS_READ)) {
@@ -769,14 +784,12 @@ class Book_Controller_User extends Zikula_AbstractController {
                 continue;
             }
             $article_name[] = $article_item['title'];
-            $article_number[] = $article_item['aid'];
+            $article_number[] = $article_item['number'];
             $article_content[] = $article_item['contents'];
             //we are going to view every article, so we want to increment
             //the counter. This may be too expensive.
-            $article_item['counter']++;
-            if (!ModUtil::apiFunc('Book', 'user', 'setcounter', array('aid' => $article_item['aid'], 'counter' => $article_item['counter']))) {
-                return LogUtil::registerError(__("Could not set counter."));
-            }
+            $article_item['counter'] ++;
+            ModUtil::apiFunc('Book', 'user', 'setcounter', array('aid' => $article_item['aid'], 'counter' => $article_item['counter']));
         }
         $this->view->assign('article_content', $article_content);
         $this->view->assign('article_number', $article_number);
@@ -834,7 +847,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         $term = FormUtil::getPassedValue('text', isset($args['text']) ? $args['text'] : null);
 
 //some quick checks
-       
+
         $comment = "";
 
         if ($term == "") {
@@ -863,8 +876,8 @@ class Book_Controller_User extends Zikula_AbstractController {
                             //if the book term is defined then redirect to that term.
                             //make all lowercase before making the url
                             $term = strtolower($term);
-                            $url = pnModurl('Book', 'user', 'displayglossary') . "#$term";
-                            pnRedirect($url);
+                            $url = ModUtil::url('book', 'admin', 'dodeletearticle') . "#$term";
+                            new RedirectResponse($url);
                         }
                     } else {
                         $comment = __('You can only submit 10 words per user.');
@@ -897,7 +910,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         //Check to make sure it is valid
         if ($uid == "") {
             //user id is empty, we are not in
-            return LogUtil::registerError(__('You are not logged in. In this case you cannot add highlights.'));
+            return LogUtil::addWarningPopup(__('You are not logged in. In this case you cannot add highlights.'));
         }
 
         //get all the highligts for this user
@@ -960,12 +973,12 @@ class Book_Controller_User extends Zikula_AbstractController {
 
         //grab the user
         if ($inText == "") {
-            return LogUtil::registerError(__('You must choose a selection to hilight before calling this function.'));
+            return LogUtil::addWarningPopup(__('You must choose a selection to hilight before calling this function.'));
         }
         //Get the referring url
         $url = pnServerGetVar('HTTP_REFERER');
         if ($aid < 0) {
-            return LogUtil::registerError(__('You can only highligh text in articles'));
+            return LogUtil::addWarningPopup(__('You can only highligh text in articles'));
         }
 
 
@@ -981,7 +994,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         $uid = UserUtil::getVar('uid');
         if ($uid == "") {
             //user id is empty, we are not in
-            return LogUtil::registerError(__('You are not logged in. In this case you cannot add highlights.'));
+            return LogUtil::addWarningPopup(__('You are not logged in. In this case you cannot add highlights.'));
         }
 
         //find the offsets
@@ -1000,7 +1013,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         if ($end == 0 || ($start > $end)) {
 
             //print "Start: $start, End: $end <br />";
-            return LogUtil::registerError(__('You cannot highligh that text. Try a slightly different selection.') . "start:$start end:$end");
+            return LogUtil::addWarningPopup(__('You cannot highligh that text. Try a slightly different selection.') . "start:$start end:$end");
         }
 
 
@@ -1022,15 +1035,13 @@ class Book_Controller_User extends Zikula_AbstractController {
                         return DataUtil::formatForDisplayHTML("I was unable to delete that highlight");
                     } else {
                         //if we deleted a highlight, then we are done.
-                        pnRedirect($url);
-                        return true;
+                        return new RedirectResponse($url);
                     }
                 }
             }
         }
         if (!$recordHighlight) {
-            pnRedirect($url);
-            return true;
+            return new RedirectResponse($url);
         }
 
         //record this in the database;
@@ -1043,8 +1054,7 @@ class Book_Controller_User extends Zikula_AbstractController {
             return false;
         }
         //finally redirect to the page again, this time with highlights
-        pnRedirect($url);
-        return true;
+        return new RedirectResponse($url);;
     }
 
     /**
@@ -1062,7 +1072,7 @@ class Book_Controller_User extends Zikula_AbstractController {
      */
     public function checkuserstatus() {
 
-        if (!pnModGetVar('Book', 'securebooks')) {
+        if (!ModUtil::gerVar('Book', 'securebooks')) {
             return;
         }
 
@@ -1094,8 +1104,8 @@ class Book_Controller_User extends Zikula_AbstractController {
                     //make sure they are all coming from the same computer,
                     //if not, log the user out.
                     if ($firstIp != $sesItem['ipaddr']) {
-                        $url = pnModurl('book', 'user', 'morethanoneuser');
-                        pnRedirect($url);
+                        $url = ModUtil::url('book', 'user', 'morethanoneuser');
+                        return $url;
                         break;
                     }
                 }
@@ -1113,7 +1123,21 @@ class Book_Controller_User extends Zikula_AbstractController {
         pnUserLogOut();
         return $this->view->fetch('book_user_morethanoneuser.tpl');
     }
-
+    
+    public function download() {
+        $allow_dl = false;
+        if (UserUtil::isLoggedIn()) {
+            $uid = UserUtil::getVar('uid');
+            $groups = UserUtil::getGroupsForUser($uid);
+            //print_r($groups);die;
+            //This is a real hack in that you have to know the group number
+            if(array_search(3, $groups)){
+                $allow_dl = true;
+            }
+        }
+        $this->view->assign('allow_dl', $allow_dl);
+        return $this->view->fetch('book_user_download.tpl');
+    }
 }
 
 ?>

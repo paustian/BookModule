@@ -43,7 +43,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         $items = $repository->getBooks();
 
         if ($items === false) {
-            SessionUtil::setVar('errormsg', __('There are no books defined. Create a book first.'));
+            LogUtil::addWarningPopup($this->__('There are no books defined. Create a book first.'));
             return false;
         }
         // Return the items
@@ -60,7 +60,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
         if (!isset($bid)) {
-            LogUtil::registerError(__('bid not set in userapi_get'));
+            LogUtil::addErrorPopup($this->__('bid not set in userapi_get'));
             return false;
         }
         // create a empty result set
@@ -69,7 +69,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         $book = $repository->find($bid);
 
         if ($book === false) {
-            SessionUtil::setVar('errormsg', __('There are no books defined. Create a book first.'));
+            LogUtil::addWarningPopup($this->__('There are no books defined. Create a book first.'));
             return false;
         }
 
@@ -109,13 +109,16 @@ class Book_Api_User extends Zikula_AbstractApi {
             $chapters = $repository->getChapters('number', $where);
         }
         if ($chapters === false) {
-            return LogUtil::registerError(__("Getting chapters failed"));
+            return LogUtil::addErrorPopup($this->__("Getting chapters failed"));
         }
         $ret_items = array();
         //now check permissions on chapters
+        
         foreach ($chapters as $chap) {
+            $chapID = $chap->getCid();
+            $bookID = $chap->getBid();
             //now check permisions
-            if (SecurityUtil::checkPermission('Book::', "$chap->getBid()::$chap->getCid()", ACCESS_READ)) {
+            if (SecurityUtil::checkPermission('Book::', "$bookID::$chapID", ACCESS_READ)) {
                 $ret_items[] = $chap;
             }
         }
@@ -135,7 +138,7 @@ class Book_Api_User extends Zikula_AbstractApi {
 
         // Argument check
         if (!isset($cid)) {
-            LogUtil::registerError(_MODARGSERROR . "getchapter");
+            LogUtil::addErrorPopup($this->__('Argument error in getchapter.'));
             return false;
         }
 
@@ -148,7 +151,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
 
         if ($chap === false) {
-            return LogUtil::registerError(_GETFAILED);
+            return LogUtil::addErrorPopup($this->__('Unable to get chapter.'));
         }
         // Return the items
         return $chap;
@@ -183,7 +186,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
         // Argument check
         if (!isset($cid)) {
-            LogUtil::registerError(_MODARGSERROR . "getallarticles");
+            LogUtil::addErrorPopup($this->__('Argument error in getallarticles.'));
             return false;
         }
         //build where clause
@@ -219,7 +222,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
         if (!isset($aid)) {
-            LogUtil::registerError($this->__('Error no article id for getarticle'));
+            LogUtil::addErrorPopup($this->__('Error no article id for getarticle'));
             return false;
         }
 
@@ -245,7 +248,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
         if (!isset($args['number']) || !isset($args['cid'])) {
-            LogUtil::registerError($this->__('getarticlebyartnumber argument error'));
+            LogUtil::addErrorPopup($this->__('getarticlebyartnumber argument error'));
             return false;
         }
 
@@ -258,7 +261,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         $article = $repository->getArticles('', $where);
 
         if ($article === false) {
-            return LogUtil::registerError(_GETFAILED);
+            return LogUtil::addErrorPopup($this->__('Article get failed in getarticlebyartnumber.'));
         }
         // Return the items
         return $article[0];
@@ -342,7 +345,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         $item = $query->getResult();
         
         if ($items === false) {
-            return LogUtil::registerError(_GETFAILED);
+            return LogUtil::addErrorPopup($this->__('Unable to find glossary term in findglossaryterm.'));
         }
         //this is not an error, the value was not found, which is an OK result
         if (empty($items)) {
@@ -368,7 +371,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present, if
         // not then set an appropriate error message and return
         if (!isset($gid) && !isset($user)) {
-            LogUtil::registerError(_MODARGSERROR . "getglossary");
+            LogUtil::addErrorPopup($this->__('Argument error in getglossary.'));
             return false;
         }
         //general permission check. You have to be able to access the book, but we don't need a permission filter
@@ -386,7 +389,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
         //check for errors
         if ($item === false) {
-            return LogUtil::registerError(_GETFAILED);
+            return LogUtil::addErrorPopup($this->__('Unable to get in getglossary.'));
         }
         // Return the item array
         return $item;
@@ -402,7 +405,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         //you can find a figure by id or by book, chapter and figure number
         if (!isset($args['fid'])) {
             if (!isset($args['fig_number']) || !isset($args['chap_number']) || !isset($args['bid'])) {
-                LogUtil::registerError($this->__('Variable error getfigure'));
+                LogUtil::addErrorPopup($this->__('Variable error getfigure'));
                 return false;
             }
             $fig_number = $args['fig_number'];
@@ -427,7 +430,7 @@ class Book_Api_User extends Zikula_AbstractApi {
             $item = $result[0];
         }
         if ($item === false) {
-            return LogUtil::registerError($this->__('getfigure failed.'));
+            return LogUtil::addErrorPopup($this->__('getfigure failed.'));
         }
         
         return $item;
@@ -477,14 +480,14 @@ class Book_Api_User extends Zikula_AbstractApi {
         $counter = $args['counter'];
 
         if (!isset($aid) || !isset($counter)) {
-            LogUtil::registerError(_MODARGSERROR . "incrementcounter");
+            LogUtil::addErrorPopup($this->__('Argument error in setcounter.'));
             return false;
         }
         $res = $this->entityManager->getRepository('Book_Entity_BookArticles')->setCounter($aid, $counter);
         
         
         if ($res === false) {
-            return LogUtil::registerError(_GETFAILED);
+            return LogUtil::addErrorPopup($this->__('Setcounter failed.'));
         }
         return $res;
     }
@@ -506,7 +509,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         $aid = $args['aid'];
 
         if (!isset($uid)) {
-            LogUtil::registerError(_MODARGSERROR . "gethighlights");
+            LogUtil::addErrorPopup($this->__('Argument error in gethighlights.'));
             return false;
         }
 

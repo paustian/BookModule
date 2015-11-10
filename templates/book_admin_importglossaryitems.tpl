@@ -7,7 +7,7 @@
 &lt;definition&gt;<b>{gt text="definition"}</b> &lt;/definition&gt;<br />
 &lt;/glossitem&gt;<br />
 </p>
-<form class="form" action="{pnmodurl modname="Book" type="admin" func="doglossaryimport"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="Book" type="admin" func="doglossaryimport"}" method="post" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
 <textarea name="gloss_text" cols="120" rows="30">
 </textarea>

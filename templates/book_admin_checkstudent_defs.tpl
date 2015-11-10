@@ -1,6 +1,6 @@
 {*  book_admin_checkstudent_defs.tpl,v 1.1 2007/02/03 13:02:44 paustian Exp  *}
 {include file="book_admin_menu.tpl"}
-<form class="form" action="{pnmodurl modname="Book" type="admin" func="modifyglossaryitems"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="Book" type="admin" func="modifyglossaryitems"}" method="post" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="gids" value="{$gids}" />
 <table border=1>
 <tr>

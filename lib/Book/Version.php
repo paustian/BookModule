@@ -15,7 +15,7 @@ class Book_Version extends Zikula_AbstractVersion
         // this defines the module's url and should be in lowercase without space
         $meta['url']            = $this->__('book');
         $meta['core_min'] = '1.3.0'; // Fixed to 1.3.x range
-        $meta['core_max'] = '1.3.99'; // Fixed to 1.3.x range
+        $meta['core_max'] = '1.4.99'; // Fixed to 1.4.x range
         $meta['capabilities']   = array(HookUtil::SUBSCRIBER_CAPABLE => array('enabled' => true));
         
         $meta['securityschema'] = array('Book::Chapter' => 'Book id (int)::Chapter id (int)');

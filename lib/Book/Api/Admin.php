@@ -27,12 +27,15 @@
 // Original Author of file: Timothy Paustian
 // Purpose of file:  Book administration API
 // ----------------------------------------------------------------------
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use ModUtil;
+
 class Book_Api_Admin extends Zikula_AbstractApi {
 
     public function create($args) {
         // Argument check
         if ((!isset($args['name']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Arguments not set properly in create function'));
             return false;
         }
 
@@ -71,7 +74,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         //negative chapters
         if ((!isset($args['name'])) ||
                 (!isset($args['bid']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in createchapter.'));
             return false;
         }
 
@@ -122,24 +125,24 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         //we make sure that all the arguments are there
         //and that the chapter is larger than 1
         //negative chapters
+        if (!isset($args['prev'])) {
+            $args['prev'] = 0;
+        }
+        if (!isset($args['next'])) {
+            $args['next'] = 0;
+        }
         if ((!isset($args['title'])) ||
                 (!isset($args['bid'])) ||
                 (!isset($args['contents'])) ||
-                (!isset($args['next'])) ||
-                (!isset($args['prev'])) ||
                 (!isset($args['number'])) ||
-                (!isset($args['cid'])) || ($args['cid'] < 1) ||
-                (!isset($args['lang']))) {
-            LogUtil::registerArgsError();
+                (!isset($args['cid'])) ||
+                ($args['cid'] < 1) ||
+                (!isset($args['lang']))
+        ) {
+            LogUtil::addErrorPopup($this->__('Argument error in createarticle.'));
             return false;
         }
 
-        if ($args['next'] == '') {
-            $args['next'] = 0;
-        }
-        if ($args['prev'] == '') {
-            $args['prev'] = 0;
-        }
         //add glossary terms
         $contents = $this->add_glossary_terms(array('in_text' => $args['contents']));
         $args['contents'] = $contents;
@@ -179,7 +182,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 (!isset($args['perm'])) ||
                 (!isset($args['bid'])) ||
                 (!isset($args['img_link']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in createfigure.'));
             return false;
         }
         // Security check - important to do this as early on as possible to
@@ -209,7 +212,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         // Argument check
         if ((!isset($args['term'])) ||
                 (!isset($args['definition']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in createglossary.'));
             return false;
         }
         if ((!isset($args['user']))) {
@@ -227,7 +230,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         }
         //First lets see if we can find it
         $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
-        $where = "a.term = '" . DataUtil::formatForStore($args['term']). "'";
+        $where = "a.term = '" . DataUtil::formatForStore($args['term']) . "'";
         $item = $repository->getGloss('term', $where);
         $gloss = '';
         if ($item) {
@@ -238,7 +241,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             $gloss->merge($args);
             $this->entityManager->persist($gloss);
         }
-       
+
         try {
             $this->entityManager->flush();
         } catch (Zikula_Exception $e) {
@@ -261,7 +264,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function delete($args) {
         // Argument check
         if (!isset($args['bid'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in delete.'));
             return false;
         }
 
@@ -288,7 +291,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         $chaps_of_book = $repository->getChapters('cid', $where);
         foreach ($chaps_of_book as $chap) {
             //we call the module controller to make sure it communicates with any hooked modules.
-            ModUtil::func('Book', 'admin', 'deletechapter', array('cid' => $article['cid']));
+            ModUtil::apiFunc('Book', 'admin', 'deletechapter', array('cid' => $article['cid']));
         }
 
         //Now delete the book
@@ -305,7 +308,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         // Argument check - make sure that all required arguments are present,
         // if not then set an appropriate error message and return
         if (!isset($args['cid'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in deletechapter'));
             return false;
         }
         // Security check
@@ -319,7 +322,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
         foreach ($articles_of_book as $article) {
             //we call the module controller to make sure it communicates with any hooked modules.
-            ModUtil::func('Book', 'admin', 'deletearticle', array('aid' => $article['aid']));
+            ModUtil::apiFunc('Book', 'admin', 'deletearticle', array('aid' => $article['aid']));
         }
 
         //delete the chapter
@@ -334,7 +337,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function deletearticle($args) {
         // Argument check
         if (!isset($args['aid'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in deletearticle.'));
             return false;
         }
         $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $args['aid']));
@@ -358,7 +361,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function deletefigure($args) {
         // Argument check
         if (!isset($args['fid'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in deletefigure.'));
             return false;
         }
         //security check
@@ -379,7 +382,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function deleteglossary($args) {
         // Argument check
         if (!isset($args['gid'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in deleteglossary.'));
             return false;
         }
         //security check
@@ -413,7 +416,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         // Argument check
         if ((!isset($args['bid'])) ||
                 (!isset($args['name']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in update.'));
             return false;
         }
         $bid = $args['bid'];
@@ -451,7 +454,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 (!isset($args['name'])) ||
                 (!isset($args['number'])) ||
                 (!isset($args['cid']))) {
-            return LogUtil::registerArgsError();
+            return LogUtil::addErrorPopup($this->__('Argument error in updatechatper.'));
             ;
         }
 
@@ -504,7 +507,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 (!isset($args['prev'])) ||
                 (!isset($args['aid'])) ||
                 (!isset($args['cid']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in updatearticle.'));
             return false;
         }
 
@@ -553,7 +556,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 (!isset($args['perm'])) ||
                 (!isset($args['title'])) ||
                 (!isset($args['img_link']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in updatefigure.'));
             return true;
         }
 
@@ -578,7 +581,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if ((!isset($args['gid'])) ||
                 (!isset($args['term'])) ||
                 (!isset($args['definition']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in updateglossary.'));
             return true;
         }
 
@@ -610,7 +613,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 (!isset($args['aid'])) ||
                 (!isset($args['start'])) ||
                 (!isset($args['end']))) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in createhighlight.'));
             return false;
         }
         //now check to make sure the variables make sense
@@ -619,7 +622,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
                 ($args['aid'] < 1) ||
                 ($args['start'] < 0) ||
                 ($args['end']) < 0) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in createhighlight.'));
             return false;
         }
 
@@ -642,7 +645,7 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function deletehighlight($args) {
         // Argument check
         if (!isset($args['udid'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in deletehighlight.'));
             return false;
         }
 
@@ -674,14 +677,14 @@ class Book_Api_Admin extends Zikula_AbstractApi {
     public function dosearchreplacebook($args) {
         //no securtiy check needed, handled at the chapter level
         if (!isset($args['bid']) || !isset($args['search_pat']) || !isset($args['replace_pat']) || !isset($args['preview'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in dosearchreplacebook.'));
             return true;
         }
         //grab all the chapters from the book
         $items = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $args['bid']));
         //check to make sure we got something
         if (!$items) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in dosearchreplacebook.'));
         }
         $return_text = "";
         foreach ($items as $item) {
@@ -694,9 +697,10 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
     public function dosearchreplacechap($args) {
         if (!isset($args['cid']) || !isset($args['bid']) || !isset($args['search_pat']) || !isset($args['replace_pat']) || !isset($args['preview'])) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in dosearchreplacechap.'));
             return true;
         }
+       
 
         // Security check - important to do this as early on as possible to
         // avoid potential security holes or just too much wasted processing
@@ -707,15 +711,17 @@ class Book_Api_Admin extends Zikula_AbstractApi {
 
         $art_items = ModUtil::apiFunc('Book', 'user', 'getallarticles', array('cid' => $args['cid']));
         if (!$art_items) {
-            LogUtil::registerArgsError();
+            LogUtil::addErrorPopup($this->__('Argument error in dosearchreplacechap. Could not find articles'));
         }
         $preview_text = "";
         $search_pat = $args['search_pat'];
+
         $replace_pat = $args['replace_pat'];
         if ($args['preview']) {
             $replace_pat = "<b>$replace_pat</b>";
         }
         $repository = $this->entityManager->getRepository('Book_Entity_BookArticles');
+                    
         foreach ($art_items as $item) {
             $count;
             $old = $item['contents'];
@@ -723,19 +729,45 @@ class Book_Api_Admin extends Zikula_AbstractApi {
             if ($args['preview']) {
                 $new = preg_replace($search_pat, $replace_pat, $old, -1, $count);
                 if (!isset($new)) {
-                    // there is an error in the serach pattern
-                    return LogUtil::registerError(__('The search pattern for the regular expression is poorly formed.'));
+                    $search_pat = '~' . $search_pat . '~';
+                    $new = preg_replace($search_pat, $replace_pat, $old, -1, $count);
+                    if (!isset($new)) {
+                        // there is an error in the serach pattern
+                        return LogUtil::addErrorPopup($this->__('The search pattern for the regular expression is poorly formed.'));
+                    }
                 }
                 if ($count > 0) {
                     $preview_text .= "<h3>" . $item['title'] . "</h3>\n<p>" . $new . "</p>";
                 }
             } else {
                 $new = preg_replace($search_pat, $replace_pat, $old, -1, $count);
+                if (!isset($new)) {
+                    $search_pat = '~' . $search_pat . '~';
+                    $new = preg_replace($search_pat, $replace_pat, $old, -1, $count);
+                    if (!isset($new)) {
+                        // there is an error in the serach pattern
+                        return LogUtil::addErrorPopup($this->__('The search pattern for the regular expression is poorly formed.'));
+                    }
+                }
                 $item['contents'] = $new;
                 if ($count > 0) {
                     //get the new article and merge the new data
                     $article = $repository->find($item['aid']);
-                    $article->merge($item);
+                    $item_array = array();
+                    $item_array['aid'] = $item['aid'];
+                    $item_array['title'] = $item['title'];
+                    $item_array['cid'] = $item['cid'];
+                    $item_array['bid'] = $item['bid'];
+                    $item_array['contents'] = $item['contents'];
+                    $item_array['counter'] = $item['counter'];
+                    $item_array['lang'] = $item['lang'];
+                    $item_array['next'] = $item['next'];
+                    $item_array['prev'] = $item['prev'];
+                    $item_array['number'] = $item['number'];
+                    
+                    //Now fixed. You cannot call this function with an object, it must be an array
+                    //and you cannot just cast it, it does funky things. So I had to manuall copy it.
+                    $article->merge($item_array);
                 }
             }
         }
@@ -751,17 +783,16 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         $article['contents'] = $this->add_glossary_terms(array('in_text' => $article['contents']));
         //save the article, we can't just pass article because it is a object 
         //and does not traslate well to an array
-        return ModUtil::apiFunc('book', 'admin', 'updatearticle', 
-                               array('aid' => $article['aid'],
-                                    'title' => $article['title'],
-                                    'cid' => $article['cid'],
-                                    'bid' => $article['bid'],
-                                    'contents' => $article['contents'],
-                                    'counter' => $article['counter'],
-                                    'lang' => $article['lang'],
-                                    'next' => $article['next'],
-                                   'prev' => $article['prev'],
-                                   'number' => $article['number']));
+        return ModUtil::apiFunc('book', 'admin', 'updatearticle', array('aid' => $article['aid'],
+                    'title' => $article['title'],
+                    'cid' => $article['cid'],
+                    'bid' => $article['bid'],
+                    'contents' => $article['contents'],
+                    'counter' => $article['counter'],
+                    'lang' => $article['lang'],
+                    'next' => $article['next'],
+                    'prev' => $article['prev'],
+                    'number' => $article['number']));
     }
 
 //glossary addition code
@@ -809,9 +840,8 @@ class Book_Api_Admin extends Zikula_AbstractApi {
         if ($result != "") {
             $contents = $result;
         }
-        
-        return $key_terms . $contents . "\n";
 
+        return $key_terms . $contents . "\n";
     }
 
     /**

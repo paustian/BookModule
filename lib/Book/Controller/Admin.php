@@ -5,8 +5,18 @@
 // Original Author of file: Timothy Paustian
 // Purpose of file:  Book administration display functions
 // ----------------------------------------------------------------------
+
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\RouterInterface;
+
 class Book_Controller_Admin extends Zikula_AbstractController {
 
+    protected function postInitialize()
+    {
+        // In this controller we do not want caching.
+        $this->view->setCaching(Zikula_View::CACHE_DISABLED);
+    }
+    
     static public function url_replace_func($matches) {
         //you have to do two amp amp because the browser translates one of them.
         //first replace the amp
@@ -58,7 +68,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($bookItems == 0) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::registerError($this->__("You have to create a book before you can create a chapter or an article"));
+            return LogUtil::addWarningPopup($this->__("You have to create a book before you can create a chapter or an article"));
         }
         //I now need to convert this to a new array that can be used in
         //the call to FormSelectMultiple. I actually need to construct
@@ -92,7 +102,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($books == false) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::registerError($this->__('You have to create a book before you can create a chapter or an article'));
+            return LogUtil::addWarningPopup($this->__('You have to create a book before you can create a chapter or an article'));
         }
 
         $chap_menus = array();
@@ -122,7 +132,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         if (!count($chap_menus)) {
-            return LogUtil::registerError($this->__('You have to create a Chapter before you can create an an article'));
+            return LogUtil::addWarningPopup($this->__('You have to create a Chapter before you can create an an article'));
         }
 
 
@@ -150,7 +160,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         $books = ModUtil::apiFunc('Book', 'user', 'getall');
         if ($books == false) {
-            return LogUtil::registerError($this->__('You have to create a book before you can create a chapter or an article'));
+            return LogUtil::addWarningPopup($this->__('You have to create a book before you can create figures'));
         }
 
         $bookMenu = array();
@@ -199,19 +209,16 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         $tid = ModUtil::apiFunc('Book', 'admin', 'create', array('name' => $name));
 
         if ($tid != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Book item created'));
+            LogUtil::addStatusPopup($this->__('Book item created'));
         }
-
-        pnRedirect(pnModurl('Book', 'admin', 'newbook'));
-
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'newbook'));
     }
 
     /**
@@ -233,7 +240,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         // The API function is called.
@@ -243,12 +250,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         if ($cid != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Book item created'));
+            LogUtil::addStatusPopup($this->__('Book item created'));
         }
 
-        pnRedirect(pnModurl('Book', 'admin', 'newchapter'));
-
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'newchapter'));
     }
 
     /**
@@ -281,7 +286,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newarticle'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'newarticle'));
         }
         // print "T:" . $title . "\nb_id:" . $bid . "\nA number:" .  $aid. "\nchapter:" . $chapter. "\nlang:" . $lang . "\ncontents:" . $contents;
         // die;
@@ -300,15 +305,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         // suceeded then an appropriate message is posted.
         if ($article_id != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('An article was created'));
+            LogUtil::addStatusPopup($this->__('An article was created'));
         }
-
-        // This function generated no output, and so now it is complete we redirect
-        // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'newarticle'));
-
         // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'newarticle'));
     }
 
     /**
@@ -340,7 +340,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newfigure'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'newfigure'));
         }
 
         // The API function is called.
@@ -354,12 +354,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         if ($fid != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Figure was created.'));
+            LogUtil::addStatusPopup($this->__('Figure was created.'));
         }
 
-        pnRedirect(pnModurl('Book', 'admin', 'newfigure'));
-
-        return true;
+        return new RedirectResponse('book', 'admin', 'newfigure');
     }
 
     /**
@@ -379,7 +377,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newglossary'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'newglossary'));
         }
 
         // The API function is called.
@@ -388,12 +386,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         if ($gid != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Glossary item created'));
+            LogUtil::addStatusPopup($this->__('Glossary item created'));
         }
 
-        pnRedirect(pnModurl('Book', 'admin', 'newglossary'));
-
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'newglossary'));
     }
 
     /**
@@ -408,7 +404,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $items = ModUtil::apiFunc('Book', 'user', 'getall');
 
         if ($items == false) {
-            return LogUtil::registerError($this->__('There are no books to get'));
+            return LogUtil::addWarningPopup($this->__('There are no books to get'));
         }
 
         // Security check
@@ -420,7 +416,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
 
         // Return the output that has been generated by this function
-        return $this->view->fetch('book_admin_modify.tpl');
+        return $this->view->fetch('book_admin_modify.tpl', null);
     }
 
     /**
@@ -439,25 +435,21 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         //The bid corresponds to the title for the book.
         $name = FormUtil::getPassedValue($bid, isset($args[$bid]) ? $args[$bid] : null);
-
+        
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'newglossary'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'newglossary'));
         }
 
         // Call apiupdate to do all the work
         if (ModUtil::apiFunc('Book', 'admin', 'update', array('bid' => $bid,
                     'name' => $name))) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('The book was updated.'));
+            LogUtil::addStatusPopup($this->__('The book was updated.'));
         }
 
-        // This function generated no output, and so now it is complete we redirect
-        // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'modify'));
-
         // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'modify'));
     }
 
     /**
@@ -474,7 +466,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $bookData = ModUtil::apiFunc('Book', 'user', 'getall');
 
         if ($bookData == false) {
-            return LogUtil::registerError($this->__('There are no books to get.'));
+            return LogUtil::addWarningPopup($this->__('There are no books to get.'));
         }
 
         $i = $j = 0;
@@ -516,7 +508,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         if ($j == $i) {
-            return LogUtil::registerError($this->__('You have to create a book before you can create a chapter or an article'));
+            return LogUtil::addWarningPopup($this->__('You have to create a book before you can create a chapter or an article'));
         }
 
         $this->view->assign('books', $books);
@@ -549,7 +541,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifychapter'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'modifychapter'));
         }
 
         if (!SecurityUtil::checkPermission('Book::Chapter', "::", ACCESS_EDIT)) {
@@ -562,18 +554,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                     'number' => $number,
                     'cid' => $cid))) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('The book was updated'));
+            LogUtil::addStatusPopup($this->__('The book was updated'));
         } else {
-            LogUtil::registerError($this->__('Update of chapter failed.'));
+            LogUtil::addErrorPopup($this->__('Update of chapter failed.'));
             return false;
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'modifychapter'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifychapter'));
     }
 
     /**
@@ -602,14 +591,14 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         //Make sure books exists
         if (!$books) {
-            return LogUtil::registerError(__('There are no books.'));
+            return LogUtil::addErrorPopup(__('There are no books.'));
         }
         $chapter_data = array();
         // The chapters that are displayed on this overview page depend on the individual
         // user permissions. Therefor, we can not cache the whole page.
         // The single entries are cached, though.
         $this->view->caching = false;
-        $return_text = "";
+        $return_text = $this->view->fetch('book_admin_tocheader.tpl') . "\n";
         foreach ($books as $book) {
             // The API function is called.  The arguments to the function are passed in
             // as their own arguments array
@@ -641,9 +630,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                     $this->view->assign('chapter', $chapter_item);
                     $this->view->assign('articles', $art_array);
                     $this->view->assign('editmode', '1');
-                    $this->view->caching = false;
                     $chapter_data[] = $this->view->fetch("book_user_toc_row.tpl");
-                    $this->view->caching = true;
                 }
             }
             // Display the entries
@@ -669,7 +656,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
 // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyarticle1'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'modifyarticle1'));
         }
 
 
@@ -680,7 +667,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $aid));
 
         if ($article == false) {
-            return LogUtil::registerError($this->__('There was no articles to edit'));
+            return LogUtil::addErrorPopup($this->__('There was no articles to edit'));
         }
         //now get the book and chapter
         $book = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $article['bid']));
@@ -717,7 +704,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $this->view->assign('selected_chapter', $article['cid']);
         $this->view->assign('language', 'English');
         if (ModUtil::available('scribite')) {
-            $scribite = pnModFunc('scribite', 'user', 'loader', array('areas' => array('content')));
+            $scribite = ModUtil::apiFunc('scribite', 'user', 'loader', array('areas' => array('content')));
             PageUtil::AddVar('rawtext', $scribite);
         }
 
@@ -741,7 +728,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyarticle1'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'modifyarticle1'));
         }
         // Get parameters from whatever input we need.
         //This is the radio button that is active
@@ -766,16 +753,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                     'prev' => $prev,
                     'number' => $number))) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Article updated.'));
+            LogUtil::addStatusPopup($this->__('Article updated.'));
         } else {
-            LogUtil::registerError($this->__('Update of article failed.'));
+            LogUtil::addErrorPopup($this->__('Update of article failed.'));
             return false;
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'modifyarticle1'));
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifyarticle1'));
     }
 
     public function modifyfigure1() {
@@ -789,7 +775,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
 
         if ($figData == false) {
-            return LogUtil::registerError($this->__('There are no figures to edit'));
+            return LogUtil::addErrorPopup($this->__('There are no figures to edit'));
         }
 
         //make a menu of the last fifty figures
@@ -830,7 +816,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyfigure1'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'modifyfigure1'));
         }
         //grab parameters
         $fid = FormUtil::getPassedValue('fid2', isset($args['fid2']) ? $args['fid2'] : null);
@@ -857,11 +843,11 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         if ($figure == false) {
-            return LogUtil::registerError($this->__('There are no articles to edit.'));
+            return LogUtil::addWarningPopup($this->__('There are no articles to edit.'));
         }
         $books = ModUtil::apiFunc('Book', 'user', 'getall');
         if ($books == false) {
-            return LogUtil::registerError($this->__('You have to create a book before you can create a chapter or an article'));
+            return LogUtil::addWarningPopup($this->__('You have to create a book before you can create a chapter or an article'));
         }
 
         $bookMenu = array();
@@ -903,7 +889,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 // Confirm authorisation code.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyfigure1'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'modifyfigure1'));
         }
         // Get parameters from whatever input we need.
         $fid = FormUtil::getPassedValue('fid', isset($args['fid']) ? $args['fid'] : null);
@@ -932,18 +918,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         // Call apiupdate to do all the work
         if ($result) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('The figure was updated.'));
+            LogUtil::addStatusPopup($this->__('The figure was updated.'));
         } else {
-            LogUtil::registerError($this->__('Update of figure failed.'));
+            LogUtil::addErrorPopup($this->__('Update of figure failed.'));
             return false;
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'modifyfigure1'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifyfigure1'));
     }
 
     /**
@@ -965,7 +948,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             }
         } else {
             //no books, how can you have a glossary?
-            return LogUtil::registerError(_('You cannot created a glossary when there are no books to edit.'));
+            return LogUtil::addWarningPopup(_('You cannot created a glossary when there are no books to edit.'));
         }
         if (!$authorized) {
             return LogUtil::registerPermissionError();
@@ -974,7 +957,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $glossary_terms = ModUtil::apiFunc('Book', 'user', 'getallglossary');
 
         if ($glossary_terms == false) {
-            return LogUtil::registerError($this->__('There are no glossary terms to edit.'));
+            return LogUtil::addWarningPopup($this->__('There are no glossary terms to edit.'));
         }
 
         $term1 = array();
@@ -1026,7 +1009,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyglossary1'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'modifyglossary1'));
         }
         $gid = FormUtil::getPassedValue('gid', isset($args['gid']) ? $args['gid'] : null);
 
@@ -1045,7 +1028,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'modifyfigure1'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'modifyfigure1'));
         }
 
         $gid = FormUtil::getPassedValue('gid', isset($args['gid']) ? $args['gid'] : null);
@@ -1057,18 +1040,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
                     'term' => $term,
                     'definition' => $definition))) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('The glossary has been updated.'));
+            LogUtil::addStatusPopup($this->__('The glossary has been updated.'));
         } else {
-            LogUtil::registerError($this->__('Update of glossary failed.'));
+            LogUtil::addErrorPopup($this->__('Update of glossary failed.'));
             return false;
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'modifyglossary1'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifyglossary1'));
     }
 
     /**
@@ -1094,7 +1074,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($bookItems == 0) {
             //if we dont' have a book, then you
             //cannot delete it
-            return LogUtil::registerError($this->__('There is not book to edit.'));
+            return LogUtil::addErrorPopup($this->__('There is not book to edit.'));
         }
 
         $this->view->assign('books', $bookItems);
@@ -1114,7 +1094,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'dodelete'));
         }
 
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
@@ -1123,15 +1103,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $tid = ModUtil::apiFunc('Book', 'admin', 'delete', array('bid' => $bid));
         if ($tid != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('The book was deleted.'));
+            LogUtil::addStatusPopup($this->__('The book was deleted.'));
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'view'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'dodelete'));
     }
 
     /**
@@ -1160,7 +1137,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($books == false) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::registerError($this->__('You have to create a book before you can create a chapter or an article'));
+            return LogUtil::addWarningPopup($this->__('You have to create a book before you can create a chapter or an article'));
         }
 
         $chapters = array();
@@ -1189,7 +1166,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         //there are no chapters
         if ($j == $i) {
-            return LogUtil::registerError($this->__('There are no chapters.'));
+            return LogUtil::addErrorPopup($this->__('There are no chapters.'));
         }
 
         // Start the table
@@ -1210,7 +1187,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     }
 
     public function do_export($args) {
-        $ret_url = pnModurl('book', 'admin', 'main');
+        $ret_url = ModUtil::url('book', 'admin', 'main');
         if (!SecurityUtil::checkPermission('Book::', "::", ACCESS_EDIT)) {
             return LogUtil::registerPermissionError($ret_url);
         }
@@ -1221,7 +1198,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($books == false) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::registerError($this->__('There are no books to export'), null, $ret_url);
+            return LogUtil::addWarningPopup($this->__('There are no books to export'), null, $ret_url);
         }
 
         $chapters = array();
@@ -1251,7 +1228,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         //there are no chapters to delete
         if ($j == $i) {
-            return LogUtil::registerError($this->__('There are no chapters to export.'), null, $ret_url);
+            return LogUtil::addWarningPopup($this->__('There are no chapters to export.'), null, $ret_url);
         }
 
         // Start the table
@@ -1288,7 +1265,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'dodelete'));
         }
 
         //A little hocus pocus. Each menu for the
@@ -1302,15 +1279,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $tid = ModUtil::apiFunc('Book', 'admin', 'deletechapter', array('cid' => $cid));
         if ($tid != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Chapter(s) deleted'));
+            LogUtil::addStatusPopup($this->__('Chapter(s) deleted'));
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'chapterdisplay'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'chapterdisplay'));
     }
 
     /**
@@ -1341,7 +1315,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodeletearticle'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'dodeletearticle'));
         }
 
         $aid = FormUtil::getPassedValue('chosen_article', isset($args['chosen_article']) ? $args['chosen_article'] : null);
@@ -1350,7 +1324,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $tid = ModUtil::apiFunc('Book', 'admin', 'deletearticle', array('aid' => $aid));
         if ($tid != false) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Article(s) deleted.'));
+            LogUtil::addStatusPopup($this->__('Article(s) deleted.'));
             //an article was deleted, let the hooks, know about it
             // item deleted, so notify hooks of the event
             $hook = new Zikula_ProcessHook('book.ui_hooks.articles.process_delete', $aid);
@@ -1359,10 +1333,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'dodeletearticle'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'dodeletearticle'));
     }
 
     /**
@@ -1376,14 +1347,14 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
 
         if ($figData == false) {
-            pnRedirect(pnModurl('Book', 'admin', 'dodeletefigure'));
-            return LogUtil::registerError($this->__('There are no figures to delete.'));
+            LogUtil::addWarningPopup($this->__('There are no figures to delete.'));
+            return new RedirectResponse(ModUtil::url('book', 'admin', 'dodeletearticle'));
         }
 
 
         // Security check
         if (!SecurityUtil::checkPermission('Book::', "::", ACCESS_DELETE)) {
-            return LogUtil::registerPermissionError();
+            return ModUtil::url('book_admin_view');
         }
 
         //make a menu of the last fifty figures
@@ -1409,7 +1380,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'dodelete'));
         }
         //get the figure id.
         $fid = FormUtil::getPassedValue('fid2', isset($args['fid2']) ? $args['fid2'] : null);
@@ -1420,15 +1391,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         if (ModUtil::apiFunc('Book', 'admin', 'deletefigure', array('fid' => $fid))) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Book figure deleted.'));
+            LogUtil::addStatusPopup($this->__('Book figure deleted.'));
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'dodeletefigure'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'dodeletefigure'));
     }
 
     public function dodeleteglossary() {
@@ -1491,22 +1459,19 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         //check auth key.
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'dodelete'));
         }
         //get the glossary id.
         $gid = FormUtil::getPassedValue('gid', isset($args['gid']) ? $args['gid'] : null);
 
         if (ModUtil::apiFunc('Book', 'admin', 'deleteglossary', array('gid' => $gid))) {
             // Success
-            SessionUtil::setVar('statusmsg', $this->__('Glossary item(s) deleted.'));
+            LogUtil::addStatusPopup($this->__('Glossary item(s) deleted.'));
         }
 
         // This function generated no output, and so now it is complete we redirect
         // the user to an appropriate page for them to carry on their work
-        pnRedirect(pnModurl('Book', 'admin', 'dodeleteglossary'));
-
-        // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'dodeleteglossary'));
     }
 
     /**
@@ -1532,8 +1497,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //call the api function to do the work.
         ModUtil::apiFunc('Book', 'admin', 'addglossaryitems', array('aid' => $aid));
         //display the newly changed article
-        pnRedirect(pnModurl('Book', 'user', 'displayarticle', array('aid' => $aid)));
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'ddisplayarticle'));
     }
 
     /**
@@ -1553,9 +1517,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
 
-        $this->view = new pnRender();
-
-        if (pnModGetVar('Book', 'securebooks')) {
+        if (ModUtil::getvar('Book', 'securebooks')) {
             $this->view->assign('issecure', "checked");
         } else {
             $this->view->assign('issecure', '');
@@ -1598,8 +1560,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         $secure = FormUtil::getPassedValue('secure', isset($args['secure']) ? $args['secure'] : null);
         ModUtil::setVar('Book', 'securebooks', $secure == "makesecure");
-        pnRedirect(pnModurl('Book', 'admin', 'modifyconfig'));
-        return true;
+        
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifyconfig'));
     }
 
     /**
@@ -1618,7 +1580,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         //get the book id to process
@@ -1640,7 +1602,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $text = "";
         if ($inline_figures == 'on') {
             //process the chapter adding links to the figures.
-            $text = pnModFunc('Book', 'user', 'displaychapter', array('cid' => $cid));
+            $text = ModUtil::func('Book', 'user', 'displaychapter', array('cid' => $cid));
             $text = preg_replace('|<a class=\"glossary\".*?\'\)\">(.*?)</a>|', '$1', $text);
         } else {
 
@@ -1655,7 +1617,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //reading the entity and fixing it, so I have to add a
         //second amp; to get it to read right out of the form.
         $text = preg_replace_callback('|href="(.*?)"|', "Book_Controller_Admin::url_replace_func", $text);
-
+        
+        //Format the text for display. The big error this took care of was 
+        //making sure entitities get displayed right. ° is &deg; µ is &micro;, etc. 
+        $text = DataUtil::formatForDisplay($text);
         $book = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $bid));
 
         $this->view->assign('export_text', $text);
@@ -1673,7 +1638,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $cid = FormUtil::getPassedValue('cid', isset($args['cid']) ? $args['cid'] : null);
 
         if (!isset($cid)) {
-            return LogUtil::registerError(_MODARGSERROR);
+            return LogUtil::addErrorPopup($this->__('Argument error in exportchapter_noinline.'));
         }
 
         $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $cid));
@@ -1718,13 +1683,13 @@ class Book_Controller_Admin extends Zikula_AbstractController {
      */
     public function exportbook($args) {
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         $bid = FormUtil::getPassedValue('book', isset($args['book']) ? $args['book'] : null);
 
         if (!isset($bid)) {
-            return LogUtil::registerError(_MODARGSERROR);
+            return LogUtil::addErrorPopup($this->__('Argument error in exportbook.'));
         }
 
         $book = ModUtil::apiFunc('Book', 'user', 'get', array('bid' => $bid));
@@ -1736,7 +1701,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //now cycle through each chapter delimiting its boundries.
         foreach ($chapters as $chap_item) {
             //flank the return text with chapter xml
-            $export_text = $export_text . "<br />" . pnModFunc('Book', 'admin', 'exportchapter', array('cid' => $chap_item['cid']));
+            $export_text = $export_text . "<br />" . ModUtil::apiFunc('Book', 'admin', 'exportchapter', array('cid' => $chap_item['cid']));
         }
 
         $this->view->assign('export_text', $export_text);
@@ -1775,12 +1740,12 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         //security check
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         $in_data = FormUtil::getPassedValue('chap_to_import', isset($args['chap_to_import']) ? $args['chap_to_import'] : null);
         if (!isset($in_data)) {
-            return LogUtil::registerArgsError();
+            return LogUtil::addWarningPopup($this->__('No data to import.'));
         }
 
         $matches = array();
@@ -1915,20 +1880,15 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             }
         }
         //if we get here, we succeded
-        SessionUtil::setVar('statusmsg', $this->__('Import succedeed'));
+        LogUtil::addStatusPopup($this->__('Import succedeed'));
 
         //We now need to process the entire book, so send it along
-        ModUtil::apiFunc('Book', 'admin', 'processalldocuments', array('bid' => $bid));
-
-        pnRedirect(pnModurl('Book', 'admin', 'doimport'));
-
+        ModUtil::apiFunc('Book', 'admin', 'processalldocuments', array('bid' => $bid));        
         // Return
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'doimport'));
     }
-
+    
     public function dolistbookfigures() {
-        $this->view->caching = false;
-
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_EDIT)) {
@@ -1940,7 +1900,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($bookItems == 0) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::registerError($this->__('You have no books so you cannot list the figures'));
+            return LogUtil::addWarningPopup($this->__('You have no books so you cannot list the figures'));
         }
         $this->view->assign('books', $bookItems);
 
@@ -1953,7 +1913,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
 
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
         }
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         $button = FormUtil::getPassedValue('submit');
@@ -1964,8 +1924,8 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $figData = ModUtil::apiFunc('Book', 'user', 'getallfigures', array('bid' => $bid));
 
         if ($figData == false) {
-            pnRedirect(pnModurl('Book', 'admin', 'dolistbookfigures'));
-            return LogUtil::registerError($this->__('There are no figures to list'));
+            LogUtil::addWarningPopup($this->__('There are no figures to list'));
+            return ModUtil::url('book', 'admin', 'dolistbookfigures');
         }
 
 
@@ -1983,10 +1943,10 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     public function modifyimagepaths($args) {
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         $fids = FormUtil::getPassedValue('fid');
@@ -2008,21 +1968,21 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             // Call apiupdate to do all the work
             if ($result) {
                 // Success
-                SessionUtil::setVar('statusmsg', $this->__('The figure was updated.'));
+                LogUtil::addStatusPopup($this->__('The figure was updated.'));
             } else {
-                LogUtil::registerError($this->__('Update of figure failed.'));
+                LogUtil::addErrorPopup($this->__('Update of figure failed.'));
                 return false;
             }
         }
 
-        return pnRedirect(pnModurl('Book', 'admin', 'dolistbookfigures'));
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'dolistbookfigures'));
     }
 
     public function choose_verify_url() {
 
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
         }
         //get the complete list of books
         $books = ModUtil::apiFunc('Book', 'user', 'getall', array('startnum' => 1));
@@ -2030,7 +1990,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         if ($books == false) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::registerError($this->__('There are no urlS to check since you have not created a book.'));
+            return LogUtil::addWarningPopup($this->__('There are no urlS to check since you have not created a book.'));
         }
 
         $chapters = array();
@@ -2059,7 +2019,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         }
         //there are no chapters to delete
         if ($j == $i) {
-            return LogUtil::registerError($this->__('There are no chapters, so there are no urlS to check.'));
+            return LogUtil::addWarningPopup($this->__('There are no chapters, so there are no urlS to check.'));
         }
 
         // Start the table
@@ -2087,7 +2047,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dodelete'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'dodelete'));
         }
         $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
         $chap_to_get = 'chapter_' . $bid;
@@ -2143,7 +2103,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
     function checkurls($urls) {
         //the url to the current server
-        $baseurl = pnGetBaseurl();
+        $baseurl = ModUtil::getBaseDir();
         $i = 0;
         foreach ($urls as $items) {
             //check to see if it is a valid url
@@ -2261,7 +2221,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         //only admins can do this
 
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
+            LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
             return true;
         }
 
@@ -2281,7 +2241,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     public function modifyglossaryitems($args) {
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
+            LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
             return true;
         }
         //grab the array listing all the gloss ids to be updated
@@ -2298,28 +2258,27 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             //first check if we are supposed to delete it
             if ($delete == "on") {
                 if (!ModUtil::apiFunc('Book', 'admin', 'deleteglossary', array('gid' => $gloss_item))) {
-                    LogUtil::registerError($this->__('Glossary deletion failed.'), null, pnModurl('Book', 'admin', 'checkstudentdefs'));
+                    LogUtil::addErrorPopup($this->__('Glossary deletion failed.'), null, ModUtil::url('Book', 'admin', 'checkstudentdefs'));
                     return false;
                 }
             } else {
 
                 //we don't want to delete, we want to modify
                 if (!ModUtil::apiFunc('Book', 'admin', 'updateglossary', array('gid' => $gloss_item, 'term' => $term, 'definition' => $definition))) {
-                    LogUtil::registerError($this->__('Glossary modification failed.'), null, pnModurl('Book', 'admin', 'checkstudentdefs'));
+                    LogUtil::addErrorPopup($this->__('Glossary modification failed.'), null, ModUtil::url('Book', 'admin', 'checkstudentdefs'));
                     return false;
                 }
             }
         }
 
         //if we get here we were successful,
-        SessionUtil::setVar('statusmsg', $this->__('Book glossary updated.'));
-        pnRedirect(pnModurl('Book', 'admin', 'checkstudentdefs'));
-        return true;
+        LogUtil::addStatusPopup($this->__('Book glossary updated.'));
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'checkstudentdefs'));
     }
 
     public function importglossaryitems($args) {
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         return $this->view->fetch('book_admin_importglossaryitems.tpl');
@@ -2329,7 +2288,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
 
         //only admins can do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
         }
         $gloss_data = FormUtil::getPassedValue('gloss_text', isset($args['gloss_text']) ? $args['gloss_text'] : null);
         //The glossary text is set up as a xml file
@@ -2354,8 +2313,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             //update the glossary with the item
             ModUtil::apiFunc('Book', 'admin', 'createglossary', array('term' => $term, 'definition' => $def));
         }
-        pnRedirect(pnModurl('Book', 'admin', 'view'));
-        return true;
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'view'));
     }
 
     /**
@@ -2369,7 +2327,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     public function dosearchreplace1() {
         //you have to have edit permission to do this
         if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_EDIT)) {
-            return LogUtil::registerPermissionError(pnModurl('Book', 'admin', 'view'));
+            return LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
         }
 
         $chap_menus = $this->_generate_chapter_menu($this->view);
@@ -2383,7 +2341,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return LogUtil::registerPermissionError();
         }
         if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(pnModurl('Book', 'admin', 'dosearchreplace2'));
+            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'dosearchreplace2'));
         }
 
 //grab the serach and replace information
@@ -2418,7 +2376,7 @@ class Book_Controller_Admin extends Zikula_AbstractController {
             return $this->view->fetch('book_admin_dosearchreplace1.tpl');
         }
 
-        return pnRedirect(pnModurl('Book', 'admin', 'dosearchreplace1'));
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'dosearchreplace1'));
     }
 
 }

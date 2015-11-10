@@ -70,7 +70,7 @@ class Book_Api_Search extends Zikula_AbstractApi {
             $objArray[] = $obj;
         }
         if (!DBUtil::insertObjectArray($objArray, 'search_result')) {
-            return LogUtil::registerError($this->__('Error! Could not save the search results.'));
+            return LogUtil::addErrorPopup($this->__('Error! Could not save the search results.'));
         }
 
         return true;

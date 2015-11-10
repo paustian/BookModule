@@ -6,13 +6,13 @@
 {if $loggedIn}
     <button id="opener">{gt text="Open Book Tools"}</button>
     <div id="dialog" title="Book Tools"> 
-        <form class="form" name="highlight" action="{pnmodurl modname="Book" type="user" func="dohighlight"}" method="post" enctype="application/x-www-form-urlencoded">
+        <form class="form" name="highlight" action="{modurl modname="Book" type="user" func="dohighlight"}" method="post" enctype="application/x-www-form-urlencoded">
             <input type="button" value="{gt text="Toggle Highlight"}" name="highlight" onmousedown="document.highlight.text.value = getSelectionHtml();
                     document.highlight.submit()" onmouseover="return escape('{gt text="Select the text you want to highlight."}')">
             <input type="hidden" name="text">
             <input type='hidden' name="aid" value="{$aid}">
         </form>
-        <form class="form" name="collect_highlights" action="{pnmodurl modname="Book" type="user" func="collecthighlights"}" method="post" enctype="application/x-www-form-urlencoded">
+        <form class="form" name="collect_highlights" action="{modurl modname="Book" type="user" func="collecthighlights"}" method="post" enctype="application/x-www-form-urlencoded">
             <table>
                 <tr style="text-align:center">
                     <td><input type="button" value="{gt text="Collect Highlights"}" name="collect_highlights" onmousedown="document.collect_highlights.submit()"
@@ -28,7 +28,7 @@
             </table>
             <input type="hidden" name="text">
         </form>
-        <form class="form" name="dodef" action="{pnmodurl modname="Book" type="user" func="dodef"}" method="post" enctype="application/x-www-form-urlencoded">
+        <form class="form" name="dodef" action="{modurl modname="Book" type="user" func="dodef"}" method="post" enctype="application/x-www-form-urlencoded">
             <input type="button" value="{gt text="Create Definition"}" onmousedown="document.dodef.text.value = getSelectionHtml();
                     document.dodef.submit()"
                    onmouseover="return escape('{gt text="Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you."}')">
@@ -70,7 +70,7 @@
                     ---------
                 </option>
                 {foreach item=chapter from=$chapters}
-                    <option value="{$baseuri}/{pnmodurl modname="Book" type="user" func="displayarticlesinchapter" cid=$chapter.cid}">{$chapter.number} - {$chapter.name}</option>
+                    <option value="{$baseuri}/{modurl modname="Book" type="user" func="displayarticlesinchapter" cid=$chapter.cid}">{$chapter.number} - {$chapter.name}</option>
                 {/foreach} 
             </select>
             <input type="submit" value="Go" />

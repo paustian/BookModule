@@ -1,6 +1,6 @@
 <?php
 
-// tools.php,v 1.1 2006/12/23 22:59:01 paustian Exp
+// book.php,v 1.6 2006/12/24 03:38:04 paustian Exp
 // ----------------------------------------------------------------------
 // PostNuke Content Management System
 // Copyright (C) 2002 by the PostNuke Development Team.
@@ -36,13 +36,13 @@
  *
  * @package      PostNuke_Miscellaneous_Modules
  * @subpackage   Book
- * @version      tools.php,v 1.1 2006/12/23 22:59:01 paustian Exp
+ * @version      book.php,v 1.6 2006/12/24 03:38:04 paustian Exp
  * @author       Timothy Paustian
  * @link         http://www.bact.wisc.edu/  The PostNuke Home Page
  * @copyright    Copyright (C) 2005 by Timothy Paustian
  * @license      http://www.gnu.org/copyleft/gpl.html GNU General Public License
  */
-class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
+class Book_Block_Subscribe extends Zikula_Controller_AbstractBlock {
 
     /**
      * initialise block
@@ -52,7 +52,7 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
      */
     public function init() {
         // Security
-        SecurityUtil::registerPermissionSchema('Bookblock:', 'Block title::');
+        SecurityUtil::registerPermissionSchema('subscibeblock:', 'Block title::');
     }
 
     /**
@@ -65,10 +65,10 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
     public function info() {
         return array('text_type' => 'module',
             'module' => 'Book',
-            'text_type_long' => 'Tools for use in Books',
+            'text_type_long' => 'subscriptionblock',
             'allow_multiple' => true,
-            'form_content' => true,
-            'form_refresh' => true,
+            'form_content' => false,
+            'form_refresh' => false,
             'show_preview' => true);
     }
 
@@ -76,7 +76,7 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
      * display block
      * 
      * @author       Timothy Paustian
-     * @version      1.1
+     * @version      1.6
      * @param        array       $blockinfo     a blockinfo structure
      * @return       output      the rendered bock
      */
@@ -84,65 +84,26 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_OVERVIEW) || !pnUserLoggedIn()) {
+        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[title]::", ACCESS_OVERVIEW)) {
             return false;
         }
-        // Get variables from content block
-        $vars = BlockUtil::varsFromContent($blockinfo['content']);
 
-        // Check if the Book module is available. 
-        if (!ModUtil::available('Book')) {
-            return false;
-        }
-        $short_urls = System::getVar('shorturls');
-        $url = System::getCurrentUrl();
-        //first try to get the book id
-        $pattern = '';
-        if ($short_urls) {
-            $pattern = '|bid/([0-9]{1,3})|';
-        } else {
-            $pattern = '|bid=([0-9]{1,3})|';
-        }
-        $matches = array();
-        preg_match($pattern, $url, $matches);
-        $aid = -1;
-        $bid = -1;
-        if ($matches[1] == "") {
-            //next try aid
-            if ($short_urls) {
-                $pattern = '|aid/([0-9]{1,3})|';
-            } else {
-                $pattern = '|aid=([0-9]{1,3})|';
-            }
-            preg_match($pattern, $url, $matches);
-            if ($matches[1] == "") {
-                //OK now try the cid
-                if ($short_urls) {
-                    $pattern = '|cid/([0-9]{1,3})|';
-                } else {
-                    $pattern = '|cid=([0-9]{1,3})|';
-                }
-                preg_match($pattern, $url, $matches);
-                if ($matches[1] == "") {
-                    //if we get here, we must not be in a book, so just return
-                    return false;
-                }
-                $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $matches[1]));
-                $bid = $chapter['bid'];
-            } else {
-                /* aid was found */
-                $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $matches[1]));
-                $bid = $article['bid'];
-            }
-        } else {
-            $bid = $matches[1];
-        }
 
-        $content = ModUtil::func('Book', 'user', 'shorttoc', array('bid' => $bid,
-                    'aid' => $aid));
+        // Create output object
+        // Note that for a block the corresponding module must be passed.
+        $render = & Zikula_View::getInstance('Book', false);
 
-        $blockinfo['content'] = $content;
-        return BlockUtil::themeBlock($blockinfo);
+        $uid = UserUtil::getVar('uid');
+        $username = UserUtil::getVar('uname');
+        //print $username;die;
+        //$custom = serialize(array('uid'=> $uid, 'gid' => 3, 'tag_id'=> 4, 'uname'=> $username));
+        $custom = $username;
+        $render->assign('custom', $custom);
+        $render->assign('uid', $uid);
+        // Populate block info and pass to theme
+        $blockinfo['content'] = $render->fetch('book_block_subscribe.tpl');
+
+        return themesideblock($blockinfo);
     }
 
     /**
@@ -153,8 +114,16 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
      * @param        array       $blockinfo     a blockinfo structure
      * @return       output      the bock form
      */
-    public function modify($blockinfo) {
-        return $blockinfo['content'];
+    function Book_subscirbeblock_modify($blockinfo) {
+        // Get current content
+        $vars = BlockUtil::varsFromContent($blockinfo['content']);
+
+        // As Admin output changes often, we do not want caching.
+        //$render->caching = false;
+        // assign the approriate values
+        //$render->assign('numitems', $vars['numitems']);
+        // Return the output that has been generated by this function
+        return $this->view->fetch('book_block_first.tpl');
     }
 
     /**
@@ -166,6 +135,9 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
      * @return       $blockinfo  the modified blockinfo structure
      */
     public function update($blockinfo) {
+        // Get current content
+        $vars = BlockUtil::varsFromContent($blockinfo['content']);
+
         return $blockinfo;
     }
 

@@ -1,7 +1,7 @@
 
 {include file="book_admin_menu.tpl"}
 <h2>{gt text="List Figures"}</h2>
-<form class="form" action="{pnmodurl modname="Book" type="admin" func="modifyfigure2"}" method="post" enctype="application/x-www-form-urlencoded">
+<form class="form" action="{modurl modname="Book" type="admin" func="modifyfigure2"}" method="post" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="authid" value="{insert name="generateauthkey" module="Book"}" />
 <table>
 {foreach from=$figData item=i}

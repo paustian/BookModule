@@ -19,7 +19,7 @@ class Book_Entity_Repository_Book extends Doctrine\ORM\EntityRepository
 {
      public function getBooks($orderBy='', $where='')
     {
-        $dql = "SELECT a FROM Book_Entity_Book a";
+         $dql = "SELECT a FROM Book_Entity_Book a";
         
         if (!empty($where)) {
             $dql .= ' WHERE ' . $where;
