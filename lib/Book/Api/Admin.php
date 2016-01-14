@@ -27,8 +27,7 @@
 // Original Author of file: Timothy Paustian
 // Purpose of file:  Book administration API
 // ----------------------------------------------------------------------
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use ModUtil;
+
 
 class Book_Api_Admin extends Zikula_AbstractApi {
 

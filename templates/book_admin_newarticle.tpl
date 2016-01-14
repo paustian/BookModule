@@ -9,10 +9,10 @@
 
     {section name=i loop=$books}
 		<tr><td>
-		<input type="radio" name="book" value="{$books[i].bid|}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].name|}
+		<input type="radio" name="book" value="{$books[i].bid}" {if $smarty.section.i.index == 0}checked>{else}>{/if}{$books[i].name}
 		</td>
 		<td>
-		<select name="chapter_{$books[i].bid|}">
+		<select name="chapter_{$books[i].bid}">
 			{html_options options=$chapters[i]}
 		</select>
 		</td></tr>

@@ -6,7 +6,12 @@
 // Purpose of file:  Book administration display functions
 // ----------------------------------------------------------------------
 
+
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotations - do not remove
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
 use Symfony\Component\Routing\RouterInterface;
 
 class Book_Controller_Admin extends Zikula_AbstractController {
@@ -26,31 +31,42 @@ class Book_Controller_Admin extends Zikula_AbstractController {
     }
 
     /**
-     * book_admin_main
-     * Function called when there is no modifiers to the module
-     * This basically only calls the menu
+     * @Route("")
+     *
+     * The main entry point
+     * 
+     * @return Response The rendered output consisting mainly of the admin menu
+     * 
+     * @throws AccessDeniedException Thrown if the user does not have the appropriate access level for the function.
      */
-    public function main() {
+    
+    public function indexAction() {
         //security check
-        if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_EDIT)) {
-            return LogUtil::registerPermissionError();
+        if (!SecurityUtil::checkPermission($this->name . '::', '::', ACCESS_ADMIN)) {
+            throw new AccessDeniedException();
         }
         $this->view->assign('title', $this->__('Book'));
 
-        return $this->view->fetch('book_admin_menu.tpl');
+        return new Response($this->view->fetch('book_admin_menu.tpl'));
     }
 
     /**
-     * add new book
+     * 
+     * @Route("/new")
      * Create a new book. This presents the form for giving a title to the book
+     * 
+     * * @return Response The rendered output of the modifyconfig template.
+     *
+     * @throws AccessDeniedException Thrown if the user does not have the appropriate access level for the function.
      */
-    public function newbook() {
+    public function newbookAction() {
 
-        // Security check - important to do this as early as possible to avoid
-        if (!SecurityUtil::checkPermission('Book::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError();
+        //security check
+        if (!SecurityUtil::checkPermission($this->name . '::', '::', ACCESS_ADD)) {
+            throw new AccessDeniedException();
         }
-        return $this->view->fetch('book_admin_newbook.tpl');
+        
+        return new Response($this->view->fetch('book_admin_newbook.tpl'));
     }
 
     /**
@@ -703,10 +719,6 @@ class Book_Controller_Admin extends Zikula_AbstractController {
         $this->view->assign('chap_menu', $chap_menu);
         $this->view->assign('selected_chapter', $article['cid']);
         $this->view->assign('language', 'English');
-        if (ModUtil::available('scribite')) {
-            $scribite = ModUtil::apiFunc('scribite', 'user', 'loader', array('areas' => array('content')));
-            PageUtil::AddVar('rawtext', $scribite);
-        }
 
         return $this->view->fetch('book_admin_modifyarticle2.tpl');
     }

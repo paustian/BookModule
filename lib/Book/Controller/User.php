@@ -855,7 +855,7 @@ class Book_Controller_User extends Zikula_AbstractController {
         } else {
 
             if (str_word_count($term) <= 3) {
-                if (pnUserLoggedIn()) {
+                if (UserUtil::isLoggedIn()) {
                     $url = pnServerGetVar('HTTP_REFERER');
                     $user = UserUtil::getVar('uname');
                     //check to see that this user had not asked for more than 10 defs
@@ -1075,8 +1075,10 @@ class Book_Controller_User extends Zikula_AbstractController {
         if (!ModUtil::gerVar('Book', 'securebooks')) {
             return;
         }
-
-        if (pnUserLoggedIn()) {
+        //This is old code that I probably don't need anymore. 
+        //Students just don't cheat that much.
+        return;
+        /*if (UserUtil::isLoggedIn()) {
             $uid = UserUtil::getVar('uid');
             $dbconn = & pnDBGetConn(true);
             $pntable = & DBUtil::getTables();
@@ -1110,7 +1112,7 @@ class Book_Controller_User extends Zikula_AbstractController {
                     }
                 }
             }
-        }
+        }*/
     }
 
     /**

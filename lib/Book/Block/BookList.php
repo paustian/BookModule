@@ -1,49 +1,31 @@
 <?php
 
-// book.php,v 1.1 2006/12/23 22:59:01 paustian Exp
-// ----------------------------------------------------------------------
-// PostNuke Content Management System
-// Copyright (C) 2002 by the PostNuke Development Team.
-// http://www.postnuke.com/
-// ----------------------------------------------------------------------
-// Based on:
-// PHP-NUKE Web Portal System - http://phpnuke.org/
-// Thatware - http://thatware.org/
-// ----------------------------------------------------------------------
-// LICENSE
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License (GPL)
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// To read the license please visit http://www.gnu.org/copyleft/gpl.html
-// ----------------------------------------------------------------------
 /**
  * Book Module
  * 
- * The Book module shows how to make a PostNuke module. 
- * It can be copied over to get a basic file structure.
- *
- * Purpose of file:  administration display functions -- 
- *                   This file contains all administrative GUI functions 
- *                   for the module
- *
- * @package      PostNuke_Miscellaneous_Modules
- * @subpackage   Book
- * @version      book.php,v 1.1 2006/12/23 22:59:01 paustian Exp
+ * @version      BookListBlock,v 1.1 2015/12/23
  * @author       Timothy Paustian
- * @link         http://www.bact.wisc.edu/  The PostNuke Home Page
- * @copyright    Copyright (C) 2005 by Timothy Paustian
+ * @link         http://www.bact.wisc.edu/ 
+ * @copyright    Copyright (C) 2015 by Timothy Paustian
  * @license      http://www.gnu.org/copyleft/gpl.html GNU General Public License
  */
-class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
 
+use ModUtil;
+use BlockUtil;
+
+class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
+    
+    /**
+     * Post initialise.
+     *
+     * @return void
+     */
+    protected function postInitialize()
+    {
+        // In this block we do not want caching.
+        $this->view->setCaching(Zikula_View::CACHE_DISABLED);
+    }
+    
     /**
      * initialise block
      * 
@@ -52,7 +34,7 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
      */
     public function init() {
         // Security
-        SecurityUtil::registerPermissionSchema('Bookblock:', 'Block title::');
+        SecurityUtil::registerPermissionSchema('Book:BookListBlock', 'Block title::Block ID');
     }
 
     /**
@@ -63,14 +45,13 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
      * @return       array       The block information
      */
     public function info() {
-        return array('module'          => $this->name,
+        return array('module'          => 'Book',
                      'text_type'       => $this->__('Book List'),
                      'text_type_long'  => $this->__('Block of Books Available'),
-                     'allow_multiple'  => true,
+                     'allow_multiple'  => false,
                      'form_content'    => false,
                      'form_refresh'    => false,
-                     'show_preview'    => true,
-                     'admin_tableless' => true);
+                     'show_preview'    => true);
     }
 
     /**
@@ -85,8 +66,8 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_READ)) {
-            return LogUtil::registerPermissionError();
+        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[title]::$blockinfo[bid]", ACCESS_READ)) {
+            return;
         }
 
         // Get variables from content block
@@ -125,7 +106,7 @@ class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
         // Populate block info and pass to theme
         $text = $this->view->fetch('book_block_first.tpl');
         $blockinfo['content'] = $text;
-        return themesideblock($blockinfo);
+        return BlockUtil::themeBlock($blockinfo);
     }
 
     /**

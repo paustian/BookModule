@@ -202,7 +202,7 @@ class Book_Api_User extends Zikula_AbstractApi {
         }
         $items = array();
         foreach ($articles as $article) {
-            if (SecurityUtil::checkPermission('Book::', $item['bid'] . "::" . $item['cid'], $access)) {
+            if (SecurityUtil::checkPermission('Book::', $article['bid'] . "::" . $article['cid'], $access)) {
                 $items[] = $article;
             }
         }

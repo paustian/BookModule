@@ -42,6 +42,9 @@
  * @copyright    Copyright (C) 2005 by Timothy Paustian
  * @license      http://www.gnu.org/copyleft/gpl.html GNU General Public License
  */
+
+use UserUti;
+
 class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
 
     /**
@@ -84,7 +87,7 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_OVERVIEW) || !pnUserLoggedIn()) {
+        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_OVERVIEW) || !UserUtil::isLoggedIn()) {
             return false;
         }
         // Get variables from content block
@@ -94,8 +97,8 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         if (!ModUtil::available('Book')) {
             return false;
         }
-        $short_urls = System::getVar('shorturls');
-        $url = System::getCurrentUrl();
+        $short_urls = VariableApi::get('ZConfig', 'shorturls');
+        $url = Request::getUrl();
         //first try to get the book id
         $pattern = '';
         if ($short_urls) {

@@ -5,8 +5,9 @@
  *
  * @license GNU/LGPLv3 (or at your option, any later version).
  */
-use Doctrine\ORM\Mapping as ORM;
 
+use Zikula\Core\Doctrine\EntityAccess;
+use Doctrine\ORM\Mapping as ORM;
 /**
  * Book entity class
  *
@@ -15,12 +16,12 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="Book_Entity_Repository_Book")
  * @ORM\Table(name="book")
  */
-class Book_Entity_Book extends Zikula_EntityAccess
+class Book_Entity_Book extends EntityAccess
 {
     
 
     /**
-     * sid field (record sid)
+     * bid field (record bid)
      *
      * @ORM\Id
      * @ORM\Column(type="integer")
