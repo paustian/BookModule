@@ -1,0 +1,38 @@
+/* 
+    Created on : Dec 12, 2015, 11:52:06 AM
+    Author     : paustian
+*/
+
+textarea.book_contents {
+    height: 360px;
+}
+
+ ul.sortable {
+    border: 1px solid #eee;
+    width: 320px;
+    min-height: 20px;
+    list-style-type: none;
+    margin: 0;
+    padding: 5px 0 0 0;
+    margin-right: 10px;
+    background-color: #ddd;
+  }
+ li.sortable {
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    font-size: 10px;
+    width: 310px;
+  }
+  
+  div.row {
+      padding: 5px 5px 5px 15px;
+      background-color: #eee;
+      border: 1px solid #000;
+      border-radius:25px;
+  }
+  
+  h3.legend{
+      font-size:12;
+      font-weight:bold;
+      border-bottom: 1px solid #333;
+  }

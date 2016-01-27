@@ -10,7 +10,7 @@
  * @package
  * @subpackage Book
  */
-class Book_Api_Search extends Zikula_AbstractApi {
+class SearchApi extends Zikula_AbstractApi {
 
     /**
      * Search plugin info

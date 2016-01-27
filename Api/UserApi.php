@@ -27,28 +27,9 @@
 // Purpose of file:  Book user API
 // ----------------------------------------------------------------------
 
-class Book_Api_User extends Zikula_AbstractApi {
+class UserApi extends Zikula_AbstractApi {
 
-    /**
-     * get the complete list of books
-     * @returns array
-     * @return array of items, or false on failure
-     */
-    public function getall($args) {
-
-        $this->throwForbiddenUnless(SecurityUtil::checkPermission('Book::', '::', ACCESS_OVERVIEW), LogUtil::getErrorMsgPermission());
-        // create a empty result set
-        $repository = $this->entityManager->getRepository('Book_Entity_Book');
-
-        $items = $repository->getBooks();
-
-        if ($items === false) {
-            LogUtil::addWarningPopup($this->__('There are no books defined. Create a book first.'));
-            return false;
-        }
-        // Return the items
-        return $items;
-    }
+ 
 
     /**
      * given a bid return the data for that book

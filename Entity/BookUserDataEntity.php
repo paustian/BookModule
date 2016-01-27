@@ -1,10 +1,7 @@
 <?php
 
-/**
- * StrainID2
- *
- * @license GNU/LGPLv3 (or at your option, any later version).
- */
+namespace Paustian\BookModule\Entity;
+
 use Zikula\Core\Doctrine\EntityAccess;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -13,10 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * Annotations define the entity mappings to database.
  *
- * @ORM\Entity(repositoryClass="Book_Entity_Repository_BookUserData")
+ * @ORM\Entity
  * @ORM\Table(name="book_user_data")
  */
-class BookUserDataEntity extends Zikula_EntityAccess
+class BookUserDataEntity extends EntityAccess
 {
     
 

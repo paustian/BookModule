@@ -5,10 +5,7 @@
 // PostNuke Content Management System
 // Copyright (C) 2002 by the PostNuke Development Team.
 // http://www.postnuke.com/
-// ----------------------------------------------------------------------
-// Based on:
-// PHP-NUKE Web Portal System - http://phpnuke.org/
-// Thatware - http://thatware.org/
+
 // ----------------------------------------------------------------------
 // LICENSE
 //
@@ -28,9 +25,17 @@
 // Purpose of file:  Book user display functions
 // ----------------------------------------------------------------------
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
+namespace Paustian\BookModule\Controller;
 
-class Book_Controller_User extends Zikula_AbstractController {
+use Zikula\Core\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotations - do not remove
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
+use Symfony\Component\Routing\RouterInterface;
+
+class UserController extends AbstractController {
 
     private $maxpixels = 595;
 

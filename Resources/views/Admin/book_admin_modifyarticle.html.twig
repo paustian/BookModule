@@ -1,0 +1,46 @@
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+<div class="container-fluid">
+    {{ showflashes() }}
+    {#{ dump(toc) }#}
+    <h3>{{ __('Edit an article') }}</h3>
+
+    {% for book in books %}
+        <h3>{{ book.name }}</h3>
+        <div id="ArticleList{{ book.bid }}">
+            {% for chapter in book.chapters %}
+                {% if chapter.number == -1 %}
+                    <h4>{{ chapter.name }}</h4>
+                {% else %}
+                    <h4>{{ chapter.number }} - {{ chapter.name }}</h4>
+                {% endif %}
+                <div>
+                    <table class="table table-striped">
+                        <tbody>
+                            {% for article in chapter.articles %}
+                                <tr>    
+                                    <td>{{ article.number }} - {{ article.title }}</td>
+                                    <td><a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" class="fa fa-pencil"></a>
+                                        <a href="{{ path('paustianbookmodule_admin_deletechapter') }}/{{ article.aid }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
+                                </tr>
+                            {% endfor %}
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <script type="text/javascript">
+        {% for book in books %}    
+        (function ($) {
+            $('#ArticleList{{ book.bid }}').accordion({
+                collapsible: true,
+                heightStyle: "content"
+            });
+        })(jQuery);
+        {% endfor %}
+    </script>
+</div>
+
+{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}

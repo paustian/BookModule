@@ -1,4 +1,5 @@
 <?php
+namespace Paustian\BookModule\Entity;
 
 /**
  * StrainID2
@@ -13,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * Annotations define the entity mappings to database.
  *
- * @ORM\Entity(repositoryClass="Book_Entity_Repository_BookArticles")
+ * @ORM\Entity
  * @ORM\Table(name="book_art")
  */
 class BookArticlesEntity extends EntityAccess {

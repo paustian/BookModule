@@ -2,12 +2,20 @@
 
 namespace Paustian\BookModule;
 
-class Book_Installer extends Zikula_AbstractInstaller {
+use DoctrineHelper;
+use ModUtil;
+use HookUtil;
+
+class BookModuleInstaller extends \Zikula_AbstractInstaller {
 
     private $entities = array(
-            'Paustian\BookModule\Entity\BookExamEntity',
-            'Paustian\BookModule\Entity\BookQuestionEntity',
-            'Paustian\BookModule\Entity\BookQuestionCategory'
+            'Paustian\BookModule\Entity\BookArticlesEntity',
+            'Paustian\BookModule\Entity\BookChaptersEntity',
+            'Paustian\BookModule\Entity\BookEntity',
+            'Paustian\BookModule\Entity\BookFiguresEntity',
+            'Paustian\BookModule\Entity\BookGlossEntity',
+            'Paustian\BookModule\Entity\BookUserDataEntity',
+            
         );
     /**
      * initialise the book module
@@ -22,35 +30,11 @@ class Book_Installer extends Zikula_AbstractInstaller {
         // tables array together for easy reference later on
         // Create table
         try {
-            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_Book'));
+            DoctrineHelper::createSchema($this->entityManager, $this->entities);
         } catch (Exception $e) {
             return false;
         }
-        try {
-            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookArticles'));
-        } catch (Exception $e) {
-            return false;
-        }
-        try {
-            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookChapters'));
-        } catch (Exception $e) {
-            return false;
-        }
-        try {
-            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookFigures'));
-        } catch (Exception $e) {
-            return false;
-        }
-        try {
-            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookGloss'));
-        } catch (Exception $e) {
-            return false;
-        }
-        try {
-            DoctrineHelper::createSchema($this->entityManager, array('Book_Entity_BookUserData'));
-        } catch (Exception $e) {
-            return false;
-        }
+       
         // These are used in the searching functions.
         ModUtil::setVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
         ModUtil::setVar('Book', 'BOOKS_LABEL', __('Books'));
@@ -175,12 +159,7 @@ class Book_Installer extends Zikula_AbstractInstaller {
      */
     public function uninstall() {
         //drop the tables
-        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_Book'));
-        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookArticles'));
-        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookChapters'));
-        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookFigures'));
-        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookGloss'));
-        DoctrineHelper::dropSchema($this->entityManager, array('Book_Entity_BookUserData'));
+        DoctrineHelper::dropSchema($this->entityManager, $this->entities);
 
         // Delete any module variables
         ModUtil::delVar('Book', 'securebooks', false);
