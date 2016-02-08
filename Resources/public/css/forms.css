@@ -7,9 +7,17 @@ textarea.book_contents {
     height: 360px;
 }
 
+textarea.fig_contents {
+    height: 180px;
+}
+
+input.short_number {
+    width: 50px;
+}
+
  ul.sortable {
     border: 1px solid #eee;
-    width: 320px;
+    width: 99%;
     min-height: 20px;
     list-style-type: none;
     margin: 0;
@@ -21,7 +29,7 @@ textarea.book_contents {
     margin: 0 5px 5px 5px;
     padding: 5px;
     font-size: 10px;
-    width: 310px;
+    width: 97%;
   }
   
   div.row {
@@ -35,4 +43,9 @@ textarea.book_contents {
       font-size:12;
       font-weight:bold;
       border-bottom: 1px solid #333;
+  }
+  //for tooltips
+  label {
+    display: inline-block;
+    width: 5em;
   }

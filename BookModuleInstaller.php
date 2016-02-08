@@ -38,7 +38,6 @@ class BookModuleInstaller extends \Zikula_AbstractInstaller {
         // These are used in the searching functions.
         ModUtil::setVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
         ModUtil::setVar('Book', 'BOOKS_LABEL', __('Books'));
-        ModUtil::setVar('Book', 'securebooks', false);
         
         HookUtil::registerSubscriberBundles($this->version->getHookSubscriberBundles());
         // Initialisation successful

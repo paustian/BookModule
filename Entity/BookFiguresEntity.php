@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * Annotations define the entity mappings to database.
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Paustian\BookModule\Entity\Repository\BookFiguresRepository")
  * @ORM\Table(name="book_figs")
  */
 class BookFiguresEntity extends EntityAccess {
@@ -58,8 +58,7 @@ class BookFiguresEntity extends EntityAccess {
 
     
     /**
-     * @ORM\Column(type="integer", length=4)
-     * @Assert\NotBlank()
+     * @ORM\Column(type="boolean")
      */
     private $perm;
     
@@ -98,15 +97,30 @@ class BookFiguresEntity extends EntityAccess {
     public function getFig_number() {
         return $this->fig_number;
     }
-
+    
+    //This is a bit of a cludge to work with symfony
+    //I did not want to rename the property.
+    public function getFigNumber(){
+        return $this->fig_number;
+    }
+    
+    public function setFigNumber($fig_number){
+        $this->fig_number = $fig_number;
+    }
     public function setFig_number($fig_number) {
         $this->fig_number = $fig_number;
     }
     
+    public function getChapNumber(){
+        return $this->chap_number;
+    }
     public function getChap_number() {
         return $this->chap_number;
     }
-
+    
+    public function setChapNumber($chap_number) {
+        $this->chap_number = $chap_number;
+    }
     public function setChap_number($chap_number) {
         $this->chap_number = $chap_number;
     }
@@ -118,11 +132,18 @@ class BookFiguresEntity extends EntityAccess {
     public function setBid($bid) {
         $this->bid = $bid;
     }
-
+    
+    public function getImgLink(){
+         return $this->img_link;
+    }
     public function getImg_link() {
         return $this->img_link;
     }
-
+    
+    public function setImgLink($img_link) {
+        $this->img_link = $img_link;
+    }
+    
     public function setImg_link($img_link) {
         $this->img_link = $img_link;
     }

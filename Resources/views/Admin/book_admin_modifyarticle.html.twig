@@ -3,7 +3,6 @@
 {{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
 <div class="container-fluid">
     {{ showflashes() }}
-    {#{ dump(toc) }#}
     <h3>{{ __('Edit an article') }}</h3>
 
     {% for book in books %}
@@ -22,7 +21,7 @@
                                 <tr>    
                                     <td>{{ article.number }} - {{ article.title }}</td>
                                     <td><a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" class="fa fa-pencil"></a>
-                                        <a href="{{ path('paustianbookmodule_admin_deletechapter') }}/{{ article.aid }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
+                                        <a href="{{ path('paustianbookmodule_admin_deletearticle') }}/{{ article.aid }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
                                 </tr>
                             {% endfor %}
                     </table>

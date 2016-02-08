@@ -1,0 +1,33 @@
+{% form_theme form 'ZikulaFormExtensionBundle:Form:bootstrap_3_zikula_admin_layout.html.twig' %}
+{{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+<div class="container-fluid">
+    <div class="row">
+        <h3>
+            <span class="fa fa-upload"></span>
+            {{ __("Import Glossary Items") }}
+        </h3>
+        <p>{{ __("Paste the correctly formated xml into the textarea below and click Import Glossary Items. Below is an example of properly formatted xml.") }}</p>
+        <p>&lt;glossary&gt;<br />
+            &lt;glossitem&gt;<br />
+            &lt;term&gt;<b>{{ __("term") }}</b>&lt;/term&gt;<br />
+            &lt;definition&gt;<b>{{ __("definition") }}</b> &lt;/definition&gt;<br />
+            &lt;/glossitem&gt;<br />
+            &lt;/glossary&gt;
+        </p>
+        {{ showflashes() }}
+        {{ form_start(form) }}
+        {{ form_errors(form) }}
+        <fieldset>
+            <legend>{{ __('Glossary xml') }}</legend>
+            {{ form_row(form.importText, {'attr': {'class': 'book_contents'}}) }}
+        </fieldset>
+        <div class="form-group">
+            <div class="col-lg-offset-3 col-lg-9">
+                {{ form_widget(form.save, {'attr': {'class': 'btn btn-success'}}) }}
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}

@@ -1,4 +1,6 @@
-{% form_theme form 'ZikulaFormExtensionBundle:Form:bootstrap_3_zikula_admin_layout.html.twig' %}
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
+{{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
 {{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
 <div class="container-fluid">
     {{ showflashes() }}
@@ -15,12 +17,20 @@
                     <td>{{ item.name }}</td>
                     <td>{{ books[loop.index0] }}</td>
                     <td class="actions">
-                        <a href="{{ path('paustianbookmodule_admin_editchapter') }}/{{ item.cid }}" class="fa fa-pencil"></a>
-                        <a href="{{ path('paustianbookmodule_admin_deletechapter') }}/{{ item.cid }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this chapter?')"></a>
+                        <a href="{{ path('paustianbookmodule_admin_editchapter') }}/{{ item.cid }}" class="fa fa-pencil" title="{{ __('Edit chapter') }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_deletechapter') }}/{{ item.cid }}" class="fa fa-trash-o" title="{{ __('Delete chapter') }}" onclick="return confirm('Are you sure you want to delete this chapter?')"></a>
+                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}" class="fa fa-download" title="{{ __('Export chapter') }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_searchreplace') }}/{{ item.cid }}" class="fa fa-search" title="{{ __('Do regex search and replace') }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_verifyurls') }}/{{ item.cid }}" class="fa fa-link" title="{{ __('Verify the urls in the chapter') }}"></a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>    
 </div>
+<script>
+    (function ($) {
+        $(document).toolTip();
+    })(jQuery);
+</script>
 {{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}

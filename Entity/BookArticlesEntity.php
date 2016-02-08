@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * Annotations define the entity mappings to database.
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Paustian\BookModule\Entity\Repository\BookArticlesRepository")
  * @ORM\Table(name="book_art")
  */
 class BookArticlesEntity extends EntityAccess {

@@ -1,0 +1,27 @@
+{% form_theme form 'ZikulaFormExtensionBundle:Form:bootstrap_3_zikula_admin_layout.html.twig' %}
+{{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+<div class="container-fluid">
+    <div class="row">
+        <h3>
+            <span class="fa fa-edit"></span>
+            {{ __("Edit a Glossary Term") }}
+        </h3>
+        <p>{{ __("Enter the term and its defnintion") }}</p>
+        {{ showflashes() }}
+        {{ form_start(form) }}
+        {{ form_errors(form) }}
+        <fieldset>            
+            <legend>{{ __('Glossary Term') }}</legend>
+            {{ form_row(form.term) }}
+            {{ form_row(form.definition, {'attr': {'class': 'fig_contents'}}) }}
+        </fieldset>
+        <div class="form-group">
+            <div class="col-lg-offset-3 col-lg-9">
+                {{ form_widget(form.save, {'attr': {'class': 'btn btn-success'}}) }}
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
