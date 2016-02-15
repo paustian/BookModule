@@ -1,0 +1,9 @@
+{{ pageSetVar('title', figure.title) }}
+<div class="book_figure">
+<div class="image">
+{{ visible_link|raw }}
+</div>
+<p class="figure"><b>Figure {{ figure.chap_number}}-{{ figure.fig_number }}. {{ figure.title|raw }}</b>.
+{{ figure.content|raw }}
+</p>
+</div>

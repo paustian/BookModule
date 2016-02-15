@@ -2,7 +2,7 @@
 <div class="container-fluid">
     <h3>{{ __('Available Books on this Site') }}</h3>
     {% for item in books %}
-        <p><a href="{{ path('paustianbookmodule_user_toc') }}{{ item.bid }}" class="fa fa-book"> {{ item.name }}</a></p>
+        <p><a href="{{ path('paustianbookmodule_user_toc') }}/{{ item.bid }}" class="fa fa-book"> {{ item.name }}</a></p>
     {% endfor %}
         
 </div>

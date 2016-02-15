@@ -1,0 +1,4 @@
+<h2>{{ __('Chapter') }}{{ chapter.number }} - {{ chapter.name }}</h2>
+{% for article in articles %}
+<h3><a href="{{ path('paustianbookmodule_user_displayarticle', {aid:article.aid}) }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></h3> 
+{% endfor %}

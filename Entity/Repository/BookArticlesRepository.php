@@ -128,6 +128,13 @@ class BookArticlesRepository extends EntityRepository {
         }
         return $resultArray;
     }
- 
+    
+    public function incrementCounter($article){
+        $count = $article->getCounter();
+        $count++;
+        $article->setCounter($count);
+        $this->_em->persist($article);
+        $this->_em->flush();
+    }
 
 }

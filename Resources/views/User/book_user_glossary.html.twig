@@ -1,0 +1,10 @@
+<div class="book_glossary">
+<h3>Glossary</h3>
+{% for gloss_item in glossary %}
+<a name="{{ gloss_item.term }}"></a>
+<h4 class="glossterm">{{ gloss_item.term }}</h4>
+<p class="glossdef">
+{{ gloss_item.definition }}
+</p>
+{% endfor %}
+</div>

@@ -445,62 +445,6 @@ class UserApi extends Zikula_AbstractApi {
         return $count;
     }
 
-    /**
-     * setcoutner
-     * Set the counter on a specific article ID. Note that you have to pass in
-     * the number that you want for the counter. In this way it is possible to
-     * reset the counter if you want at some point.
-     * @param	$aid the id of the article to set the count of
-     * @param	$counter the value to set the counter to
-     *
-     * @returns true or false depending upon whether the setting was successful.
-     *
-     */
-    public function setcounter($args) {
-        $aid = $args['aid'];
-        $counter = $args['counter'];
-
-        if (!isset($aid) || !isset($counter)) {
-            LogUtil::addErrorPopup($this->__('Argument error in setcounter.'));
-            return false;
-        }
-        $res = $this->entityManager->getRepository('Book_Entity_BookArticles')->setCounter($aid, $counter);
-        
-        
-        if ($res === false) {
-            return LogUtil::addErrorPopup($this->__('Setcounter failed.'));
-        }
-        return $res;
-    }
-
-    /**
-     * gethighlights
-     *
-     * Given a uid and an aid, find the highlights delimeters
-     * and return them
-     *
-     */
-    public function gethighlights($args) {
-        //You have to have read access to get this
-        if (!SecurityUtil::checkPermission('Book::Chapter', ".*::.*", ACCESS_READ)) {
-            return null;
-        }
-        // Get arguments from argument array
-        $uid = $args['uid'];
-        $aid = $args['aid'];
-
-        if (!isset($uid)) {
-            LogUtil::addErrorPopup($this->__('Argument error in gethighlights.'));
-            return false;
-        }
-
-        // Get datbase setup
-        $items = $this->entityManager->getRepository('Book_Entity_BookUserData')->getHighlights($uid, $aid);
-
-        // Return the item array
-        return $items;
-    }
-
 }
 
 ?>

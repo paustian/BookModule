@@ -1,0 +1,50 @@
+{{ pageSetVar('title', article.title) }}
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
+<div class="book_content">
+<h1>{{ chapter.number }}-{{ article.number }} {{ article.title }}</h1>
+{% if article.counter==1 %}
+<p>( {{ article.counter }} Read)</p>
+{else}
+<p>( {{ article.counter }} Reads)</p>
+{% endif %}
+
+{% if show_internals %}
+<a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" class="fa fa-pencil">{{ _('Edit Article') }}</a>
+<p>{{ _('Article id:') }} {{ article.aid }}</p>
+<p>{{ _('Chapter id:') }}{{ article.cid }}</p>
+<p>{{ _('Book id:') }}{{ article.bid }}</p>
+{% endif %}
+<p> <a href="{{ path('paustianbookmodule_user_toc') }}" title="{{ __('Table of Contents') }}" class="fa fa-book"></a>|
+<a href="{{ path('paustianbookmodule_user_displaychapter') }}/{{ article.cid }}" title="{{ __('Chapter Article List') }}" class="fa fa-bookmark">|
+<a href="{{ path('paustianbookmodule_user_displayarticle', {theme:'printer'}) }}/{{ article.aid }}" title="{{ __('Printable Version') }}" class="fa fa-print">|
+<a href="{{ path('paustianbookmodule_user_displayarticlesinchapter', {theme:'printer'}) }}/{{ article.cid }}" title="{{ __('Printable Chapter') }}" class="fa fa-bookmark-o">
+</p>
+{% if article.prev !=0 %}
+<a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.prev }}" title="{{ __('Previous Article') }}" class="fa fa-arrow-left">
+{% endif %}
+{% if article.next != 0 && article.prev != 0 %}
+|
+{% endif %}
+{% if aritcle.next != 0 %}
+<a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.next }}" title="{{ __('Next Article') }}" class="fa fa-arrow-right">
+{% endif %}
+<br />
+{{ content }}
+{% if article.prev !=0 %}
+<a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.prev }}" title="{{ __('Previous Article') }}" class="fa fa-arrow-left">
+{% endif %}
+{% if article.next != 0 && article.prev != 0 %}
+|
+{% endif %}
+{% if aritcle.next != 0 %}
+<a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.next }}" title="{{ __('Next Article') }}" class="fa fa-arrow-right">
+{% endif %}
+
+<p> <a href="{{ path('paustianbookmodule_user_toc') }}" title="{{ __('Table of Contents') }}" class="fa fa-book"></a>|
+<a href="{{ path('paustianbookmodule_user_displaychapter') }}/{{ article.cid }}" title="{{ __('Chapter Article List') }}" class="fa fa-bookmark">|
+<a href="{{ path('paustianbookmodule_user_displayarticle', {theme:'printer'}) }}/{{ article.aid }}" title="{{ __('Printable Version') }}" class="fa fa-print">|
+<a href="{{ path('paustianbookmodule_user_displayarticlesinchapter', {theme:'printer'}) }}/{{ article.cid }}" title="{{ __('Printable Chapter') }}" class="fa fa-bookmark-o">
+</p>
+{{ notifydisplayhooks eventname='book.ui_hooks.articles.display_view' id=article.aid urlobject=article.returnurl }}
+</div>
