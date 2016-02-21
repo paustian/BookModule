@@ -75,7 +75,7 @@ class UserController extends AbstractController {
      */
     public function tocAction(Request $request, BookEntity $book = null) {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
-//if there are no books redirect to the index interface.
+        //if there are no books redirect to the index interface.
         if ($book == null) {
             return $response;
         }
@@ -83,10 +83,10 @@ class UserController extends AbstractController {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
         $booktoc = $repo->buildtoc($book->getBid(), $chapterids);
 
-//we can simplifiy this quite a bit since we only need 1 book.
+        //we can simplifiy this quite a bit since we only need 1 book.
         $bookData = $booktoc[0];
 
-//We need to walk the chapters and elminate the ones that you cannot read
+        //We need to walk the chapters and elminate the ones that you cannot read
         foreach ($bookData['chapters'] as &$chapter) {
             if ($chapter['number'] < 0) {
                 $chapter['print'] = 0; //don't show it.
@@ -176,7 +176,13 @@ class UserController extends AbstractController {
      */
     public function displayarticleAction(Request $request, BookArticlesEntity $article = null, $doglossary = true) {
         if (null === $article) {
-            return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            $aid = $request->get('aid');
+            if(isset($aid)){
+                $article = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
+            }
+            if(null === $article){
+                return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            }
         }
         //get the chapter title
         $cid = $article->getCid();
@@ -199,12 +205,13 @@ class UserController extends AbstractController {
         }
 
         //this code is used for the hook
-        $return_url = ModUtil::url('Book', 'User', 'displayarticle', array('aid' => $aid));
+        $return_url = $this->generateUrl('paustianbookmodule_user_displayarticle', array('aid' => $aid));
 
         //call the user api to increment the counter
         $doc->getRepository('PaustianBookModule:BookArticlesEntity')->incrementCounter($article);
-
-        if (SecurityUtil::checkPermission('Book::Chapter', "$article->getBid()::$cid", ACCESS_EDIT)) {
+        
+        $show_internals = false;
+        if (SecurityUtil::checkPermission('Book::Chapter', $article->getBid() . "::$cid", ACCESS_EDIT)) {
             $show_internals = true;
         }
 
@@ -217,11 +224,11 @@ class UserController extends AbstractController {
         $return_text = $this->addfigures($return_text);
 
         //work in the glossary items
-        if ($do_glossary) {
-            $return_text = $this->add_glossary_defs($return_text);
+        if ($doglossary) {
+            $return_text = $this->_add_glossary_defs($return_text);
         }
-
-        return $return_text;
+        
+        return new Response($return_text);
     }
 
 //book_user_addfigures
@@ -231,10 +238,10 @@ class UserController extends AbstractController {
         //substitute all the figures
         //this is a legacy pattern
         $pattern = "|<!--\(Figure ([0-9]{1,2})-([0-9]{1,3})-([0-9]{1,3})\)-->|";
-        $ioText = preg_replace_callback($pattern, "$this->_inlinefigures", $ioText);
+        $ioText = preg_replace_callback($pattern, array(&$this, "_inlinefigures"), $ioText);
 
         $pattern = "|{Figure ([0-9]{1,2})-([0-9]{1,3})-([0-9]{1,3}).*}|";
-        $ioText = preg_replace_callback($pattern, "$this->_inlinefigures", $ioText);
+        $ioText = preg_replace_callback($pattern, array(&$this, "_inlinefigures"), $ioText);
         return $ioText;
     }
 
@@ -250,7 +257,7 @@ class UserController extends AbstractController {
     private function _add_glossary_defs($in_text) {
         //all the work is done in this funcion
         $pattern = "|<a class=\"glossary\">(.*?)</a>|";
-        $ret_text = preg_replace_callback($pattern, "$this->_glossary_add", $in_text);
+        $ret_text = preg_replace_callback($pattern, array(&$this, "_glossary_add"), $in_text);
 
         return $ret_text;
     }
@@ -267,14 +274,21 @@ class UserController extends AbstractController {
     private function _glossary_add($matches) {
         $term = $matches[1];
         $item = array();
-        $where = "u.term='" . DataUtil::formatForStore($term) . "'";
+        
+        $where['cond'] = "u.term=:term";
+        $where['paramkey'] = 'term';
+        $where['paramval'] = DataUtil::formatForStore($term);
 
-        $item = $this->entityManager->getRepository('Book_Entity_BookGloss')->getGloss('', null, $where);
+        $item = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->getGloss('', null, $where);
 
         if ($item === false) {
             //This did not work, try searching for match instead
-            $where = "u.term LIKE '" . DataUtil::formatForStore($term) . "%'";
-            $item = $this->entityManager->getRepository('Book_Entity_BookGloss')->getGloss('', null, $where);
+            //->where('a.title LIKE :title')
+            //   ->setParameter('title', '%'.$data['search'].'%')
+            $where['cond'] = "u.term LIKE ?1";
+            $where['paramkey'] = '1';
+            $where['paramval'] = '%' . DataUtil::formatForStore($term) . '%';
+            $item = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->getGloss('', null, $where);
         }
         // Check for an error and if so
         //just return. This is not an error, we just won't replace it
@@ -352,7 +366,7 @@ class UserController extends AbstractController {
             $height = 0;
         }
 
-        $repo = $this->getDoctrine()->getRepository('PausitanBookModule:BookFiguresRepository');
+        $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookFiguresEntity');
         $figure = $repo->findFigure($fig_number, $chap_number, $book_number);
 
         $figureText = $this->_renderFigure($figure, $width, $height, false);
@@ -505,7 +519,7 @@ class UserController extends AbstractController {
      * @param BookChaptersEntity $chapter
      * @return type
      */
-    public function displaychapterAction(Request $request, BookChaptersEntity $chapter) {
+    public function displaychapterAction(Request $request, BookChaptersEntity $chapter=null) {
         if (null === $chapter) {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
@@ -533,10 +547,15 @@ class UserController extends AbstractController {
      * @param BookChaptersEntity $chapter
      * @return type
      */
-    public function displayarticlesinchapterAction(Request $request, BookChaptersEntity $chapter) {
-        return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+    public function displayarticlesinchapterAction(Request $request, BookChaptersEntity $chapter=null) {
         if (null === $chapter) {
-            return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            $cid = $request->get('cid');
+            if(isset($cid)){
+                $chapter = $this->getDoctrine()->getRepository('PaustianBookModule:BookChaptersEntity')->find($cid);
+            }
+            if(null === $chapter){
+                return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            }
         }
         $cid = $chapter->getCid();
         $bid = $chapter->getBid();
@@ -547,8 +566,9 @@ class UserController extends AbstractController {
         }
         $artRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
 
-        //grab all the articles and arrange them by number and we do not need the content.
-        $articles = $artRepo->getArticles($cid, true);
+        //grab all the articles and arrange them by number and we need the content.
+        //Because we want the whole object so we can iterate it.
+        $articles = $artRepo->getArticles($cid, true, true);
 
 
         //since we are viewing each article, increment the counter.
@@ -560,8 +580,8 @@ class UserController extends AbstractController {
         $return_text = $this->render('PaustianBookModule:User:book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter,
             'articles' => $articles]);
         $return_text = $this->addfigures($return_text);
-
-        return $return_text;
+        $return_text = $this->_add_glossary_defs($return_text);
+        return new Response($return_text);
     }
 
     /**

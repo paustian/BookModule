@@ -29,7 +29,7 @@ class BookFiguresRepository extends EntityRepository {
         return $figures;
     }
     
-    public function findFigures($fig_number, $chap_number, $book_number){
+    public function findFigure($fig_number, $chap_number, $book_number){
         $qb = $this->_em->createQueryBuilder();
 
         // add select and from params
@@ -39,13 +39,13 @@ class BookFiguresRepository extends EntityRepository {
                 ->from('PaustianBookModule:BookFiguresEntity', 'u');
 
         $qb->where('(u.fig_number = ?1 AND u.chap_number = ?2 AND u.bid = ?3)')
-                    ->setParameters([1 => $fig_number, 2 => $chap_number, 3 => $bid]);
+                    ->setParameters([1 => $fig_number, 2 => $chap_number, 3 => $book_number]);
 
         // convert querybuilder instance into a Query object
         $query = $qb->getQuery();
 
         // execute query
         $figures = $query->getResult();
-        return $figures;
+        return $figures[0];
     }
 }

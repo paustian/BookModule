@@ -1,29 +1,5 @@
 <?php
 
-// tools.php,v 1.1 2006/12/23 22:59:01 paustian Exp
-// ----------------------------------------------------------------------
-// PostNuke Content Management System
-// Copyright (C) 2002 by the PostNuke Development Team.
-// http://www.postnuke.com/
-// ----------------------------------------------------------------------
-// Based on:
-// PHP-NUKE Web Portal System - http://phpnuke.org/
-// Thatware - http://thatware.org/
-// ----------------------------------------------------------------------
-// LICENSE
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License (GPL)
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// To read the license please visit http://www.gnu.org/copyleft/gpl.html
-// ----------------------------------------------------------------------
 /**
  * Book Module
  * 
@@ -36,17 +12,31 @@
  *
  * @package      PostNuke_Miscellaneous_Modules
  * @subpackage   Book
- * @version      tools.php,v 1.1 2006/12/23 22:59:01 paustian Exp
+ * @version      tools.php,v 1.2 2016/02/21
  * @author       Timothy Paustian
  * @link         http://www.bact.wisc.edu/  The PostNuke Home Page
- * @copyright    Copyright (C) 2005 by Timothy Paustian
+ * @copyright    Copyright (C) 2016 by Timothy Paustian
  * @license      http://www.gnu.org/copyleft/gpl.html GNU General Public License
  */
+namespace Paustian\BookModule\Block;
 
-use UserUti;
+use Zikula_View;
+use SecurityUtil;
+use BlockUtil;
+use ModUtil;
 
-class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
-
+class ToolsBlock extends \Zikula_Controller_AbstractBlock {
+    
+    /**
+     * Post-construction initialization.
+     *
+     * @return void
+     */
+    protected function postInitialize()
+    {
+        // Disable caching by default.
+        $this->view->setCaching(Zikula_View::CACHE_DISABLED);
+    }
     /**
      * initialise block
      * 
@@ -55,7 +45,7 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
      */
     public function init() {
         // Security
-        SecurityUtil::registerPermissionSchema('Bookblock:', 'Block title::');
+        SecurityUtil::registerPermissionSchema('ToolsBlock:', 'Block title::');
     }
 
     /**
@@ -87,7 +77,7 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_OVERVIEW) || !UserUtil::isLoggedIn()) {
+        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_OVERVIEW) || !pnUserLoggedIn()) {
             return false;
         }
         // Get variables from content block
@@ -97,54 +87,42 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
         if (!ModUtil::available('Book')) {
             return false;
         }
-        $short_urls = VariableApi::get('ZConfig', 'shorturls');
-        $url = Request::getUrl();
+        
+        $url = System::getCurrentUrl();
         //first try to get the book id
         $pattern = '';
-        if ($short_urls) {
-            $pattern = '|bid/([0-9]{1,3})|';
-        } else {
-            $pattern = '|bid=([0-9]{1,3})|';
-        }
+        $pattern = '|bid/([0-9]{1,3})|';
         $matches = array();
         preg_match($pattern, $url, $matches);
         $aid = -1;
         $bid = -1;
         if ($matches[1] == "") {
             //next try aid
-            if ($short_urls) {
-                $pattern = '|aid/([0-9]{1,3})|';
-            } else {
-                $pattern = '|aid=([0-9]{1,3})|';
-            }
+            $pattern = '|aid/([0-9]{1,3})|';
             preg_match($pattern, $url, $matches);
             if ($matches[1] == "") {
                 //OK now try the cid
-                if ($short_urls) {
-                    $pattern = '|cid/([0-9]{1,3})|';
-                } else {
-                    $pattern = '|cid=([0-9]{1,3})|';
-                }
+                $pattern = '|cid/([0-9]{1,3})|';
                 preg_match($pattern, $url, $matches);
                 if ($matches[1] == "") {
                     //if we get here, we must not be in a book, so just return
                     return false;
                 }
-                $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $matches[1]));
-                $bid = $chapter['bid'];
+                //$chapter = ModUtil::func('PauistanBookModule', 'user', 'getchapter', array('cid' => $matches[1]));
+                //$bid = $chapter['bid'];
             } else {
                 /* aid was found */
-                $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $matches[1]));
-                $bid = $article['bid'];
+               // $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $matches[1]));
+                //$bid = $article['bid'];
             }
         } else {
-            $bid = $matches[1];
+            //$bid = $matches[1];
         }
 
-        $content = ModUtil::apiFunc('Book', 'user', 'shorttoc', array('bid' => $bid,
-                    'aid' => $aid));
+        //$content = ModUtil::apiFunc('Book', 'user', 'shorttoc', array('bid' => $bid,
+         //           'aid' => $aid));
 
-        $blockinfo['content'] = $content;
+        //$blockinfo['content'] = $content;
         return BlockUtil::themeBlock($blockinfo);
     }
 
@@ -173,5 +151,3 @@ class Book_Block_Tools extends Zikula_Controller_AbstractBlock {
     }
 
 }
-
-?>

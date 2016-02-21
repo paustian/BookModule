@@ -10,10 +10,13 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU General Public License
  */
 
-use ModUtil;
+namespace Paustian\BookModule\Block;
+
+use Zikula_View;
+use SecurityUtil;
 use BlockUtil;
 
-class Book_Block_BookList extends Zikula_Controller_AbstractBlock {
+class BookListBlock extends \Zikula_Controller_AbstractBlock {
     
     /**
      * Post initialise.

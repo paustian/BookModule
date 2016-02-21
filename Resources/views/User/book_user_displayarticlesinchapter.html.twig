@@ -1,6 +1,6 @@
 <h2>{{ __('Chapter') }}{{ chapter.number }} - {{ chapter.name }}</h2>
 {% for article in articles %}
 <h3>{{ chapter.number }} - {{ article.number }}  {{ article.title }}</h3> 
-{{ article.contents }}
+{{ article.contents|raw }}
 <hr />
 {% endfor %}

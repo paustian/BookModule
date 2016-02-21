@@ -16,3 +16,25 @@ function getSelectionHtml() {
     }
     return html;
 }
+
+function getSelectionHtml2() {
+    var htmlContent = ''
+
+    // IE
+    if ($.browser.msie) {
+        htmlContent = document.selection.createRange().htmlText;
+    } else {
+        var range = window.getSelection().getRangeAt(0);
+        var content = range.cloneContents();
+
+        $('body').append('<span id="selection_html_placeholder"></span>');
+        var placeholder = document.getElementById('selection_html_placeholder');
+
+        placeholder.appendChild(content);
+
+        htmlContent = placeholder.innerHTML;
+        $('#selection_html_placeholder').remove();
+
+    }
+    return htmlContent;
+}

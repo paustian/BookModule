@@ -130,6 +130,7 @@ class BookArticlesRepository extends EntityRepository {
     }
     
     public function incrementCounter($article){
+        
         $count = $article->getCounter();
         $count++;
         $article->setCounter($count);
