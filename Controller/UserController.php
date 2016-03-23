@@ -27,6 +27,7 @@
 namespace Paustian\BookModule\Controller;
 
 use Zikula\Core\Controller\AbstractController;
+use Zikula\Core\RouteUrl;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -39,6 +40,7 @@ use DataUtil;
 use UserUtil;
 use ModUtil;
 use LogUtil;
+use System;
 use Paustian\BookModule\Entity\BookEntity;
 use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
@@ -102,38 +104,6 @@ class UserController extends AbstractController {
         return $this->render('PaustianBookModule:User:book_user_toc.html.twig', ['book' => $bookData]);
     }
 
-    public function shorttoc($bid, $aid) {
-
-        if (!is_numeric($bid) || !is_numeric($aid)) {
-            LogUtil::addErrorPopup(__('There shorttoc calld with no book or article id.'));
-        }
-
-        // The API function is called.  The arguments to the function are passed in
-        // as their own arguments array
-        $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookChaptersEntity');
-        $chapters = $repo->getChapters($bid);
-        // The return value of the function is checked here, and if the function
-        // suceeded then an appropriate message is posted.
-        if (!$chapters) {
-            return LogUtil::addWarningPopup(__('There are no chapters.'));
-        }
-
-
-        foreach ($chapters as $chapter_item) {
-            $cid = $chapter_item->getCid();
-            if ($chapter_item['number'] > 0) {
-                if (SecurityUtil::checkPermission('Book::Chapter', "$bid::$cid", ACCESS_OVERVIEW)) {
-                    $chapName = $this->myTruncate2($chapter_item->getName(), 22);
-                    $chapter_data[] = $chapter_item;
-                }
-            }
-        }
-
-        return $this->render('PaustianBookModule:User:book_user_shorttoc.html.twig', ['chapters' => $chapters,
-                    'aid' => $aid,
-                    'isLoggedIn' => UserUtil::isLoggedIn()]);
-    }
-
 // Original PHP code by Chirp Internet: www.chirp.com.au
 // Please acknowledge use of this code by including this header.
 
@@ -177,10 +147,10 @@ class UserController extends AbstractController {
     public function displayarticleAction(Request $request, BookArticlesEntity $article = null, $doglossary = true) {
         if (null === $article) {
             $aid = $request->get('aid');
-            if(isset($aid)){
+            if (isset($aid)) {
                 $article = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
             }
-            if(null === $article){
+            if (null === $article) {
                 return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
             }
         }
@@ -205,16 +175,16 @@ class UserController extends AbstractController {
         }
 
         //this code is used for the hook
-        $return_url = $this->generateUrl('paustianbookmodule_user_displayarticle', array('aid' => $aid));
+        $return_url = new RouteUrl($this->generateUrl('paustianbookmodule_user_displayarticle', array('aid' => $aid)));
 
         //call the user api to increment the counter
         $doc->getRepository('PaustianBookModule:BookArticlesEntity')->incrementCounter($article);
-        
+
         $show_internals = false;
         if (SecurityUtil::checkPermission('Book::Chapter', $article->getBid() . "::$cid", ACCESS_EDIT)) {
             $show_internals = true;
         }
-
+        
         $return_text = $this->render('PaustianBookModule:User:book_user_displayarticle.html.twig', ['article' => $article,
             'chapter' => $chapter,
             'content' => $content,
@@ -227,7 +197,7 @@ class UserController extends AbstractController {
         if ($doglossary) {
             $return_text = $this->_add_glossary_defs($return_text);
         }
-        
+
         return new Response($return_text);
     }
 
@@ -274,7 +244,7 @@ class UserController extends AbstractController {
     private function _glossary_add($matches) {
         $term = $matches[1];
         $item = array();
-        
+
         $where['cond'] = "u.term=:term";
         $where['paramkey'] = 'term';
         $where['paramval'] = DataUtil::formatForStore($term);
@@ -300,7 +270,7 @@ class UserController extends AbstractController {
         $definition = $item[0]['definition'];
         $lcterm = strtolower($term);
         $url = DataUtil::formatForDisplayHTML(ModUtil::url('Book', 'user', 'displayglossary')) . "#$lcterm";
-        $ret_text = "<a class=\"glossary\" href=\"$url\" title=\"$definition\") \">$term</a>";
+        $ret_text = "<a class=\"glossary\" href=\"$url\" title=\"$definition\">$term</a>";
         return $ret_text;
     }
 
@@ -394,7 +364,7 @@ class UserController extends AbstractController {
         return $figureText;
     }
 
-    private function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = true) {
+    private function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false) {
 //check to see if we have permission to use the figure
         if ($figure->getPerm() != 0) {
             $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone);
@@ -403,10 +373,10 @@ class UserController extends AbstractController {
         }
 
         return $this->render('PaustianBookModule:User:book_user_displayfigure.html.twig', ['figure' => $figure,
-            'visible_link' => $visible_link]);
+                    'visible_link' => $visible_link]);
     }
 
-    private function _buildlink($link, $title = "", $width = 0, $height = 0, $controller = "true", $loop = "false", $autoplay = "true", $stand_alone = true) {
+    private function _buildlink($link, $title = "", $width = 0, $height = 0, $controller = "true", $loop = "false", $autoplay = "true", $stand_alone = false) {
         //if it is a image link, then set it up, else trust that the user
         //has set it up with the right tags.
         $alt_link = preg_replace("|<.*?>|", "", $title);
@@ -420,8 +390,10 @@ class UserController extends AbstractController {
         if ((strstr($link, ".gif")) || (strstr($link, ".jpg")) || (strstr($link, ".png"))) {
             //This was added to prevent failures on file missing. For some reason getimagesize sometimes throws 
             //an error, even though the path to the file is correct
-            if (file_exists($link)) {
-                $image_data = getimagesize($link);
+            $docRoot = System::serverGetVar('DOCUMENT_ROOT');
+            $test_link = $docRoot . $link;
+            if (file_exists($test_link)) {
+                $image_data = getimagesize($test_link);
                 if ($width == 0) {
                     $width = $image_data[0];
                 }
@@ -519,7 +491,7 @@ class UserController extends AbstractController {
      * @param BookChaptersEntity $chapter
      * @return type
      */
-    public function displaychapterAction(Request $request, BookChaptersEntity $chapter=null) {
+    public function displaychapterAction(Request $request, BookChaptersEntity $chapter = null) {
         if (null === $chapter) {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
@@ -547,13 +519,13 @@ class UserController extends AbstractController {
      * @param BookChaptersEntity $chapter
      * @return type
      */
-    public function displayarticlesinchapterAction(Request $request, BookChaptersEntity $chapter=null) {
+    public function displayarticlesinchapterAction(Request $request, BookChaptersEntity $chapter = null) {
         if (null === $chapter) {
             $cid = $request->get('cid');
-            if(isset($cid)){
+            if (isset($cid)) {
                 $chapter = $this->getDoctrine()->getRepository('PaustianBookModule:BookChaptersEntity')->find($cid);
             }
-            if(null === $chapter){
+            if (null === $chapter) {
                 return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
             }
         }
@@ -827,19 +799,17 @@ class UserController extends AbstractController {
      * @return type
      */
     public function downloadAction(Request $request) {
-        return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
-        /* $allow_dl = false;
-          if (UserUtil::isLoggedIn()) {
-          $uid = UserUtil::getVar('uid');
-          $groups = UserUtil::getGroupsForUser($uid);
-          //print_r($groups);die;
-          //This is a real hack in that you have to know the group number
-          if(array_search(3, $groups)){
-          $allow_dl = true;
-          }
-          }
-          $this->view->assign('allow_dl', $allow_dl);
-          return $this->view->fetch('book_user_download.tpl'); */
+        $allow_dl = false;
+        if (UserUtil::isLoggedIn()) {
+            $uid = UserUtil::getVar('uid');
+            $groups = UserUtil::getGroupsForUser($uid);
+            //print_r($groups);die;
+            //This is a real hack in that you have to know the group number
+            if (array_search(3, $groups)) {
+                $allow_dl = true;
+            }
+        }
+        return $this->render('PaustianBookModule:User:download.html.twig', ['allow_dl' => $allow_dl]);
     }
 
 }

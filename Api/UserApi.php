@@ -27,10 +27,50 @@
 // Purpose of file:  Book user API
 // ----------------------------------------------------------------------
 
+use LogUtil;
+use SecurityUtil;
+
 class UserApi extends Zikula_AbstractApi {
 
- 
+    /**
+     * shorttoc
+     * given an article id, derrive the interface for the book tools block
+     * 
+     * @param type $aid
+     * @return type
+     */
+    public function shorttoc($aid) {
 
+        if (!is_numeric($aid)) {
+            LogUtil::addErrorPopup(__('There shorttoc called with no article id.'));
+        }
+
+        // The API function is called.  The arguments to the function are passed in
+        // as their own arguments array
+        $repo = $this->_em->getRepository('PaustianBookModule:BookChaptersEntity');
+        $article = $this->_em->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
+        $chapters = $repo->getChapters($article->getBid());
+        // The return value of the function is checked here, and if the function
+        // suceeded then an appropriate message is posted.
+        if (!$chapters) {
+            return LogUtil::addWarningPopup(__('There are no chapters.'));
+        }
+
+
+        foreach ($chapters as $chapter_item) {
+            $cid = $chapter_item->getCid();
+            if ($chapter_item['number'] > 0) {
+                if (SecurityUtil::checkPermission('Book::Chapter', "$bid::$cid", ACCESS_OVERVIEW)) {
+                    $chapName = $this->myTruncate2($chapter_item->getName(), 22);
+                    $chapter_data[] = $chapter_item;
+                }
+            }
+        }
+
+        return $this->render('PaustianBookModule:User:book_user_shorttoc.html.twig', ['chapters' => $chapters,
+                    'aid' => $aid,
+                    'isLoggedIn' => UserUtil::isLoggedIn()]);
+    }
     /**
      * given a bid return the data for that book
      * @param $args['bid'] id of book item to get

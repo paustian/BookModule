@@ -24,7 +24,10 @@ use Zikula_View;
 use SecurityUtil;
 use BlockUtil;
 use ModUtil;
+use UserUtil;
+use System;
 
+//HOLD OFF ON THIS UNTIL 1.4.2 IS OUT
 class ToolsBlock extends \Zikula_Controller_AbstractBlock {
     
     /**
@@ -77,7 +80,8 @@ class ToolsBlock extends \Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!SecurityUtil::checkPermission('Bookblock::', "$blockinfo[bid]::", ACCESS_OVERVIEW) || !pnUserLoggedIn()) {
+        UserUtil::isLoggedIn();
+        if (!UserUtil::isLoggedIn()) {
             return false;
         }
         // Get variables from content block
@@ -90,39 +94,20 @@ class ToolsBlock extends \Zikula_Controller_AbstractBlock {
         
         $url = System::getCurrentUrl();
         //first try to get the book id
-        $pattern = '';
-        $pattern = '|bid/([0-9]{1,3})|';
+        //the book tools are only useful when an article is being displayed.
+        $pattern = '|displayarticle/([0-9]{1,3})|';
         $matches = array();
-        preg_match($pattern, $url, $matches);
-        $aid = -1;
-        $bid = -1;
-        if ($matches[1] == "") {
-            //next try aid
-            $pattern = '|aid/([0-9]{1,3})|';
-            preg_match($pattern, $url, $matches);
-            if ($matches[1] == "") {
-                //OK now try the cid
-                $pattern = '|cid/([0-9]{1,3})|';
-                preg_match($pattern, $url, $matches);
-                if ($matches[1] == "") {
-                    //if we get here, we must not be in a book, so just return
-                    return false;
-                }
-                //$chapter = ModUtil::func('PauistanBookModule', 'user', 'getchapter', array('cid' => $matches[1]));
-                //$bid = $chapter['bid'];
-            } else {
-                /* aid was found */
-               // $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $matches[1]));
-                //$bid = $article['bid'];
-            }
+        if (!preg_match($pattern, $url, $matches)) {
+            //if we get here, we must not be in a book, so just return
+            $blockinfo['content'] = __('Please log in and go to the book menu to see content.');
         } else {
-            //$bid = $matches[1];
+            $aid = $matches[1];
+            $content = ModUtil::func('PaustianBookModule', 'user', 'shorttoc', ['aid' => $aid]);
         }
 
-        //$content = ModUtil::apiFunc('Book', 'user', 'shorttoc', array('bid' => $bid,
-         //           'aid' => $aid));
+        //
 
-        //$blockinfo['content'] = $content;
+        $blockinfo['content'] = 'This is temporary content!';
         return BlockUtil::themeBlock($blockinfo);
     }
 

@@ -2,7 +2,7 @@
 {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 <div class="book_content">
-<h1>{{ chapter.number }}-{{ article.number }} {{ article.title }}</h1>
+<h2>{{ chapter.number }}-{{ article.number }} {{ article.title }}</h2>
 {% if article.counter==1 %}
 <p>( {{ article.counter }} Read)</p>
 {else}
@@ -46,5 +46,5 @@
 <a href="{{ path('paustianbookmodule_user_displayarticle', {theme:'printer'}) }}/{{ article.aid }}" title="{{ __('Printable Version') }}" class="fa fa-print"></a>|
 <a href="{{ path('paustianbookmodule_user_displayarticlesinchapter', {theme:'printer'}) }}/{{ article.cid }}" title="{{ __('Printable Chapter') }}" class="fa fa-bookmark-o"></a>
 </p>
-{{ notifyDisplayHooks('book.ui_hooks.articles.display_view', {id:article.aid, urlobject:article.returnurl}) }}
+{{ notifyDisplayHooks('book.ui_hooks.book.display_view', article.aid|default(null), return_url) }}
 </div>

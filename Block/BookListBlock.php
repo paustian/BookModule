@@ -15,7 +15,7 @@ namespace Paustian\BookModule\Block;
 use Zikula_View;
 use SecurityUtil;
 use BlockUtil;
-
+//HOLD OFF ON THIS UNTIL 1.4.2 IS OUT
 class BookListBlock extends \Zikula_Controller_AbstractBlock {
     
     /**
