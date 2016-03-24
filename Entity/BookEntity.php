@@ -60,4 +60,4 @@ class BookEntity extends EntityAccess
     }
 }
 
-?>
+

@@ -174,4 +174,4 @@ class BookFiguresEntity extends EntityAccess {
 
 }
 
-?>
+

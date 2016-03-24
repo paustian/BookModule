@@ -167,4 +167,3 @@ class AdminApi extends \Zikula_AbstractApi {
     
 }
 
-?>

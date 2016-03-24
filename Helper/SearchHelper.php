@@ -104,4 +104,3 @@ class SearchHelper extends AbstractSearchable
 
 }
 
-?>

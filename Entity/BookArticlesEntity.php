@@ -193,4 +193,4 @@ class BookArticlesEntity extends EntityAccess {
 
 }
 
-?>
+

@@ -163,4 +163,3 @@ class BookListBlock extends \Zikula_Controller_AbstractBlock {
 
 }
 
-?>

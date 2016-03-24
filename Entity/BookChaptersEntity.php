@@ -96,4 +96,4 @@ class BookChaptersEntity extends EntityAccess
         $this->name = $name;
     }
 }
-?>
+

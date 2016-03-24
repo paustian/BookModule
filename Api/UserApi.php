@@ -487,4 +487,3 @@ class UserApi extends Zikula_AbstractApi {
 
 }
 
-?>

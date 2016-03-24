@@ -169,4 +169,3 @@ class BookModuleInstaller extends \Zikula_AbstractInstaller {
 
 }
 
-?>

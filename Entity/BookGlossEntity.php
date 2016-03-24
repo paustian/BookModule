@@ -107,4 +107,4 @@ class BookGlossEntity extends EntityAccess {
 
 }
 
-?>
+

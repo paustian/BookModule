@@ -107,4 +107,4 @@ class BookUserDataEntity extends EntityAccess
         $this->end = $end;
     }
 }
-?>
+

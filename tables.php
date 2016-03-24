@@ -147,4 +147,3 @@ function book_pntables()
     return $table;
 }
 
-?>

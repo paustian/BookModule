@@ -41,4 +41,3 @@ class BookModuleVersion extends \Zikula_AbstractVersion
         $this->registerHookSubscriberBundle($bundle);
     }
 }
-?>
