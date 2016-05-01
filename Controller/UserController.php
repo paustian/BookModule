@@ -58,7 +58,7 @@ class UserController extends AbstractController {
      */
     public function indexAction(Request $request) {
 // Security check
-        if (!SecurityUtil::checkPermission($this->name . '::', '::', ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
             throw new AccessDeniedException(__('You do not have pemission to access any books.'));
         }
 
@@ -94,7 +94,7 @@ class UserController extends AbstractController {
                 $chapter['print'] = 0; //don't show it.
                 continue;
             }
-            if (SecurityUtil::checkPermission($this->name . '::Chapter', $bookData['bid'] . '::' . $chapter['cid'], ACCESS_READ)) {
+            if ($this->hasPermission($this->name . '::Chapter', $bookData['bid'] . '::' . $chapter['cid'], ACCESS_READ)) {
                 $chapter['print'] = 1; //show it and have link to the item
             } else {
                 $chapter['print'] = 2; //show it, but no link
@@ -157,7 +157,7 @@ class UserController extends AbstractController {
         //get the chapter title
         $cid = $article->getCid();
         $aid = $article->getAid();
-        if (!SecurityUtil::checkPermission('Book::Chapter', $article->getBid() . "::$cid", ACCESS_READ)) {
+        if (!$this->hasPermission('Book::Chapter', $article->getBid() . "::$cid", ACCESS_READ)) {
             throw new AccessDeniedException(__('You do not have pemission to this chapter.'));
         }
         $doc = $this->getDoctrine();
@@ -181,7 +181,7 @@ class UserController extends AbstractController {
         $doc->getRepository('PaustianBookModule:BookArticlesEntity')->incrementCounter($article);
 
         $show_internals = false;
-        if (SecurityUtil::checkPermission('Book::Chapter', $article->getBid() . "::$cid", ACCESS_EDIT)) {
+        if ($this->hasPermission('Book::Chapter', $article->getBid() . "::$cid", ACCESS_EDIT)) {
             $show_internals = true;
         }
         
@@ -356,7 +356,7 @@ class UserController extends AbstractController {
         if (null === $figure) {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
-        if (!SecurityUtil::checkPermission('Book::', $figure->getBid() . "::", ACCESS_OVERVIEW)) {
+        if (!$this->hasPermission('Book::', $figure->getBid() . "::", ACCESS_OVERVIEW)) {
             return LogUtil::registerPermissionError();
         }
 
@@ -442,7 +442,7 @@ class UserController extends AbstractController {
      */
     public function displayglossaryAction(Request $request) {
 //you must have permission to read some book.
-        if (!SecurityUtil::checkPermission($this->name . '::', '::', ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
             throw new AccessDeniedException(__('You do not have pemission to access any glossry items.'));
         }
 
@@ -465,7 +465,7 @@ class UserController extends AbstractController {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
         $bid = $book->getBid();
-        if (!SecurityUtil::checkPermission($this->name . '::', "$bid::", ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::', "$bid::", ACCESS_READ)) {
             throw new AccessDeniedException(__('You do not have pemission to access this book.'));
         }
 
@@ -477,7 +477,7 @@ class UserController extends AbstractController {
         $chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
         foreach ($chapters as $chap_item) {
             $cid = $chap_item->getCid();
-            if (SecurityUtil::checkPermission('Book::Chapter', "$bid::$cid", ACCESS_READ)) {
+            if ($this->hasPermission('Book::Chapter', "$bid::$cid", ACCESS_READ)) {
                 $ret_text = $ret_text . $this->displaychapterAction($request, $chapter);
             }
         }
@@ -498,7 +498,7 @@ class UserController extends AbstractController {
         $cid = $chapter->getCid();
         $bid = $chapter->getBid();
         //grab the chapter data
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$bid::$cid", ACCESS_READ)) {
+        if (!$this->hasPermission('Book::Chapter', "$bid::$cid", ACCESS_READ)) {
             throw new AccessDeniedException(__('You do not have pemission to access the contents of this chapter.'));
             ;
         }
@@ -532,7 +532,7 @@ class UserController extends AbstractController {
         $cid = $chapter->getCid();
         $bid = $chapter->getBid();
         //grab the chapter data
-        if (!SecurityUtil::checkPermission('Book::Chapter', "$bid::$cid", ACCESS_READ)) {
+        if (!$this->hasPermission('Book::Chapter', "$bid::$cid", ACCESS_READ)) {
             throw new AccessDeniedException(__('You do not have pemission to access the contents of this chapter.'));
             ;
         }
@@ -658,7 +658,7 @@ class UserController extends AbstractController {
           $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $hItem['aid']));
 
           //now check for authorization, if not just continue. Frankly there should be none of these
-          if (!SecurityUtil::checkPermission("Book::Chapter", "$article[bid]::$article[cid]", ACCESS_READ)) {
+          if (!$this->hasPermission("Book::Chapter", "$article[bid]::$article[cid]", ACCESS_READ)) {
           continue;
           }
 
@@ -719,7 +719,7 @@ class UserController extends AbstractController {
           $art_array = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $aid));
           //before doing anything else, make sure they are authorized to highlight.
 
-          if (!SecurityUtil::checkPermission('Book::Chapter', "$art_array[bid]::$art_array[cid]", ACCESS_READ)) {
+          if (!$this->hasPermission('Book::Chapter', "$art_array[bid]::$art_array[cid]", ACCESS_READ)) {
           return LogUtil::registerPermissionError();
           }
           $content = $art_array['contents'];

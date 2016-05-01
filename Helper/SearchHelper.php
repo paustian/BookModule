@@ -29,7 +29,7 @@ class SearchHelper extends AbstractSearchable
      */
     public function getOptions($active, $modVars = null)
     {
-        if (SecurityUtil::checkPermission('Book::', '::', ACCESS_READ)) {
+        if ($this->hasPermission('Book::', '::', ACCESS_READ)) {
             return $this->getContainer()->get('templating')->renderResponse('PaustianBookModule:Search:options.html.twig', array('active' => $active))->getContent();
         }
         return '';
@@ -71,7 +71,7 @@ class SearchHelper extends AbstractSearchable
         foreach ($results as $article) {
             $url = new RouteUrl('paustianbookmodule_user_displayarticle', ['article' => $article->getAid()]);
             //make sure we have permission for this object.
-            if (!SecurityUtil::checkPermission('Book::', $article['bid'] . "::" . $article['cid'], ACCESS_OVERVIEW)) {
+            if (!$this->hasPermission('Book::', $article['bid'] . "::" . $article['cid'], ACCESS_OVERVIEW)) {
                 continue;
             }
             $returnArray[] = array(

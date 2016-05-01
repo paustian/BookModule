@@ -136,7 +136,7 @@ class AdminApi extends \Zikula_AbstractApi {
 
         // Security check - important to do this as early on as possible to
         // avoid potential security holes or just too much wasted processing
-        if (!SecurityUtil::checkPermission('Book::Chapter', "::", ACCESS_READ)) {
+        if (!$this->hasPermission('Book::Chapter', "::", ACCESS_READ)) {
             LogUtil::registerPermissionError();
             return false;
         }
