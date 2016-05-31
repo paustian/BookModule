@@ -547,11 +547,14 @@ class AdminController extends AbstractController {
         }
 
         $em = $this->getDoctrine()->getManager();
+        
+        
         $em->remove($article);
         $em->flush();
         $this->addFlash('status', __('Article Deleted.'));
         //I may need to add a notify hook response here. I think I can add this to the 
-        //template however.
+        $hook = new \Zikula\Bundle\HookBundle\Hook\ProcessHook($article->getAid());
+        $this->get('hook_dispatcher')->dispatch('book.ui_hooks.book.process_delete', $hook);
         return $response;
     }
 
@@ -987,8 +990,7 @@ class AdminController extends AbstractController {
         }
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
-        $where = ['cond' => 'u.definition = ?1', 'paramkey' => 1, 'paramval' => ''];
-        $glossaryItems = $repo->getGloss('', null, $where);
+        $glossaryItems = $repo->getUndefinedTerms();
 
         return $this->render('PaustianBookModule:Admin:book_admin_studentdefgloss.html.twig', ['glossaryItems' => $glossaryItems]);
     }

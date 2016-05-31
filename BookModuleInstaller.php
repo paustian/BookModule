@@ -2,12 +2,19 @@
 
 namespace Paustian\BookModule;
 
+use Zikula\Core\ExtensionInstallerInterface;
+use Zikula\ExtensionsModule\Api\VariableApi;
+use Zikula\Core\AbstractBundle;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use DoctrineHelper;
-use ModUtil;
 use HookUtil;
+use ServiceUtil;
 
-class BookModuleInstaller extends \Zikula_AbstractInstaller {
+class BookModuleInstaller implements ExtensionInstallerInterface, ContainerAwareInterface {
 
+ 
+    
     private $entities = array(
             'Paustian\BookModule\Entity\BookArticlesEntity',
             'Paustian\BookModule\Entity\BookChaptersEntity',
@@ -17,29 +24,37 @@ class BookModuleInstaller extends \Zikula_AbstractInstaller {
             'Paustian\BookModule\Entity\BookUserDataEntity',
             
         );
+    
+    private $entityManager;
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+    /**
+     * @var AbstractBundle
+     */
+    private $bundle;
     /**
      * initialise the book module
      * This function is only ever called once during the lifetime of a particular
      * module instance
      */
     public function install() {
-        // Get datbase setup - note that both pnDBGetConn() and pnDBGetTables()
-        // return arrays but we handle them differently.  For pnDBGetConn()
-        // we currently just want the first item, which is the official
-        // database handle.  For pnDBGetTables() we want to keep the entire
-        // tables array together for easy reference later on
-        // Create table
+        // create tables
+        $this->entityManager = $this->container->get('doctrine.entitymanager');
+        //Create the tables of the module. Book has 5
         try {
             DoctrineHelper::createSchema($this->entityManager, $this->entities);
         } catch (Exception $e) {
             return false;
         }
-       
-        // These are used in the searching functions.
-        ModUtil::setVar('Book', 'SEARCH_BOOK_LABEL', __('Search Books'));
-        ModUtil::setVar('Book', 'BOOKS_LABEL', __('Books'));
+        $variable = ServiceUtil::getService('zikula_extensions_module.api.variable');
+        // Delete any module variables
+        $variable->set('Book', 'securebooks', false);
         
-        HookUtil::registerSubscriberBundles($this->version->getHookSubscriberBundles());
+        $versionClass = $this->bundle->getVersionClass();
+        $version = new $versionClass($this->bundle);
+        HookUtil::registerSubscriberBundles($version->getHookSubscriberBundles());
         // Initialisation successful
         return true;
     }
@@ -51,42 +66,6 @@ class BookModuleInstaller extends \Zikula_AbstractInstaller {
     public function upgrade($oldversion) {
         // Upgrade dependent on old version number
         switch ($oldversion) {
-            case 1.0:
-                //We can leave this as mysql specific code because you could not use anything but mysql before 2.0
-                $dbconn = & pnDBGetConn(true);
-                $pntable = & pnDBGetTables();
-
-                $bookFigures = $pntable['book_figures'];
-                $bookFigList = &$pntable['book_figures_column'];
-
-                // Code to upgrade from version 1.0 goes here
-                //add the permission field to the figure table
-                $sql = "ALTER TABLE $bookFigures ADD $bookFigList[perm] TINYINT DEFAULT 1 NOT NULL";
-                $dbconn->Execute($sql);
-
-                // Check for an error with the database code, and if so set an
-                // appropriate error message and return
-                if ($dbconn->ErrorNo() != 0) {
-                    return false;
-                }
-
-                $bookGlossary = $pntable['book_glossary'];
-                $bookGlssaryList = &$pntable['book_glossary_column'];
-                $sql = "ALTER TABLE $bookGlossary ADD $bookGlssaryList[user] TEXT DEFAULT '', ADD $bookGlssaryList[url] TEXT DEFAULT ''";
-
-                $dbconn->Execute($sql);
-
-                // Check for an error with the database code, and if so set an
-                // appropriate error message and return
-                if ($dbconn->ErrorNo() != 0) {
-                    return false;
-                }
-                //make it possible to prevent simultaneous use by more than one person.
-                pnModSetVar('Book', 'securebooks', false);
-                break;
-            case 2.0:
-                // No code is needed to upgrade to 2.0 from 1.0
-                break;
             case 2.1:
                 //we need to add code that changes the table names and gets rid of book_
                 //in front of table names and book_fig and book_gloss and book_user_data
@@ -157,15 +136,42 @@ class BookModuleInstaller extends \Zikula_AbstractInstaller {
      * module instance
      */
     public function uninstall() {
+        // create tables
+        $this->entityManager = $this->container->get('doctrine.entitymanager');
         //drop the tables
         DoctrineHelper::dropSchema($this->entityManager, $this->entities);
-
+        $variable = ServiceUtil::getService('zikula_extensions_module.api.variable');
         // Delete any module variables
-        ModUtil::delVar('Book', 'securebooks', false);
-
+        $variable->del('Book', 'securebooks');
+        
+        $versionClass = $this->bundle->getVersionClass();
+        $version = new $versionClass($this->bundle);
+        HookUtil::unregisterSubscriberBundles($version->getHookSubscriberBundles());
         // Deletion successful
         return true;
     }
+    
+    public function setBundle(AbstractBundle $bundle)
+    {
+        $this->bundle = $bundle;
+    }
+    
+    /**
+     * Sets the Container.
+     *
+     * @param ContainerInterface|null $container A ContainerInterface instance or null
+     *
+     * @api
+     */
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $this->container = $container;
+        $this->setTranslator($container->get('translator'));
+    }
 
+    public function setTranslator($translator)
+    {
+        $this->translator = $translator;
+    }
 }
 

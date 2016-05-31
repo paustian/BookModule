@@ -20,6 +20,7 @@
  */
 namespace Paustian\BookModule\Block;
 
+use Symfony\Component\HttpFoundation\Request;
 use Zikula_View;
 use SecurityUtil;
 use BlockUtil;
@@ -59,7 +60,7 @@ class ToolsBlock extends \Zikula_Controller_AbstractBlock {
      * @return       array       The block information
      */
     public function info() {
-        return array('text_type' => 'module',
+        return array('text_type' => 'Tools Block',
             'module' => 'Book',
             'text_type_long' => 'Tools for use in Books',
             'allow_multiple' => true,
@@ -77,10 +78,6 @@ class ToolsBlock extends \Zikula_Controller_AbstractBlock {
      * @return       output      the rendered bock
      */
     public function display($blockinfo) {
-        // Security check - important to do this as early as possible to avoid
-        // potential security holes or just too much wasted processing.  
-        // Note that we have Book:Firstblock: as the component.
-        UserUtil::isLoggedIn();
         if (!UserUtil::isLoggedIn()) {
             return false;
         }
@@ -92,25 +89,55 @@ class ToolsBlock extends \Zikula_Controller_AbstractBlock {
             return false;
         }
         
-        $url = System::getCurrentUrl();
+        $url = $this->request->getUri();
+        $content = "";
         //first try to get the book id
         //the book tools are only useful when an article is being displayed.
         $pattern = '|displayarticle/([0-9]{1,3})|';
         $matches = array();
-        if (!preg_match($pattern, $url, $matches)) {
-            //if we get here, we must not be in a book, so just return
-            $blockinfo['content'] = __('Please log in and go to the book menu to see content.');
-        } else {
+        if (preg_match($pattern, $url, $matches)) {
             $aid = $matches[1];
-            $content = ModUtil::func('PaustianBookModule', 'user', 'shorttoc', ['aid' => $aid]);
+            $article = $this->entityManager->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
+            $repo = $this->entityManager->getRepository('PaustianBookModule:BookEntity');
+            $booktoc = $repo->buildtoc($article->getBid(), $chapterids);
+            $content = $this->render('PaustianBookModule:Block:tools_block.html.twig', ['aid' => $aid, 'book' => $booktoc[0]])->getContent();
         }
-
         //
 
-        $blockinfo['content'] = 'This is temporary content!';
+        $blockinfo['content'] = $content;
         return BlockUtil::themeBlock($blockinfo);
     }
+    
+// Original PHP code by Chirp Internet: www.chirp.com.au
+// Please acknowledge use of this code by including this header.
 
+    function myTruncate2($string, $limit, $break = " ", $pad = "...") {
+// return with no change if string is shorter than $limit
+        if (strlen($string) <= $limit)
+            return $string;
+
+        $string = substr($string, 0, $limit);
+        if (false !== ($breakpoint = strrpos($string, $break))) {
+            $string = substr($string, 0, $breakpoint);
+        }
+
+        return $string . $pad;
+    }
+    
+    /**
+     * @param $view
+     * @param $parameters
+     * @param Response|null $response
+     * @return Response
+     */
+    private function render($view, $parameters, Response $response = null)
+    {
+        if ($this->has('templating')) {
+            return $this->get('templating')->renderResponse($view, $parameters, $response);
+        }
+
+        return '';
+    }
     /**
      * modify block settings
      * 

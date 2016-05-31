@@ -24,7 +24,35 @@ class BookRepository extends EntityRepository {
         $books = $query->getResult();
         return $books;
     }
-    
+    /**
+     * buildtoc
+     * 
+     * Send back an array listing data of the book in a multidimensional array
+     * 
+     * book(
+     *      chapters[1](
+     *          chapter[name]
+     *          chapter[number]
+     *          chapter[articles](
+     *              article[1]
+     *              article[2]
+     *              ...)
+     *      chapters[2]
+     *          chapter[name]
+     *          chapter[number]
+     *          chapter[articles](
+     *              article[1]
+     *              article[2]
+     *              ...)
+     *      ...)
+     * If you do not specify a bid, all the books are sent back. This function is
+     * efficient by not obtainins all the article content, which saves a bunch of
+     * memory.
+     * 
+     * @param type $bid
+     * @param type $chapterids
+     * @return string
+     */
     public function buildtoc($bid = 0, &$chapterids = "") {
         //get the list of books
         $booksEnts = $this->getBooks($bid);

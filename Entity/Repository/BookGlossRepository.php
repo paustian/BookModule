@@ -3,6 +3,8 @@ namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Paustian\BookModule\Entity\BookGlossEntity;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Query\Parameter;
 
 //set up for $orderBy array
 //  $orderBy['col'] the column to order by
@@ -39,6 +41,31 @@ class BookGlossRepository extends EntityRepository {
         return $gloss;
     }
     
+    /**
+     * Given a term, see if it is defined
+     * @param type $inTerm
+     */
+    public function getTerm($inTerm){
+        $glossItem = $this->findOneByTerm($inTerm);
+        return $glossItem;
+    }
+    
+    public function getUndefinedTerms(){
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('u')
+                ->from('PaustianBookModule:BookGlossEntity', 'u');
+        $qb->where('u.definition = :def1');
+        $qb->orWhere('u.definition = :def2');   
+        $qb->setParameters(new ArrayCollection(array(
+                  new Parameter('def1', ''),
+                  new Parameter('def2', 'TBD'))));
+        $query = $qb->getQuery();
+        // execute query
+        $gloss = $query->getResult();
+        return $gloss;
+        
+    }
+            
     public function parseImportedGlossXML($xmlText){
         //An awesome function for parsing simple xml.
         $glossArray = simplexml_load_string($xmlText);

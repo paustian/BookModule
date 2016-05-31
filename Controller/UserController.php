@@ -45,6 +45,7 @@ use Paustian\BookModule\Entity\BookEntity;
 use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
 use Paustian\BookModule\Entity\BookChaptersEntity;
+use Paustian\BookModule\Entity\BookGlossEntity;
 
 class UserController extends AbstractController {
 
@@ -64,8 +65,8 @@ class UserController extends AbstractController {
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
         $books = $repo->getBooks();
-
-        return $this->render('PaustianBookModule:User:book_user_books.html.twig', ['books' => $books]);
+        $test = $this->render('PaustianBookModule:User:book_user_books.html.twig', ['books' => $books]);
+        return $test;
     }
 
     /**
@@ -102,22 +103,6 @@ class UserController extends AbstractController {
         }
 
         return $this->render('PaustianBookModule:User:book_user_toc.html.twig', ['book' => $bookData]);
-    }
-
-// Original PHP code by Chirp Internet: www.chirp.com.au
-// Please acknowledge use of this code by including this header.
-
-    function myTruncate2($string, $limit, $break = " ", $pad = "...") {
-// return with no change if string is shorter than $limit
-        if (strlen($string) <= $limit)
-            return $string;
-
-        $string = substr($string, 0, $limit);
-        if (false !== ($breakpoint = strrpos($string, $break))) {
-            $string = substr($string, 0, $breakpoint);
-        }
-
-        return $string . $pad;
     }
 
     /**
@@ -162,16 +147,18 @@ class UserController extends AbstractController {
         }
         $doc = $this->getDoctrine();
         $chapter = $doc->getRepository('PaustianBookModule:BookChaptersEntity')->find($cid);
-
+        $chnumber = 'U';
+        if (isset($chapter)) {
+            $chnumber = $chapter->getNumber();
+        }
 
         $content = $article->getContents();
         //Now add the highlights if necessary
+
         $uid = UserUtil::getVar('uid');
         if ($uid != "") {
-            $highlights = $doc->getRepository('PaustianBookModule:BookUserDataEntity')->getHighlights($uid, $aid);
-            if ($highlights) {
-                $content = $this->_process_highlights($highlights, $content);
-            }
+            //procesing the highlights goes here. This way the figure text won't matter
+            $content = $this->_process_highlights($content, $article->getAid());
         }
 
         //this code is used for the hook
@@ -184,12 +171,13 @@ class UserController extends AbstractController {
         if ($this->hasPermission('Book::Chapter', $article->getBid() . "::$cid", ACCESS_EDIT)) {
             $show_internals = true;
         }
-        
+
         $return_text = $this->render('PaustianBookModule:User:book_user_displayarticle.html.twig', ['article' => $article,
-            'chapter' => $chapter,
-            'content' => $content,
-            'return_url' => $return_url,
-            'show_internals' => $show_internals]);
+                    'chnumber' => $chnumber,
+                    'content' => $content,
+                    'return_url' => $return_url,
+                    'show_internals' => $show_internals])->getContent();
+
 
         $return_text = $this->addfigures($return_text);
 
@@ -242,12 +230,12 @@ class UserController extends AbstractController {
      * @return the match text to insert 
      */
     private function _glossary_add($matches) {
-        $term = $matches[1];
+        $inTerm = $matches[1];
         $item = array();
 
         $where['cond'] = "u.term=:term";
         $where['paramkey'] = 'term';
-        $where['paramval'] = DataUtil::formatForStore($term);
+        $where['paramval'] = DataUtil::formatForStore($inTerm);
 
         $item = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->getGloss('', null, $where);
 
@@ -257,7 +245,7 @@ class UserController extends AbstractController {
             //   ->setParameter('title', '%'.$data['search'].'%')
             $where['cond'] = "u.term LIKE ?1";
             $where['paramkey'] = '1';
-            $where['paramval'] = '%' . DataUtil::formatForStore($term) . '%';
+            $where['paramval'] = '%' . DataUtil::formatForStore($inTerm) . '%';
             $item = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->getGloss('', null, $where);
         }
         // Check for an error and if so
@@ -268,9 +256,9 @@ class UserController extends AbstractController {
             return $matches[0];
         }
         $definition = $item[0]['definition'];
-        $lcterm = strtolower($term);
-        $url = DataUtil::formatForDisplayHTML(ModUtil::url('Book', 'user', 'displayglossary')) . "#$lcterm";
-        $ret_text = "<a class=\"glossary\" href=\"$url\" title=\"$definition\">$term</a>";
+        $lcterm = strtolower($inTerm);
+        $url = DataUtil::formatForDisplayHTML($this->generateUrl('paustianbookmodule_user_displayglossary')) . "#$lcterm";
+        $ret_text = "<a class=\"glossary\" href=\"$url\" title=\"$definition\">$inTerm</a>";
         return $ret_text;
     }
 
@@ -280,11 +268,22 @@ class UserController extends AbstractController {
      * Add highlight to the incomping text, based upon the offsets in the highlights array
      *
      */
-    private function _process_highlights($highlights, $return_text) {//A modifier that has to go in to account for
+    private function _process_highlights($content, $aid) {//A modifier that has to go in to account for
+        $uid = UserUtil::getVar('uid');
+        if ($uid == "") {
+            return $content;
+        }
+
+        $userRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookUserDataEntity');
+
+        $highlights = $userRepo->getHighlights($aid, $uid);
         //inserted <span> tags from other highlighting.
         $adjust = 0;
         foreach ($highlights as $hItem) {
-            $mid_text = substr($return_text, $hItem['start'] + $adjust, $hItem['end'] - $hItem['start']);
+            $hStart = $hItem->getStart();
+            $hEnd = $hItem->getEnd();
+            //grab the text we need to highlight
+            $mid_text = substr($content, $hStart + $adjust, $hEnd - $hStart);
             //search first for <p> tags and add a <p><span> tag
             //note that $ps_count is the number of times it was replaced.
             //print "<b>text before:</b> $mid_text <br />";
@@ -300,21 +299,21 @@ class UserController extends AbstractController {
             //now search for </p> and add </span></p> tags
             $pe_count = 0;
             $pattern = '/<\/p>/';
-            $replacement = "</span></p>";
+            $replacement = "<!--highlight--></span></p>";
             $pe_count = preg_match_all($pattern, $mid_text, $matches);
             if ($pe_count != 0) {
                 $mid_text = preg_replace($pattern, $replacement, $mid_text);
             }
             //print "<b>text after close paragraph tag:</b> $mid_text <br />";die;
 
-            $return_text = substr($return_text, 0, $hItem['start'] + $adjust) . "<span class=\"highlight\">" .
-                    $mid_text . "</span>" .
-                    substr($return_text, $hItem['end'] + $adjust, strlen($return_text) - $hItem['end']);
-            $adjust += 31 + (24 * $ps_count) + (7 * $pe_count);
+            $content = substr($content, 0, $hStart + $adjust) . "<span class=\"highlight\">" .
+                    $mid_text . "<!--highlight--></span>" .
+                    substr($content, $hEnd + $adjust, strlen($content) - $hEnd);
+            $adjust += 47 + (24 * $ps_count) + (23 * $pe_count);
         }
         //I need to add a little form on the end for pages that have highlight.
         //This form would contain the id of the php item
-        return $return_text;
+        return $content;
     }
 
     public function _inlinefigures($matches) {
@@ -339,8 +338,11 @@ class UserController extends AbstractController {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookFiguresEntity');
         $figure = $repo->findFigure($fig_number, $chap_number, $book_number);
 
-        $figureText = $this->_renderFigure($figure, $width, $height, false);
-
+        if ($figure != null) {
+            $figureText = $this->_renderFigure($figure, $width, $height, false);
+        } else {
+            $figureText = "";
+        }
         return $figureText;
     }
 
@@ -373,7 +375,7 @@ class UserController extends AbstractController {
         }
 
         return $this->render('PaustianBookModule:User:book_user_displayfigure.html.twig', ['figure' => $figure,
-                    'visible_link' => $visible_link]);
+                    'visible_link' => $visible_link])->getContent();
     }
 
     private function _buildlink($link, $title = "", $width = 0, $height = 0, $controller = "true", $loop = "false", $autoplay = "true", $stand_alone = false) {
@@ -557,69 +559,6 @@ class UserController extends AbstractController {
     }
 
     /**
-     * @Route("/dodef/")
-     * 
-     * Given a word or two, check to see if it is in the glossary
-     * and if not add it.
-     * 
-     * @param Request $request
-     * @return type
-     */
-    public function dodefAction(Request $request) {
-        return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
-        /*
-          $term = FormUtil::getPassedValue('text', isset($args['text']) ? $args['text'] : null);
-
-          //some quick checks
-
-          $comment = "";
-
-          if ($term == "") {
-          $comment = __("No word was selected");
-          } else {
-
-          if (str_word_count($term) <= 3) {
-          if (UserUtil::isLoggedIn()) {
-          $url = pnServerGetVar('HTTP_REFERER');
-          $user = UserUtil::getVar('uname');
-          //check to see that this user had not asked for more than 10 defs
-
-          $items = ModUtil::apiFunc('Book', 'user', 'getglossary', array('user' => $user));
-          if (count($items) < 11) {
-          //check to see if it is already defined.
-          $ispresent = ModUtil::apiFunc('Book', 'user', 'findglossaryterm', array('term' => $term));
-          if (!$ispresent) {
-          // The API function is called.
-          $gid = ModUtil::apiFunc('Book', 'admin', 'createglossary', array('term' => $term, 'definition' => "", 'url' => $url, 'user' => $user));
-
-          if ($gid != false) {
-          // Success
-          $comment = __('Thank you for submitting this word. The authors will define it soon.');
-          }
-          } else {
-          //if the book term is defined then redirect to that term.
-          //make all lowercase before making the url
-          $term = strtolower($term);
-          $url = ModUtil::url('book', 'admin', 'dodeletearticle') . "#$term";
-          new RedirectResponse($url);
-          }
-          } else {
-          $comment = __('You can only submit 10 words per user.');
-          }
-          } else {
-          $comment = __('You need to be logged in to suggest words to define.');
-          }
-          } else {
-          $comment = __('Phrases to define can be no longer that 3 words.');
-          }
-          }
-          //make sure that a glassary term is not already defined.
-          $this->view->assign('comment', $comment);
-          return $this->view->fetch('book_user_glossaddcomment.tpl');
-         */
-    }
-
-    /**
      * @Route("/collecthighlights")
      * 
      * Take all the highlights that a user has highlight for the book
@@ -627,169 +566,211 @@ class UserController extends AbstractController {
      * @param Request $request
      * @return type
      */
-    public function collecthighlightsAction(Request $request) {
+    public function collecthighlightsAction(Request $request, BookArticlesEntity $article = null) {
+        //build an organization of the book
+        $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
+        $books = null;
+        if ($article != null) {
+            $books = $repo->buildtoc($article->getBid());
+            //we don't want unassociated articles
+            unset($books['undcl']);
+        } else {
+            $books = $repo->buildtoc();
+        }
 
-//Find the current user ID
-        $uid = UserUtil::getVar('uid');
-        /*
-          $cids = FormUtil::getPassedValue('cids', isset($args['cids']) ? $args['cids'] : null);
-
-          $do_chaps = isset($cids);
-          //Check to make sure it is valid
-          if ($uid == "") {
-          //user id is empty, we are not in
-          return LogUtil::addWarningPopup(__('You are not logged in. In this case you cannot add highlights.'));
-          }
-
-          //get all the highligts for this user
-          $highlights = ModUtil::apiFunc('Book', 'user', 'gethighlights', array('uid' => $uid));
-
-
-          //collect all the centents from the articles
-          //walk through each highlight and get the important information
-          $highlight_text = array();
-          $article_title = array();
-          $article_chapter = array();
-          $article_section = array();
-          $aids = array();
-
-          foreach ($highlights as $hItem) {
-          //grab each article
-          $article = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $hItem['aid']));
-
-          //now check for authorization, if not just continue. Frankly there should be none of these
-          if (!$this->hasPermission("Book::Chapter", "$article[bid]::$article[cid]", ACCESS_READ)) {
-          continue;
-          }
-
-          //if we have the chapter array, then check to see
-          //if we want to grab this chapter
-          $chapter = ModUtil::apiFunc('Book', 'user', 'getchapter', array('cid' => $article[cid]));
-          if ($do_chaps) {
-          if (!in_array($chapter['number'], $cids)) {
-          continue;
-          }
-          }
-
-          $article_chapter[] = $chapter['number'];
-          //grab that portion of the article that is highlighted.
-          $highlight_text[] = substr($article['contents'], $hItem['start'], $hItem['end'] - $hItem['start']);
-          $article_title[] = $article['title'];
-          $article_section[] = $article['number'];
-          $aids[] = $article['aid'];
-          }
-
-          $this->view->assign('aids', $aids);
-          $this->view->assign('content', $highlight_text);
-          $this->view->assign('title', $article_title);
-          $this->view->assign('section', $article_section);
-          $this->view->assign('chapter', $article_chapter);
-
-
-          return $this->view->fetch('book_user_collecthighlights.tpl');
-         * 
-         */
+        return $this->render('PaustianBookModule:User:book_admin_collecthighlights.html.twig', ['books' => $books]);
     }
 
     /**
-     * @Route("/dohighlight/{article}/{inText}")
+     * @Route("/studypage")
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function studypageAction(Request $request) {
+        $response = $this->redirect($this->generateUrl('paustianbookmodule_user_collecthighlights'));
+        $uid = UserUtil::getVar('uid');
+        if ($uid == "") {
+            $this->addFlash('status', __('You must be logged and have access the study pages.'));
+            return $response;
+        }
+        $em = $this->getDoctrine()->getManager();
+        $articleIds = $request->get('aids');
+        if (!isset($articleIds)) {
+            $this->addFlash('status', __('You need to select some articles for the highlighted areas to be collected..'));
+            return $response;
+        }
+        $articles = $em->getRepository('PaustianBookModule:BookArticlesEntity')->findBy(['aid' => $articleIds]);
+
+
+        $highlightArray = array();
+        $highlightInfo = array();
+        $userDRepo = $em->getRepository('PaustianBookModule:BookUserDataEntity');
+        $chapRepo = $em->getRepository('PaustianBookModule:BookChaptersEntity');
+        $chapId = -10;
+        $chapter = null;
+        foreach ($articles as $art) {
+            //grab the highlight data for this user.
+            $artHighlights = $userDRepo->getHighlights($art->getAid(), $uid);
+            if ($artHighlights) {
+                foreach ($artHighlights as $hItem) {
+                    $artChapId = $art->getCid();
+                    if ($artChapId != $chapId) {
+                        $chapId = $artChapId;
+                        $chapter = $chapRepo->find($chapId);
+                    }
+                    $contents = $art->getContents();
+                    $highlightInfo['content'] = \substr($contents, $hItem['start'], $hItem['end'] - $hItem['start']);
+                    $highlightInfo['chapNum'] = $chapter->getNumber();
+                    $highlightInfo['artNum'] = $art->getNumber();
+                    $highlightInfo['aid'] = $art->getAid();
+                    $highlightInfo['title'] = $art->getTitle();
+                    $highlightArray[] = $highlightInfo;
+                }
+            }
+        }
+        return $this->render('PaustianBookModule:User:book_user_studypage.html.twig', ['highlights' => $highlightArray]);
+    }
+
+    /**
+     * @Route("/customizeText/{article}")
      *
-     * The user has presumably selected some text. Change the highlight on it
-     * so that it is yellow. 
+     * The user has presumably selected some text. Act on it according to 
+     * what text was selected.
+     * 
      * @param Request $request
      * @param BookArticlesEntity $article
      * @param type $inText
      * @return boolean|RedirectResponse
      */
-    public function dohighlightAction(Request $request, BookArticlesEntity $article, $inText) {
-        return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
-        /*
-          //grab the user
-          if ($inText == "") {
-          return LogUtil::addWarningPopup(__('You must choose a selection to hilight before calling this function.'));
-          }
-          //Get the referring url
-          $url = pnServerGetVar('HTTP_REFERER');
-          if ($aid < 0) {
-          return LogUtil::addWarningPopup(__('You can only highligh text in articles'));
-          }
+    public function customizeTextAction(Request $request, BookArticlesEntity $article) {
+        $button = $request->get('buttonpress');
+        $text = $request->get('text');
+        if ($button == 'highlight') {
+            return $this->_doHighlight($request, $article, $text);
+        } elseif ($button == 'dodef') {
+            return $this->_dodef($request, $article, $text);
+        } else {
+            return $this->collecthighlightsAction($request, $article);
+        }
+    }
+
+    /**
+     * Take the selection and make note of where it is. When it is displayed
+     * the selected text will be highlighted yellow
+     * 
+     * @param Request $request
+     * @param BookArticlesEntity $article
+     * @param type $inText
+     * @return type
+     */
+    private function _doHighlight(Request $request, BookArticlesEntity $article, $inText) {
+        $response = $this->redirect($this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]));
+
+        if ($inText == "") {
+            $this->addFlash('status', __('You must choose a selection to before clicking the button.'));
+            return $response;
+        }
+        if (!$this->hasPermission('Book::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_READ)) {
+            return LogUtil::registerPermissionError();
+        }
+
+        $uid = UserUtil::getVar('uid');
+        if ($uid == "") {
+            //user id is empty, we are not in
+            $this->addFlash('status', __('You are not logged in. In this case you cannot add highlights.'));
+            return $response;
+        }
+
+        $content = $article->getContents();
+
+        //find the offsets
+        //get rid of any newlines in the content and in the in text.
+        //$content = preg_replace('/[\n|\r]/', ' ', $content);
+        //$inText = preg_replace('/[\n|\r]/', ' ', $inText);
+        //Scrub out the glooary stuff. out because this is not in the stored text
+        $inText = preg_replace('|<a class="glossary".*?>|', '<a class="glossary">', $inText);
+        //we also need to get rid of any highlights that are in the text
+        $inText = preg_replace('|<span class="highlight".*?>|', '', $inText);
+        $inText = preg_replace('|<!--highlight--></span>|', '', $inText);
+        //Get the first 40 characters and then quote out anythying you might need be in them
+        //40 characters should be unique to the text.
+        $front_text = preg_quote(substr($inText, 0, 100));
+
+        if (!preg_match("|$front_text|", $content, $matches, PREG_OFFSET_CAPTURE)) {
+            $this->addFlash('status', __('You cannot highligh that text. You cannot highlight figure text. You might also try a slightly different selection.'));
+            return $response;
+        }
+        $start = $matches[0][1];
+        $end = $start + strlen($inText);
+
+        if ($end == 0 || ($start > $end)) {
+
+            //print "Start: $start, End: $end <br />";
+            $this->addFlash('status', __('You cannot highligh that text. You cannot highlight figure text. You might also try a slightly different selection.'));
+            return $response;
+        }
+
+        $aid = $article->getAid();
+
+        //finally make sure that this area is not already highlighted.
+        //if it is, unhighlight the area.
+        $userRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookUserDataEntity');
 
 
-          //grab the article to find the offsets
-          $art_array = ModUtil::apiFunc('Book', 'user', 'getarticle', array('aid' => $aid));
-          //before doing anything else, make sure they are authorized to highlight.
+        if (!$userRepo->checkHighlights($aid, $uid, $start, $end)) {
+            $userRepo->recordHighlight($aid, $uid, $start, $end);
+        }
 
-          if (!$this->hasPermission('Book::Chapter', "$art_array[bid]::$art_array[cid]", ACCESS_READ)) {
-          return LogUtil::registerPermissionError();
-          }
-          $content = $art_array['contents'];
+        //finally redirect to the page again, this time with highlights
+        return $response;
+    }
 
-          $uid = UserUtil::getVar('uid');
-          if ($uid == "") {
-          //user id is empty, we are not in
-          return LogUtil::addWarningPopup(__('You are not logged in. In this case you cannot add highlights.'));
-          }
+    /**
+     * Take the selection and if it is not defined and passes a few other criteria
+     * add a glossary item to be defined. 
+     * 
+     * @param Request $request
+     * @param BookArticlesEntity $article
+     * @return type
+     */
+    private function _dodef(Request $request, BookArticlesEntity $article, $inTerm) {
 
-          //find the offsets
-          //first extract the first three words and last three words of the
-          //incoming text
-          //get rid of any newlines in the content and in the in text.
-          $content = preg_replace('/[\n|\r]/', ' ', $content);
-          $inText = preg_replace('/[\n|\r]/', ' ', $inText);
-          $inText = preg_replace('|<a class="glossary".*?>|', '<a class="glossary">', $inText);
-          $front_text = preg_quote(substr($inText, 0, 40));
-
-          preg_match("|$front_text|", $content, $matches, PREG_OFFSET_CAPTURE);
-          $start = $matches[0][1];
-          $end = $start + strlen($inText);
-
-          if ($end == 0 || ($start > $end)) {
-
-          //print "Start: $start, End: $end <br />";
-          return LogUtil::addWarningPopup(__('You cannot highligh that text. Try a slightly different selection.') . "start:$start end:$end");
-          }
-
-
-          //finally make sure that this area is not already highlighted.
-          //if it is, unhighlight the area.
-          $currentHighLights = ModUtil::apiFunc('book', 'user', 'gethighlights', array('uid' => $uid,
-          'aid' => $aid));
-
-          $recordHighlight = true;
-          if ($currentHighLights) {
-          //cycle through each highlight and see if we
-          //already have it highlighted. If so, remove the highlight
-          foreach ($currentHighLights as $hItem) {
-          if (($start >= $hItem['start']) && ($start < $hItem['end'])) {
-          $recordHighlight = false;
-          //now put in a call to delete the highlight
-          $success = ModUtil::apiFunc('book', 'admin', 'deletehighlight', array('udid' => $hItem['udid']));
-          if (!$success) {
-          return DataUtil::formatForDisplayHTML("I was unable to delete that highlight");
-          } else {
-          //if we deleted a highlight, then we are done.
-          return new RedirectResponse($url);
-          }
-          }
-          }
-          }
-          if (!$recordHighlight) {
-          return new RedirectResponse($url);
-          }
-
-          //record this in the database;
-          if (!ModUtil::apiFunc('Book', 'admin', 'createhighlight', array('uid' => $uid,
-          'aid' => $aid,
-          'start' => $start,
-          'end' => $end))) {
-          //set an error message and return false
-          SessionUtil::setVar('error_msg', __('Highlighting failed.') . "dohighlight");
-          return false;
-          }
-          //finally redirect to the page again, this time with highlights
-          return new RedirectResponse($url);;
-         * 
-         */
+        $url = $this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]);
+        $response = $this->redirect($url);
+        $uid = UserUtil::getVar('uid');
+        if ($inTerm == "") {
+            $this->addFlash('status', __("No word was selected to be defined"));
+            return $response;
+        }
+        if ($uid == "") {
+            //user id is empty, we are not in
+            $this->addFlash('status', __('You are not logged in. In this case you cannot ask for definitions.'));
+            return $response;
+        }
+        $inTerm = trim($inTerm);
+        if (str_word_count($inTerm) > 3) {
+            $this->addFlash('status', __('Terms to be defined must be 3 words or less. You may have also selected a term that is already defined.'));
+            return $response;
+        }
+        //is it already defined?
+        $glossRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
+        $glossItem = $glossRepo->getTerm($inTerm);
+        if ($glossItem) {
+            //if the term has been defined, then send them to that term
+            return $this->redirect($this->generateUrl('paustianbookmodule_user_displayglossary') . "#$inTerm");
+        }
+        //ok, we passed the checks. Add the word to the glossary
+        $em = $this->getDoctrine()->getManager();
+        $glossTerm = new BookGlossEntity();
+        $glossTerm->setTerm($inTerm);
+        $glossTerm->setDefinition("TBD");
+        $glossTerm->setUser($uid);
+        $glossTerm->setUrl($url);
+        $em->persist($glossTerm);
+        $em->flush();
+        $this->addFlash('status', __('Thank you for submitting this word. The authors will define it soon.'));
+        return $response;
     }
 
     /**
@@ -809,7 +790,7 @@ class UserController extends AbstractController {
                 $allow_dl = true;
             }
         }
-        return $this->render('PaustianBookModule:User:download.html.twig', ['allow_dl' => $allow_dl]);
+        return $this->render('PaustianBookModule:User:book_user_download.html.twig', ['allow_dl' => $allow_dl]);
     }
 
 }

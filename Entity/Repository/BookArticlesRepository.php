@@ -115,7 +115,7 @@ class BookArticlesRepository extends EntityRepository {
             $newContents = "";
             if($doPreview){
                 $newContents .= "<h3>" . $article->getTitle() . "</h3>\n";
-                $newContents .= preg_replace($searchText, "<b>" . $replaceText . "</b>", $contents);
+                $newContents .= preg_replace($searchText, "<b style=\"color:blue; font-size:large;>" . $replaceText . "</b>", $contents);
                 $resultArray[] = $newContents;
             } else {
                 $newContents = preg_replace($searchText, $replaceText, $contents);

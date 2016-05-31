@@ -13,10 +13,9 @@ namespace Paustian\BookModule\Helper;
  */
 
 use ModUtil;
-use SecurityUtil;
 use Zikula\Core\RouteUrl;
 use Zikula\SearchModule\AbstractSearchable;
-
+use SecurityUtil;
 
 class SearchHelper extends AbstractSearchable
 {
@@ -29,7 +28,7 @@ class SearchHelper extends AbstractSearchable
      */
     public function getOptions($active, $modVars = null)
     {
-        if ($this->hasPermission('Book::', '::', ACCESS_READ)) {
+        if (SecurityUtil::checkPermission('Book::', '::', ACCESS_READ)) {
             return $this->getContainer()->get('templating')->renderResponse('PaustianBookModule:Search:options.html.twig', array('active' => $active))->getContent();
         }
         return '';
@@ -51,17 +50,7 @@ class SearchHelper extends AbstractSearchable
             ->from('Paustian\BookModule\Entity\BookArticlesEntity', 'a');
         $whereExp = $this->formatWhere($qb, $words, ['a.title', 'a.contents'], $searchType);
         $qb->andWhere($whereExp);
-        /*foreach($words as $word){
-            if($searchType == 'AND'){
-                $qb->andWhere($qb->expr()->orX(
-                       $qb->like('a.title', $qb->expr()->literal('%' . $word . '%')),
-                       $qb->like('a.contents', $qb->expr()->literal('%' . $word . '%'))));
-            } else {
-                $qb->orWhere($qb->expr()->orX(
-                       $qb->like('a.title', $qb->expr()->literal('%' . $word . '%')),
-                       $qb->like('a.contents', $qb->expr()->literal('%' . $word . '%'))));
-            }
-        }*/
+        
         
         $query = $qb->getQuery();
         $results = $query->getResult();
@@ -71,7 +60,7 @@ class SearchHelper extends AbstractSearchable
         foreach ($results as $article) {
             $url = new RouteUrl('paustianbookmodule_user_displayarticle', ['article' => $article->getAid()]);
             //make sure we have permission for this object.
-            if (!$this->hasPermission('Book::', $article['bid'] . "::" . $article['cid'], ACCESS_OVERVIEW)) {
+            if (!SecurityUtil::checkPermission('Book::', $article['bid'] . "::" . $article['cid'], ACCESS_OVERVIEW)) {
                 continue;
             }
             $returnArray[] = array(

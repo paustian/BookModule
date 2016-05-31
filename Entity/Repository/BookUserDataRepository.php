@@ -2,11 +2,11 @@
 namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Paustian\BookModule\Entity\BookEntity;
+use Paustian\BookModule\Entity\BookUserDataEntity;
 
 class BookUserDataRepository extends EntityRepository {
 
-    public function getHighlights($uid, $aid) {
+    public function getHighlights($aid, $uid) {
         //display a book interface.
         $qb = $this->_em->createQueryBuilder();
         
@@ -15,6 +15,7 @@ class BookUserDataRepository extends EntityRepository {
                 ->from('PaustianBookModule:BookUserDataEntity', 'u');
         $qb->where('(u.uid = ?1 AND u.aid = ?2)')
                     ->setParameters([1 => $uid, 2 => $aid]);
+        $qb->orderBy('u.start');
         
         // convert querybuilder instance into a Query object
         $query = $qb->getQuery();
@@ -24,50 +25,35 @@ class BookUserDataRepository extends EntityRepository {
         return $userData;
     }
     
-    public function buildtoc($bid = 0, &$chapterids = "") {
-        //get the list of books
-        $booksEnts = $this->getBooks($bid);
-
-        $books = array();
-        $repoArt = $this->_em->getRepository('PaustianBookModule:BookArticlesEntity');
-        $repoChap = $this->_em->getRepository('PaustianBookModule:BookChaptersEntity');
-        foreach ($booksEnts as $bookEnt) {
-            $book = array();
-            //get list of chapters in the book, ordered by number (that is the the true is for)
-            $chapterEnt = $repoChap->getChapters($bookEnt->getBid(), true);
-            $chapters = array();
-            $articles = array();
-            foreach ($chapterEnt as $chapterEnt) {
-                $chapter = array();
-                //get all the articles in this chapter, ordered by number
-
-                $articles = $repoArt->getArticles($chapterEnt->getCid(), true, false);
-                $chapter['articles'] = $articles;
-                $chapter['name'] = $chapterEnt->getName();
-                $chapter['number'] = $chapterEnt->getNumber();
-                $chapter['cid'] = $chapterEnt->getCid();
-                $chapters[] = $chapter;
-                $chapterids .= $chapter['cid'] . ",";
+    public function checkHighlights($aid, $uid, $start, $end){
+        $highlights = $this->getHighlights($aid, $uid);
+        $highlightFound = false;
+        foreach($highlights as $hItem){
+            $hStart = $hItem->getStart();
+            $hEnd = $hItem->getEnd();
+            //check to see if this overlaps with any other selections
+            //if it does delete it.
+            if( (($start <= $hStart) && ($end >= $hEnd)) ||
+                (($start >= $hStart) && ($start <= $hEnd)) ||
+                (($end >= $hStart) && ($end <= $hEnd)) ){
+                //We have a hit, This means to delete this selection
+                //we can break the loop after hitting this.
+                $this->_em->remove($hItem);
+                $this->_em->flush();
+                $highlightFound = true;
+                break;
             }
-            $book['chapters'] = $chapters;
-            $book['bid'] = $bookEnt->getBid();
-            $book['name'] = $bookEnt->getName();
-            $books[] = $book;
         }
-        //now grab all the articles that are undeclared
-        $articleEnt = $repoArt->getArticles(0, false, false);
-        $chapUndcl = array();
-        $chapUndcl[0]['articles'] = $articleEnt;
-        $chapUndcl[0]['name'] = 'Unassociated';
-        $chapUndcl[0]['number'] = -1;
-        $chapUndcl[0]['cid'] = 0;
-        $bookUndl = array();
-        $bookUndl['chapters'] = $chapUndcl;
-        $bookUndl['bid'] = 0;
-        $bookUndl['name'] = 'Unassociated';
-        $books['undcl'] = $bookUndl;
-        //tag the Unassociated "id" on the chapter ids
-        $chapterids .= "0";
-        return $books;
+        return $highlightFound;
+    }
+    
+    public function recordHighlight($aid, $uid, $start, $end){
+        $highlight = new BookUserDataEntity();
+        $highlight->setAid($aid);
+        $highlight->setUid($uid);
+        $highlight->setStart($start);
+        $highlight->setEnd($end);
+        $this->_em->persist($highlight);
+        $this->_em->flush();
     }
 }
