@@ -60,7 +60,7 @@ class UserApi extends Zikula_AbstractApi {
         foreach ($chapters as $chapter_item) {
             $cid = $chapter_item->getCid();
             if ($chapter_item['number'] > 0) {
-                if ($this->hasPermission('Book::Chapter', "$bid::$cid", ACCESS_OVERVIEW)) {
+                if ($this->hasPermission($this->name . '::Chapter', "$bid::$cid", ACCESS_OVERVIEW)) {
                     $chapName = $this->myTruncate2($chapter_item->getName(), 22);
                     $chapter_data[] = $chapter_item;
                 }
@@ -95,7 +95,7 @@ class UserApi extends Zikula_AbstractApi {
         }
 
         //now check permisions
-        $this->throwForbiddenUnless($this->hasPermission('Book::', "$bid::", ACCESS_READ), LogUtil::getErrorMsgPermission());
+        $this->throwForbiddenUnless($this->hasPermission($this->name . '::', "$bid::", ACCESS_READ), LogUtil::getErrorMsgPermission());
         // Return the items
         return $book;
     }
@@ -139,7 +139,7 @@ class UserApi extends Zikula_AbstractApi {
             $chapID = $chap->getCid();
             $bookID = $chap->getBid();
             //now check permisions
-            if ($this->hasPermission('Book::', "$bookID::$chapID", ACCESS_READ)) {
+            if ($this->hasPermission($this->name . '::', "$bookID::$chapID", ACCESS_READ)) {
                 $ret_items[] = $chap;
             }
         }
@@ -223,7 +223,7 @@ class UserApi extends Zikula_AbstractApi {
         }
         $items = array();
         foreach ($articles as $article) {
-            if ($this->hasPermission('Book::', $article['bid'] . "::" . $article['cid'], $access)) {
+            if ($this->hasPermission($this->name . '::', $article['bid'] . "::" . $article['cid'], $access)) {
                 $items[] = $article;
             }
         }
@@ -251,7 +251,7 @@ class UserApi extends Zikula_AbstractApi {
         $item = $repository->find($aid);
 
         //make sure we have access.
-        if (!$this->hasPermission('Book::', $item['bid'] . "::" . $item['cid'], ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::', $item['bid'] . "::" . $item['cid'], ACCESS_READ)) {
             return false;
         }
         // Return the items
@@ -273,7 +273,7 @@ class UserApi extends Zikula_AbstractApi {
             return false;
         }
 
-        if (!$this->hasPermission('Book::', ".*::" . $item['cid'], ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::', ".*::" . $item['cid'], ACCESS_READ)) {
             return false;
         }
 
@@ -293,12 +293,12 @@ class UserApi extends Zikula_AbstractApi {
         $items = array();
         //set up the where clause and check permissions
         if (isset($bid)) {
-            if (!$this->hasPermission('Book::', $bid . "::.*", ACCESS_OVERVIEW)) {
+            if (!$this->hasPermission($this->name . '::', $bid . "::.*", ACCESS_OVERVIEW)) {
                 return false;
             }
             $where = "a.bid = '" . DataUtil::formatForStore($bid) . "'";
         } else {
-            if (!$this->hasPermission('Book::', ".*::.*", ACCESS_OVERVIEW)) {
+            if (!$this->hasPermission($this->name . '::', ".*::.*", ACCESS_OVERVIEW)) {
                 return false;
             }
         }
@@ -330,7 +330,7 @@ class UserApi extends Zikula_AbstractApi {
         $items = array();
         //Check general permissions, they must have read access for the glossary
         // Security check -
-        if (!$this->hasPermission('Book::Chapter', ".*::.*", ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::Chapter', ".*::.*", ACCESS_READ)) {
             return DataUtil::formatForDisplayHTML($this->__('You do not have permission to view that book.'));
         }
         $repository = $this->entityManager->getRepository('Book_Entity_BookGloss');
@@ -396,7 +396,7 @@ class UserApi extends Zikula_AbstractApi {
             return false;
         }
         //general permission check. You have to be able to access the book, but we don't need a permission filter
-        if (!$this->hasPermission('Book::Chapter', ".*::.*", ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::Chapter', ".*::.*", ACCESS_READ)) {
             return DataUtil::formatForDisplayHTML(__("You do not have permission to view that book."));
         }
         $item = array();

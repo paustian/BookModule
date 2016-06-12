@@ -69,7 +69,7 @@ class BookListBlock extends \Zikula_Controller_AbstractBlock {
         // Security check - important to do this as early as possible to avoid
         // potential security holes or just too much wasted processing.  
         // Note that we have Book:Firstblock: as the component.
-        if (!$this->hasPermission('Bookblock::', "$blockinfo[title]::$blockinfo[bid]", ACCESS_READ)) {
+        if (!$this->hasPermission($this->nameblock . '::', "$blockinfo[title]::$blockinfo[bid]", ACCESS_READ)) {
             return;
         }
 

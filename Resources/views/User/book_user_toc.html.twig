@@ -9,11 +9,11 @@
                 <h4>{{ chapter.number }} - {{ chapter.name }}</h4>
                 <div>
                 {% for article in chapter.articles %}
-                {% if chapter.print == 1 %}
-                {% else %}
+                {% if chapter.print == 2 %}
                     <p>{{ chapter.number }} - {{ article.number }} {{ article.title }}</p>
-                {% endif %}
+                {% else %}
                 <p><a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></p>
+                {% endif %}
                 {% endfor %}
                 </div>
             {% endif %}

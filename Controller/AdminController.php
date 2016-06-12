@@ -484,7 +484,7 @@ class AdminController extends AbstractController {
             //you want the edit interface, which has a delete option.
             return $response;
         }
-        if (!$this->hasPermission('::Chapter', "::" . $chapter->getCid(), ACCESS_DELETE)) {
+        if (!$this->hasPermission($this->name . '::Chapter', "::" . $chapter->getCid(), ACCESS_DELETE)) {
             throw new AccessDeniedException($this->__("You do not have permission to export that chapter."));
         }
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
@@ -509,7 +509,7 @@ class AdminController extends AbstractController {
             return $response;
         }
 
-        if (!$this->hasPermission('::Chapter', "::" . $chapter->getCid(), ACCESS_DELETE)) {
+        if (!$this->hasPermission($this->name . '::Chapter', "::" . $chapter->getCid(), ACCESS_DELETE)) {
             throw new AccessDeniedException($this->__("You do not have permission to delete that chapter."));
         }
 
@@ -541,7 +541,7 @@ class AdminController extends AbstractController {
             //you want the edit interface, which has a delete option.
             return $response;
         } else {
-            if (!$this->hasPermission('book::', $article->getBid() . "::" . $article->getCid(), ACCESS_DELETE)) {
+            if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_DELETE)) {
                 throw new AccessDeniedException($this->__("You do not have permission to delete this article."));
             }
         }
@@ -568,7 +568,7 @@ class AdminController extends AbstractController {
     public function deletefigureAction(Request $request, BookFiguresEntity $figure = null) {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyfigure'));
         if ($figure == null) {
-            if (!$this->hasPermission('book::', "::", ACCESS_DELETE)) {
+            if (!$this->hasPermission($this->name . '::', "::", ACCESS_DELETE)) {
                 throw new AccessDeniedException($this->__("You do not have permission to delete figures."));
             }
             //you want the edit interface, which has a delete option.
@@ -589,7 +589,7 @@ class AdminController extends AbstractController {
      * @throws AccessDeniedException
      */
     public function deleteglossaryAction(Request $request, BookGlossEntity $gloss = null) {
-        if (!$this->hasPermission('book::', "::", ACCESS_DELETE)) {
+        if (!$this->hasPermission($this->name . '::', "::", ACCESS_DELETE)) {
             throw new AccessDeniedException($this->__("You do not have permission to delete that glossary item."));
         }
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyglossary'));
@@ -620,7 +620,7 @@ class AdminController extends AbstractController {
      */
     public function modifyaccess() {
 // Security check
-        if (!$this->hasPermission('Book::', "::", ACCESS_ADMIN)) {
+        if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADMIN)) {
             return LogUtil::registerPermissionError();
         }
         $secure = FormUtil::getPassedValue('secure', isset($args['secure']) ? $args['secure'] : null);
@@ -718,7 +718,7 @@ class AdminController extends AbstractController {
      * there, unwind the whole process.
      */
     public function importAction(Request $request) {
-        if (!$this->hasPermission('Book::', '::', ACCESS_ADD)) {
+        if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
             throw new AccessDeniedException($this->__("You do not have permission to import text to books."));
         }
         $form = $this->createForm(new ImportChapter());
@@ -750,7 +750,7 @@ class AdminController extends AbstractController {
      */
     public function listfiguresAction(Request $request) {
         return $this->redirect($this->generateUrl('paustianbookmodule_admin_edit'));
-        /* if (!$this->hasPermission('Book::', "::", ACCESS_EDIT)) {
+        /* if (!$this->hasPermission($this->name::', "::", ACCESS_EDIT)) {
           return LogUtil::registerPermissionError();
           }
 
@@ -784,7 +784,7 @@ class AdminController extends AbstractController {
 
     public function modifyimagepaths($args) {
         //only admins can do this
-        if (!$this->hasPermission('Book::', '::', ACCESS_ADD)) {
+        if (!$this->hasPermission($this->name . '::', '::', ACCESS_ADD)) {
             return LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
         }
         if (!SecurityUtil::confirmAuthKey()) {
@@ -841,7 +841,7 @@ class AdminController extends AbstractController {
         } else {
             $cid = $chapter->getCid();
             $bid = $chapter->getBid();
-            if (!$this->hasPermission('Book::Chatper', "$bid::$cid", ACCESS_EDIT)) {
+            if (!$this->hasPermission($this->name . '::Chatper', "$bid::$cid", ACCESS_EDIT)) {
                 throw new AccessDeniedException($this->__("You do not have permission to verify urls in chapters."));
             }
         }
@@ -853,7 +853,7 @@ class AdminController extends AbstractController {
 
         foreach ($articles as $article) {
             // Security check
-            if ($this->hasPermission('Book::', "$bid::$cid", ACCESS_EDIT)) {
+            if ($this->hasPermission($this->name . '::', "$bid::$cid", ACCESS_EDIT)) {
                 $this->buildtable($article->getContents(), $url_table, $chapter->getNumber(), $article->getNumber());
             }
         }
@@ -985,7 +985,7 @@ class AdminController extends AbstractController {
      *
      */
     public function checkstudentdefsAction(Request $request) {
-        if (!$this->hasPermission('Book::', '::', ACCESS_EDIT)) {
+        if (!$this->hasPermission($this->name. '::', '::', ACCESS_EDIT)) {
             throw new AccessDeniedException($this->__("You do not have permission to edit glossary items."));
         }
 
@@ -1001,7 +1001,7 @@ class AdminController extends AbstractController {
      * @return type
      */
     public function importglossaryAction(Request $request) {
-        if (!$this->hasPermission('Book::', '::', ACCESS_ADD)) {
+        if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
             throw new AccessDeniedException($this->__("You do not have permission to import glossary items."));
         }
         $form = $this->createForm(new ImportGloss());
@@ -1043,7 +1043,7 @@ class AdminController extends AbstractController {
      * @return type
      */
     public function searchreplaceAction(Request $request, BookChaptersEntity $chapter = null) {
-        if (!$this->hasPermission('Book::', '::', ACCESS_ADD)) {
+        if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
             throw new AccessDeniedException($this->__("You do not have permission to perform a search and replace."));
         }
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifychapter'));
