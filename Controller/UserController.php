@@ -49,7 +49,7 @@ use Paustian\BookModule\Entity\BookGlossEntity;
 
 class UserController extends AbstractController {
 
-    private $maxpixels = 595;
+    private $maxpixels = 700;
 
     /**
      * @Route("")
@@ -77,14 +77,19 @@ class UserController extends AbstractController {
      * @return type
      */
     public function tocAction(Request $request, BookEntity $book = null) {
-        $response = $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
-        //if there are no books redirect to the index interface.
-        if ($book == null) {
-            return $response;
+        $bid = -1;
+        if (null === $book) {
+            $bid = $request->get('bid');
+            if (!isset($bid)) {
+                return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            }
+        } else {
+            $bid = $book->getBid();
         }
+
         $chatperids = null;
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
-        $booktoc = $repo->buildtoc($book->getBid(), $chapterids);
+        $booktoc = $repo->buildtoc($bid, $chapterids);
 
         //we can simplifiy this quite a bit since we only need 1 book.
         $bookData = $booktoc[0];
@@ -354,15 +359,14 @@ class UserController extends AbstractController {
      * @return type
      */
     public function displayfigureAction(Request $request, BookFiguresEntity $figure = null) {
-
         if (null === $figure) {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
         if (!$this->hasPermission($this->name . '::', $figure->getBid() . "::", ACCESS_OVERVIEW)) {
-            return LogUtil::registerPermissionError();
+            throw new AccessDeniedException(__('You do not have pemission to access any figures.'));
         }
 
-        $figureText = $this->_renderFigure($figure);
+        $figureText = $this->_renderFigure($figure, 450, 360, true);
         return $figureText;
     }
 
@@ -374,6 +378,10 @@ class UserController extends AbstractController {
             $visible_link = __("This figure cannot be displayed because permission has not been granted yet.");
         }
 
+        if($stand_alone){
+            return new Response($this->render('PaustianBookModule:User:book_user_displayfigure.html.twig', ['figure' => $figure,
+                    'visible_link' => $visible_link])->getContent());
+        }
         return $this->render('PaustianBookModule:User:book_user_displayfigure.html.twig', ['figure' => $figure,
                     'visible_link' => $visible_link])->getContent();
     }
@@ -407,9 +415,13 @@ class UserController extends AbstractController {
                     $height = round($height * $this->maxpixels / $width);
                     $width = $this->maxpixels;
                 }
-                $ret_link = "<p class=\"image\"><img class=\"image\" src=\"" . $link . "\" width=\"" . $width . "\" height=\"" . $height . "\" alt=\"" . $alt_link . "\" /></p>";
+                $ret_link = $this->render('PaustianBookModule:User:book_user_buildlink1.html.twig', ['link' => $link,
+                            'width' => $width,
+                            'height' => $height,
+                            'alt_link' => $alt_link])->getContent();
             } else {
-                $ret_link = "<p class=\"image\"><img class=\"image\" src=\"" . $link . "\" alt=\"" . $alt_link . "\"/></p>";
+                $ret_link = $this->render('PaustianBookModule:User:book_user_buildlink2.html.twig', ['link' => $link,
+                            'alt_link' => $alt_link])->getContent();
             }
         } else
         if (strstr($link, ".mov")) {
@@ -417,10 +429,9 @@ class UserController extends AbstractController {
                 $width = 320;
                 $height = 336;
             }
-            $ret_link = "<p class=\"image\"><object data=\"$link\" width=\"$width\"
-				        height=\"$height\">
-				        <param name=\"movie\" value=\"$link\" />
-				        </object></p>";
+            $ret_link = $this->render('PaustianBookModule:User:book_user_buildlink3.html.twig', ['link' => $link,
+                        'width' => $width,
+                        'height' => $height])->getContent();
         } else
         if (strstr($link, ".swf")) {
             if (($width == 0) || ($height == 0)) {
@@ -428,8 +439,9 @@ class UserController extends AbstractController {
                 $width = $image_data[0];
                 $height = $image_data[1];
             }
-            $ret_link = "<object type=\"application/x-shockwave-flash\" data=\"$link\" width=\"$width\" height=\"$height\">
-            <param name=\"movie\" value=\"$link\" /></object>";
+            $ret_link = $this->render('PaustianBookModule:User:book_user_buildlink4.html.twig', ['link' => $link,
+                        'width' => $width,
+                        'height' => $height])->getContent();
         } else {
             $ret_link = $link;
         }
@@ -463,10 +475,15 @@ class UserController extends AbstractController {
      * @return string
      */
     public function displaybookAction(Request $request, BookEntity $book) {
+        $bid = -1;
         if (null === $book) {
-            return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            $bid = $request->get('bid');
+            if (!isset($bid)) {
+                return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            }
+        } else {
+            $bid = $book->getBid();
         }
-        $bid = $book->getBid();
         if (!$this->hasPermission($this->name . '::', "$bid::", ACCESS_READ)) {
             throw new AccessDeniedException(__('You do not have pemission to access this book.'));
         }
@@ -495,7 +512,12 @@ class UserController extends AbstractController {
      */
     public function displaychapterAction(Request $request, BookChaptersEntity $chapter = null) {
         if (null === $chapter) {
-            return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            //Old style URL, look for the chapter using the cid
+            $cid = $request->get('cid');
+            $chapter = $this->getDoctrine()->getRepository('PaustianBookModule:BookChaptersEntity')->find($cid);
+            if (null === $chapter) {
+                return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
+            }
         }
         $cid = $chapter->getCid();
         $bid = $chapter->getBid();

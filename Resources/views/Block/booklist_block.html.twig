@@ -1,0 +1,3 @@
+    {% for item in books %}
+        <p><a href="{{ path('paustianbookmodule_user_toc') }}/{{ item.bid }}" class="fa fa-book"> {{ item.name }}</a></p>
+    {% endfor %}

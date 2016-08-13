@@ -46,7 +46,7 @@ class BookRepository extends EntityRepository {
      *              ...)
      *      ...)
      * If you do not specify a bid, all the books are sent back. This function is
-     * efficient by not obtainins all the article content, which saves a bunch of
+     * efficient by not obtaining all the article content, which saves a bunch of
      * memory.
      * 
      * @param type $bid

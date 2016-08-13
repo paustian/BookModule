@@ -28,10 +28,7 @@ class SearchHelper extends AbstractSearchable
      */
     public function getOptions($active, $modVars = null)
     {
-        if (SecurityUtil::checkPermission('Book::', '::', ACCESS_READ)) {
-            return $this->getContainer()->get('templating')->renderResponse('PaustianBookModule:Search:options.html.twig', array('active' => $active))->getContent();
-        }
-        return '';
+        return $this->getContainer()->get('templating')->renderResponse('PaustianBookModule:Search:options.html.twig', array('active' => $active))->getContent();
     }
 
 

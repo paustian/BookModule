@@ -3,7 +3,7 @@
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 <div class="book_content">
 <p> {{ showflashes() }} </p>
-<h2>{{ chnumber }}-{{ article.number }} {{ article.title }}</h2>
+<h2>{{ chnumber }}-{{ article.number }} {{ article.title|raw }}</h2>
 {% if article.counter==1 %}
 <p>( {{ article.counter }} Read)</p>
 {else}
