@@ -12,69 +12,23 @@
 
 namespace Paustian\BookModule\Block;
 
-use Zikula_View;
-use BlockUtil;
-use ModUtil;
-use SecurityUtil;
+use Zikula\BlocksModule\AbstractBlockHandler;
 
-class BookListBlock extends \Zikula_Controller_AbstractBlock {
+class BookListBlock extends AbstractBlockHandler{
     
-    /**
-     * Post initialise.
-     *
-     * @return void
-     */
-    protected function postInitialize()
-    {
-        // In this block we do not want caching.
-        $this->view->setCaching(Zikula_View::CACHE_DISABLED);
-    }
-    
-    /**
-     * initialise block
-     * 
-     * @author       Timothy Paustian
-     * @version      $0.1 $
-     */
-    public function init() {
-        // Security
-        SecurityUtil::registerPermissionSchema('Book:BookListBlock', 'Block title::Block ID');
-    }
-
-    /**
-     * get information on block
-     * 
-     * @author       Timothy Paustian
-     * @version      $0.1 $
-     * @return       array       The block information
-     */
-    public function info() {
-        return array('module'          => 'Book',
-                     'text_type'       => $this->__('Book List'),
-                     'text_type_long'  => $this->__('Block of Books Available'),
-                     'allow_multiple'  => false,
-                     'form_content'    => false,
-                     'form_refresh'    => false,
-                     'show_preview'    => true);
-    }
-
     /**
      * display block
      * 
      * @author       Timothy Paustian
      * @version      1.1
-     * @param        array       $blockinfo     a blockinfo structure
+     * @param        array       $properties
      * @return       output      the rendered bock
      */
-    public function display($blockinfo) {
+    public function display(array $properties) {
         
-        // Check if the Book module is available. 
-        if (!ModUtil::available('Book')) {
-            return false;
-        }
-        
+        $em = $this->get('doctrine.entitymanager');
         // Call the modules API to get the items
-        $books = $this->entityManager->getRepository('PaustianBookModule:BookEntity')->buildtoc();
+        $books = $em->getRepository('PaustianBookModule:BookEntity')->buildtoc();
         
         // Check for no items returned
         if (empty($books)) {
@@ -82,24 +36,12 @@ class BookListBlock extends \Zikula_Controller_AbstractBlock {
         }
         //pop the last item off the list, since we don't want to list it
         array_pop($books);
-        $text = $this->render('PaustianBookModule:Block:booklist_block.html.twig', ['books' => $books])->getContent();;
-        $blockinfo['content'] = $text;
-        return BlockUtil::themeBlock($blockinfo);
+        $text = $this->renderView('PaustianBookModule:Block:booklist_block.html.twig', ['books' => $books]);
+        return $text;
     }
     
-     /**
-     * @param $view
-     * @param $parameters
-     * @param Response|null $response
-     * @return Response
-     */
-    private function render($view, $parameters, Response $response = null)
-    {
-        if ($this->has('templating')) {
-            return $this->get('templating')->renderResponse($view, $parameters, $response);
-        }
-
-        return '';
+     public function getFormClassName() {
+        return null;
     }
 
 }

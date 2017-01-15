@@ -18,6 +18,6 @@
     "extra": {
         "zikula": {
             "class": "Paustian\\BookModule\\PaustianBookModule"
-        }
     }
+}
 }

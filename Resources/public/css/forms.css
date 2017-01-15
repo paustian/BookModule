@@ -44,7 +44,7 @@ input.short_number {
       font-weight:bold;
       border-bottom: 1px solid #333;
   }
-  //for tooltips
+
   label {
     display: inline-block;
     width: 5em;

@@ -516,12 +516,14 @@ class AdminController extends AbstractController {
 
         //I need to walk the articles and remove any reference to this book
         //Set the chapters to 0
-        $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookArticlesEntity');
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository('PaustianBookModule:BookArticlesEntity');
         $articles = $repo->getArticles($chapter->getCid(), false, false);
         foreach ($articles as $article) {
-            $articles->setCid(0);
+            $artClass = $em->find('PaustianBookModule:BookArticlesEntity', $article['aid']);
+            $artClass->setCid(0);
         }
-        $em = $this->getDoctrine()->getManager();
+        
         $em->remove($chapter);
         $em->flush();
         $this->addFlash('status', __('Chapter Deleted.'));
