@@ -30,7 +30,7 @@ use Paustian\BookModule\Form\Glossary;
 use Paustian\BookModule\Form\ImportGloss;
 use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
-
+use Paustian\BookModule\Entity\Repository\BookArticlesRepository;
 /**
  * @Route("/admin")
  */
@@ -478,7 +478,7 @@ class AdminController extends AbstractController {
      * @param BookChaptersEntity $chapter - the chapter to export
      * @return type
      */
-    public function exportAction(Request $request, BookChaptersEntity $chapter = null) {
+    public function exportAction(Request $request, BookChaptersEntity $chapter = null, $inlinefig=true) {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifychapter'));
         if ($chapter == null) {
             //you want the edit interface, which has a delete option.
@@ -489,6 +489,11 @@ class AdminController extends AbstractController {
         }
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $articles = $repo->getArticles($chapter->getCid(), true, true);
+        foreach($articles as $article){
+            $content = $article->getContents();
+            $figContent = $repo->addfigures($content, $this);
+            $article->setContents($figContent);
+        }
         //The rest of this can be done in the template.
         return $this->render('PaustianBookModule:Admin:book_admin_export.html.twig', ['chapter' => $chapter,
                     'articles' => $articles]);
