@@ -489,10 +489,10 @@ class AdminController extends AbstractController {
         }
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $articles = $repo->getArticles($chapter->getCid(), true, true);
-        foreach($articles as $article){
-            $content = $article->getContents();
-            $figContent = $repo->addfigures($content, $this);
-            $article->setContents($figContent);
+        if($inlinefig){
+            $return_text = $this->render('PaustianBookModule:User:book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter, 'articles' => $articles])->getContent();
+            $return_text = $repo->addfigures($return_text, $this);
+            return $this->render('PaustianBookModule:Admin:book_admin_export2.html.twig', ['text' => $return_text]);
         }
         //The rest of this can be done in the template.
         return $this->render('PaustianBookModule:Admin:book_admin_export.html.twig', ['chapter' => $chapter,
