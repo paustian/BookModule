@@ -50,8 +50,6 @@ use Paustian\BookModule\Entity\Repository\BookArticlesRepository;
 
 class UserController extends AbstractController {
 
-    private $maxpixels = 700;
-
     /**
      * @Route("")
      * 
@@ -685,13 +683,15 @@ class UserController extends AbstractController {
      */
     public function downloadAction(Request $request) {
         $allow_dl = false;
-        if (UserUtil::isLoggedIn()) {
-            $uid = UserUtil::getVar('uid');
-            $groups = UserUtil::getGroupsForUser($uid);
-            //print_r($groups);die;
-            //This is a real hack in that you have to know the group number
-            if (array_search(3, $groups)) {
-                $allow_dl = true;
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        if ($currentUserApi->isLoggedIn()) {
+            $groups = $currentUserApi->get('groups');
+            //I need to fix this!
+            foreach ($groups as $gid => $group) {
+                if($gid == 3){
+                    $allow_dl = true;
+                    break;
+                }
             }
         }
         return $this->render('PaustianBookModule:User:book_user_download.html.twig', ['allow_dl' => $allow_dl]);

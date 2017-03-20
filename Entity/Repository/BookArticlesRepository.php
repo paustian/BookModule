@@ -10,6 +10,8 @@ class BookArticlesRepository extends EntityRepository {
     
     private $controller;
     
+    private $maxpixels = 700;
+    
     public function getArticles($cid = -1, $order = false, $content = false) {
         $qb = $this->_em->createQueryBuilder();
 
@@ -110,21 +112,23 @@ class BookArticlesRepository extends EntityRepository {
         $this->_em->flush();
     }
     
-    public function searchAndReplaceText($searchText, $replaceText, $doPreview, $cid){
+    public function searchAndReplaceText($searchText, $replaceText, $doPreview, $cid, &$count=0){
         $articles = $this->getArticles($cid, false, true);
         $resultArray = array();
         foreach ($articles as $article){
             $contents = $article->getContents();
             $newContents = "";
+            $spc_count = 0;
             if($doPreview){
                 $newContents .= "<h3>" . $article->getTitle() . "</h3>\n";
-                $newContents .= preg_replace($searchText, "<b style=\"color:blue; font-size:large;\">" . $replaceText . "</b>", $contents);
+                $newContents .= preg_replace($searchText, "<b style=\"color:blue; font-size:large;\">" . $replaceText . "</b>", $contents, -1, $spc_count);
                 $resultArray[] = $newContents;
             } else {
-                $newContents = preg_replace($searchText, $replaceText, $contents);
+                $newContents = preg_replace($searchText, $replaceText, $contents, -1, $spc_count);
                 $article->setContents($newContents);
                 $this->_em->merge($article);
             }
+            $count += $spc_count;
         }
         if(!$doPreview){
             $this->_em->flush();

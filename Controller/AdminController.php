@@ -1066,10 +1066,13 @@ class AdminController extends AbstractController {
             $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
             $valid = (@preg_match($data['searchText'], '') !== FALSE);
             if ($valid) {
-                $previewText = $repo->searchAndReplaceText($data['searchText'], $data['replaceText'], $data['preview'], $chapter->getCid());
+                $count = 0;
+                $previewText = $repo->searchAndReplaceText($data['searchText'], $data['replaceText'], $data['preview'], $chapter->getCid(), $count);
                 if (!$data['preview']) {
-                    $this->addFlash('status', __("Search and Replace Finished"));
+                    $this->addFlash('status', __("Search and Replace Finished, $count replacements were made."));
                     return $response;
+                } else {
+                    $this->addFlash('status', __("Preview of Search and Replace Finished, $count replacements were made."));
                 }
             } else {
                 $this->addFlash('error', __("Your search string was invliad"));
