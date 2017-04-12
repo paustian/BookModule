@@ -38,3 +38,24 @@ function getSelectionHtml2() {
     }
     return htmlContent;
 }
+
+(function($) {
+    $(document).ready(function () {
+        //Toggle fullscreen
+        $("#panel-fullscreen").click(function (e) {
+            e.preventDefault();
+
+            var $this = $(this);
+
+            if ($this.children('i').hasClass('fa-expand')) {
+                $this.children('i').removeClass('fa-expand');
+                $this.children('i').addClass('fa-compress');
+            }
+            else if ($this.children('i').hasClass('fa-compress')) {
+                $this.children('i').removeClass('fa-compress');
+                $this.children('i').addClass('fa-expand');
+            }
+            $(this).closest('.panel').toggleClass('panel-fullscreen');
+        });
+    });
+})(jQuery);
