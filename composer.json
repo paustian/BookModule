@@ -1,23 +1,36 @@
 {
-    "name": "paustian/book-module",
-    "description": "Module for creating large structured documents",
-    "type": "zikula-module",
-    "license": "LGPL-3.0+",
-    "authors": [
-        {
-            "name": "Timothy Paustian",
-            "homepage": "http://www.microbiologytext.com/"
-        }
-    ],
-    "autoload": {
-        "psr-4": { "Paustian\\BookModule\\": "" }
-    },
-    "require": {
-        "php": ">5.4.0"
-    },
-    "extra": {
-        "zikula": {
-            "class": "Paustian\\BookModule\\PaustianBookModule"
+  "name": "paustian/book-module",
+  "version": "4.0",
+  "description": "A module for displying a large structured document, creating figure descriptions for the book, and a glossary.",
+  "type": "zikula-module",
+  "license": "LGPL-3.0+",
+  "authors": [
+    {
+      "name": "Timothy Paustian",
+      "homepage": "http://www.microbiologytext.com/"
     }
-}
+  ],
+  "autoload": {
+    "psr-4": {
+      "Paustian\\BookModule\\": ""
+    }
+  },
+  "require": {
+    "php": ">5.4.0"
+  },
+  "extra": {
+    "zikula": {
+      "url": "book",
+      "class": "Paustian\\BookModule\\PaustianBookModule",
+      "core-compatibility": ">=1.4.3",
+      "displayname": "Book Module",
+      "oldnames": [],
+      "capabilities": {
+
+      },
+      "securityschema": {
+        "PaustianBookModule::": "Book::Chapter"
+      }
+    }
+  }
 }
