@@ -2,19 +2,10 @@
 
 namespace Paustian\BookModule;
 
-use Zikula\Core\ExtensionInstallerInterface;
-use Zikula\ExtensionsModule\Api\VariableApi;
-use Zikula\Core\AbstractBundle;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use DoctrineHelper;
-use HookUtil;
-use ServiceUtil;
 
-class BookModuleInstaller implements ExtensionInstallerInterface, ContainerAwareInterface {
+use Zikula\Core\AbstractExtensionInstaller;
 
- 
-    
+class BookModuleInstaller extends AbstractExtensionInstaller {
     private $entities = array(
             'Paustian\BookModule\Entity\BookArticlesEntity',
             'Paustian\BookModule\Entity\BookChaptersEntity',
@@ -25,36 +16,20 @@ class BookModuleInstaller implements ExtensionInstallerInterface, ContainerAware
             
         );
     
-    private $entityManager;
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-    /**
-     * @var AbstractBundle
-     */
-    private $bundle;
     /**
      * initialise the book module
      * This function is only ever called once during the lifetime of a particular
      * module instance
      */
     public function install() {
-        // create tables
-        $this->entityManager = $this->container->get('doctrine.entitymanager');
         //Create the tables of the module. Book has 5
         try {
-            DoctrineHelper::createSchema($this->entityManager, $this->entities);
+            $this->schemaTool->create($this->entities);
         } catch (Exception $e) {
             return false;
         }
-        $variable = ServiceUtil::getService('zikula_extensions_module.api.variable');
-        // Delete any module variables
-        $variable->set('Book', 'securebooks', false);
-        
-        $versionClass = $this->bundle->getVersionClass();
-        $version = new $versionClass($this->bundle);
-        HookUtil::registerSubscriberBundles($version->getHookSubscriberBundles());
+        $this->setVar('securebooks', false);
+
         // Initialisation successful
         return true;
     }
@@ -136,42 +111,18 @@ class BookModuleInstaller implements ExtensionInstallerInterface, ContainerAware
      * module instance
      */
     public function uninstall() {
-        // create tables
-        $this->entityManager = $this->container->get('doctrine.entitymanager');
-        //drop the tables
-        DoctrineHelper::dropSchema($this->entityManager, $this->entities);
-        $variable = ServiceUtil::getService('zikula_extensions_module.api.variable');
-        // Delete any module variables
-        $variable->del('Book', 'securebooks');
-        
-        $versionClass = $this->bundle->getVersionClass();
-        $version = new $versionClass($this->bundle);
-        HookUtil::unregisterSubscriberBundles($version->getHookSubscriberBundles());
-        // Deletion successful
+        try {
+            $this->schemaTool->drop($this->entities);
+        } catch (\PDOException $e) {
+            return false;
+        }
+
+        // Delete any module variables.
+        $this->delVars();
+
+        // Deletion successful*/
         return true;
     }
-    
-    public function setBundle(AbstractBundle $bundle)
-    {
-        $this->bundle = $bundle;
-    }
-    
-    /**
-     * Sets the Container.
-     *
-     * @param ContainerInterface|null $container A ContainerInterface instance or null
-     *
-     * @api
-     */
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-        $this->setTranslator($container->get('translator'));
-    }
 
-    public function setTranslator($translator)
-    {
-        $this->translator = $translator;
-    }
 }
 
