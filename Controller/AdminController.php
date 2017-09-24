@@ -77,8 +77,9 @@ class AdminController extends AbstractController {
             $doMerge = true;
         }
 
-        //I need to add the use declaration for this class. 
-        $form = $this->createForm(new Book(), $book);
+        //I need to add the use declaration for this class.
+        $trans = $this->get('translator.default');
+        $form = $this->createForm(Book::class, $book, ['translator' => $trans]);
 
         $form->handleRequest($request);
 
@@ -559,9 +560,9 @@ class AdminController extends AbstractController {
         $em->remove($article);
         $em->flush();
         $this->addFlash('status', __('Article Deleted.'));
-        //I may need to add a notify hook response here. I think I can add this to the 
-        $hook = new \Zikula\Bundle\HookBundle\Hook\ProcessHook($article->getAid());
-        $this->get('hook_dispatcher')->dispatch('book.ui_hooks.book.process_delete', $hook);
+        //Let any providers hooked to this article that it was deleted.
+        $this->get('hook_dispatcher')->dispatch(ARTICLE_DELETE_PROCESS::DELETE_PROCESS, new ProcessHook($article->getAid()));
+
         return $response;
     }
 

@@ -26,7 +26,8 @@
       "displayname": "Book Module",
       "oldnames": [],
       "capabilities": {
-
+        "admin": {"route": "paustianbookmodule_admin_edit"},
+        "user": {"route": "zikulausersmodule_user_view"}
       },
       "securityschema": {
         "PaustianBookModule::": "Book::Chapter"

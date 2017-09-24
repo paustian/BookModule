@@ -2,8 +2,10 @@
 namespace Paustian\BookModule\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Description of ExamForm
  * Set up the elements for a Exam form.
@@ -14,27 +16,28 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 class Book extends AbstractType {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $trans = $options['translator'];
         $builder
-            ->add('name', 'text', array('label' => __('Book Name'), 'required' => true))
-            ->add('add', 'submit', array('label' => 'Add Book'));
+            ->add('name',TextType::class, array('label' => $trans->__('Book Name'), 'required' => true))
+            ->add('add', SubmitType::class, array('label' => $trans->__('Add Book')));
         
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'paustianbookmodule_book';
     }
 
     /**
-     * OptionsResolverInterface is @deprecated and is supposed to be replaced by
      * OptionsResolver but docs not clear on implementation
      *
-     * @param OptionsResolverInterface $resolver
+     * @param OptionsResolver $resolver
      */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
             'data_class' => 'Paustian\BookModule\Entity\BookEntity',
+            'translator' => null,
         ));
     }
 }

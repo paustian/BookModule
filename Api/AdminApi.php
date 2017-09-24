@@ -20,11 +20,11 @@
 // ----------------------------------------------------------------------
 
 namespace Paustian\BookModule\Api;
-
+#TODO this needs to be elminated and moved into the new link services interface. The user links too.
 class AdminApi extends \Zikula_AbstractApi {
 
     public function getLinks() {
-        $links = array();
+        $links = [];
         
         //The quesiton editing menu
         $submenulinks = array();
