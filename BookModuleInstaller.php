@@ -25,7 +25,7 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
         //Create the tables of the module. Book has 5
         try {
             $this->schemaTool->create($this->entities);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
         $this->setVar('securebooks', false);
@@ -92,7 +92,7 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
                     $stmt = $connection->prepare($sql);
                     try {
                         $stmt->execute();
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         // trap and toss exceptions if you need to.
                         echo($e);
                         die;

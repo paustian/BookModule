@@ -31,6 +31,8 @@ use Paustian\BookModule\Form\ImportGloss;
 use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
 use Paustian\BookModule\Entity\Repository\BookArticlesRepository;
+use Zikula\Core\Response\Ajax\ForbiddenResponse;
+
 /**
  * @Route("/admin")
  */
@@ -206,7 +208,8 @@ class AdminController extends AbstractController {
             $doMerge = true;
         }
 
-        $form = $this->createForm(new Article(), $article);
+        $trans = $this->getTranslator();
+        $form = $this->createForm(Article::class, $article, ['locale' => $request->getLocale()]);
 
         $form->handleRequest($request);
 
@@ -793,10 +796,7 @@ class AdminController extends AbstractController {
     public function modifyimagepaths($args) {
         //only admins can do this
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_ADD)) {
-            return LogUtil::registerPermissionError(ModUtil::url('Book', 'admin', 'view'));
-        }
-        if (!SecurityUtil::confirmAuthKey()) {
-            return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
+            return new ForbiddenResponse($this->__('Access Denied'));
         }
 
         $fids = FormUtil::getPassedValue('fid');

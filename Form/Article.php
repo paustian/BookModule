@@ -2,35 +2,56 @@
 namespace Paustian\BookModule\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Zikula\Bundle\FormExtensionBundle\Form\DataTransformer\NullToEmptyTransformer;
+use Zikula\Common\Translator\TranslatorInterface;
+use Zikula\SettingsModule\Api\ApiInterface\LocaleApiInterface;
 
 class Article extends AbstractType
 {
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @var LocaleApiInterface
+     */
+    private $localeApi;
+
+    /**
+     * BlockType constructor.
+     * @param TranslatorInterface $translator
+     * @param LocaleApiInterface $localeApi
+     */
+    public function __construct(
+        TranslatorInterface $translator,
+        LocaleApiInterface $localeApi
+    ) {
+        $this->translator = $translator;
+        $this->localeApi = $localeApi;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title', 'text')
-            ->add('contents')
-            ->add($builder->create('lang', 'choice', array(
-                'choices' => \ZLanguage::getInstalledLanguageNames(),
+            ->add('title', TextType::class)
+            ->add('contents', TextareaType::class)
+            ->add($builder->create('lang', ChoiceType::class, array(
+                'choices' => $this->localeApi->getSupportedLocaleNames(null, $options['locale']),
                 'required' => false,
-                'placeholder' => __('All')
+                'placeholder' => $this->translator->__('All')
                 ))->addModelTransformer(new NullToEmptyTransformer()))
-            ->add('next', 'number', ['label' => __('Next'), 'required' => true])
-            ->add('prev', 'number', ['label' => __('Previous'), 'required' => true])
-            ->add('number', 'number', ['label' => __('Article Order Number'), 'required' => true])
-            ->add('save', 'submit', ['label' => __('Edit Article')]);
-    }
-
-    /**
-     * @deprecated
-     * @return string
-     */
-    public function getName()
-    {
-        return 'paustianbookmodule_article';
+            ->add('next', NumberType::class, ['label' => $this->translator->__('Next'), 'required' => true])
+            ->add('prev', NumberType::class, ['label' => $this->translator->__('Previous'), 'required' => true])
+            ->add('number', NumberType::class, ['label' => $this->translator->__('Article Order Number'), 'required' => true])
+            ->add('save', SubmitType::class, ['label' => $this->translator->__('Edit Article')]);
     }
 
     public function getBlockPrefix()
@@ -45,6 +66,7 @@ class Article extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => 'Paustian\BookModule\Entity\BookArticlesEntity',
+            'locale' => 'en'
         ]);
     }
 

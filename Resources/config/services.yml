@@ -1,4 +1,5 @@
-paustian_book_module.container.link_container:
+services:
+  paustian_book_module.container.link_container:
         class: Paustian\BookModule\Container\LinkContainer
         arguments:
           - "@translator.default"
@@ -6,3 +7,11 @@ paustian_book_module.container.link_container:
           - "@zikula_permissions_module.api.permission"
         tags:
             - { name: zikula.link_container }
+
+  paustian_book_module.form.article_type:
+    class: Paustian\BookModule\Form\Article
+    arguments:
+      - "@translator.default"
+      - "@zikula_settings_module.locale_api"
+    tags:
+      - { name: form.type }

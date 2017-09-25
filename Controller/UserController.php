@@ -35,12 +35,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotatio
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use SecurityUtil;
+/*use SecurityUtil;
 use DataUtil;
 use UserUtil;
 use ModUtil;
 use LogUtil;
-use System;
+use System;*/
 use Paustian\BookModule\Entity\BookEntity;
 use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
@@ -158,8 +158,8 @@ class UserController extends AbstractController {
 
         $content = $article->getContents();
         //Now add the highlights if necessary
-
-        $uid = UserUtil::getVar('uid');
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        $uid = $currentUserApi->get('uid');
         if ($uid != "") {
             //procesing the highlights goes here. This way the figure text won't matter
             $content = $this->_process_highlights($content, $article->getAid());
@@ -259,7 +259,8 @@ class UserController extends AbstractController {
      *
      */
     private function _process_highlights($content, $aid) {//A modifier that has to go in to account for
-        $uid = UserUtil::getVar('uid');
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             return $content;
         }
@@ -491,7 +492,8 @@ class UserController extends AbstractController {
      */
     public function studypageAction(Request $request) {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_collecthighlights'));
-        $uid = UserUtil::getVar('uid');
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             $this->addFlash('status', __('You must be logged and have access the study pages.'));
             return $response;
@@ -576,8 +578,8 @@ class UserController extends AbstractController {
         if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_READ)) {
             return LogUtil::registerPermissionError();
         }
-
-        $uid = UserUtil::getVar('uid');
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             //user id is empty, we are not in
             $this->addFlash('status', __('You are not logged in. In this case you cannot add highlights.'));
@@ -640,7 +642,8 @@ class UserController extends AbstractController {
 
         $url = $this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]);
         $response = $this->redirect($url);
-        $uid = UserUtil::getVar('uid');
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        $uid = $currentUserApi->get('uid');
         if ($inTerm == "") {
             $this->addFlash('status', __("No word was selected to be defined"));
             return $response;
