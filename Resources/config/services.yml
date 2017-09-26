@@ -15,3 +15,24 @@ services:
       - "@zikula_settings_module.locale_api"
     tags:
       - { name: form.type }
+
+  paustian_book_module.form.chapter_type:
+    class: Paustian\BookModule\Form\Chapter
+    arguments:
+      - "@translator.default"
+    tags:
+      - { name: form.type }
+
+  paustian_book_module.form.searchreplace_type:
+      class: Paustian\BookModule\Form\SearchReplace
+      arguments:
+        - "@translator.default"
+      tags:
+        - { name: form.type }
+
+  paustian_book_module.form.importchapter_type:
+      class: Paustian\BookModule\Form\ImportChapter
+      arguments:
+        - "@translator.default"
+      tags:
+        - { name: form.type }

@@ -15,8 +15,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotatio
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use SecurityUtil;
-use ModUtil;
 use Paustian\BookModule\Entity\BookEntity;
 use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookChaptersEntity;
@@ -160,7 +158,7 @@ class AdminController extends AbstractController {
             return $this->redirect($this->generateUrl('paustianbookmodule_admin_edit'));
         }
 
-        $form = $this->createForm(new Chapter(), $chapter);
+        $form = $this->createForm(Chapter::class, $chapter);
 
         $form->handleRequest($request);
 
@@ -631,13 +629,13 @@ class AdminController extends AbstractController {
      */
     public function modifyaccess() {
 // Security check
-        if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADMIN)) {
+        /*if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADMIN)) {
             return LogUtil::registerPermissionError();
         }
         $secure = FormUtil::getPassedValue('secure', isset($args['secure']) ? $args['secure'] : null);
         ModUtil::setVar('Book', 'securebooks', $secure == "makesecure");
 
-        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifyconfig'));
+        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifyconfig'));*/
     }
 
     /**
@@ -647,6 +645,7 @@ class AdminController extends AbstractController {
      */
     public function arrangearticlesAction(Request $request) {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
+        $chapterids="";
         $books = $repo->buildtoc(0, $chapterids);
 
         return $this->render('PaustianBookModule:Admin:book_admin_arrangearticles.html.twig', ['books' => $books,
@@ -732,7 +731,7 @@ class AdminController extends AbstractController {
         if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
             throw new AccessDeniedException($this->__("You do not have permission to import text to books."));
         }
-        $form = $this->createForm(new ImportChapter());
+        $form = $this->createForm(ImportChapter::class);
 
         $form->handleRequest($request);
 
@@ -1058,10 +1057,10 @@ class AdminController extends AbstractController {
         if (null == $chapter) {
             return $response;
         }
-        $form = $this->createForm(new SearchReplace());
-        $preview = "";
-        $form->handleRequest($request);
+        $form = $this->createForm(SearchReplace::class);
 
+        $form->handleRequest($request);
+        $previewText="";
         if ($form->isValid()) {
             $data = $form->getData();
             $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');

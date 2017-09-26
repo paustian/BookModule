@@ -37,7 +37,6 @@ class Book extends AbstractType {
     {
         $resolver->setDefaults(array(
             'data_class' => 'Paustian\BookModule\Entity\BookEntity',
-            'translator' => null,
         ));
     }
 }
