@@ -6,6 +6,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Zikula\Common\Translator\TranslatorInterface;
+
 /**
  * Description of ExamForm
  * Set up the elements for a Exam form.
@@ -13,13 +15,30 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @author paustian
  * 
  */
+
+
 class Book extends AbstractType {
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+
+    /**
+     * BlockType constructor.
+     * @param TranslatorInterface $translator
+     * @param LocaleApiInterface $localeApi
+     */
+    public function __construct(
+        TranslatorInterface $translator)   {
+        $this->translator = $translator;
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $trans = $options['translator'];
-        $builder
-            ->add('name',TextType::class, array('label' => $trans->__('Book Name'), 'required' => true))
-            ->add('add', SubmitType::class, array('label' => $trans->__('Add Book')));
+       $builder
+            ->add('name',TextType::class, array('label' => $this->translator->__('Book Name'), 'required' => true))
+            ->add('add', SubmitType::class, array('label' => $this->translator->__('Add Book')));
         
     }
 
