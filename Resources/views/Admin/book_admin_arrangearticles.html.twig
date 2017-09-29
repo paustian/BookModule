@@ -1,6 +1,6 @@
 {{ pageSetVar('title', 'Arrange Articles') }}
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
-{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+{# {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}#}
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 {{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
 <div class="container-fluid">
@@ -48,8 +48,10 @@
         </div>
     </form>
 </div>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
-    (function ($) {
+    $(function () {
     {% for booka in books %}
         {% for chaptera in booka.chapters %}
                 $("#sortable{{chaptera.cid}}").sortable({
@@ -58,12 +60,12 @@
 
                         $('#order_{{chaptera.cid}}').val(Order);
                     }
-                })
+                });
                 $("#sortable{{chaptera.cid}}").sortable({
                     connectWith: ".connectedSortable"
                 }).disableSelection();
         {% endfor %}
     {% endfor %}
-        })(jQuery);
+        });
 </script>
 {{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
