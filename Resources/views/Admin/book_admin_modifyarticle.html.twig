@@ -31,14 +31,19 @@
     {% endfor %}
 
     <script type="text/javascript">
-        {% for book in books %}    
-        (function ($) {
-            $('#ArticleList{{ book.bid }}').accordion({
-                collapsible: true,
-                heightStyle: "content"
-            });
-        })(jQuery);
-        {% endfor %}
+        function buildArticleTable() {
+            {% for book in books %}
+                jQuery('#ArticleList{{ book.bid }}').accordion({
+                    collapsible: true,
+                    heightStyle: "content"
+                });
+            {% endfor %}
+        };
+        document.onreadystatechange = function () {
+            if (document.readyState === 'complete') {
+                buildArticleTable();
+            }
+        };
     </script>
 </div>
 

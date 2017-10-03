@@ -12,64 +12,86 @@ namespace Paustian\BookModule\Helper;
  * @subpackage Book
  */
 
-use ModUtil;
-use Zikula\Core\RouteUrl;
-use Zikula\SearchModule\AbstractSearchable;
-use SecurityUtil;
 
-class SearchHelper extends AbstractSearchable
+use Paustian\BookModule\Entity\Repository\BookArticlesRepository;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
+use Zikula\SearchModule\Entity\SearchResultEntity;
+use Zikula\SearchModule\SearchableInterface;
+use Zikula\Core\RouteUrl;
+
+class SearchHelper implements SearchableInterface
 {
     /**
-     * get the UI options for search form
-     *
-     * @param boolean $active if the module should be checked as active
-     * @param array|null $modVars module form vars as previously set
-     * @return string
+     * @var PermissionApiInterface
      */
-    public function getOptions($active, $modVars = null)
-    {
-        return $this->getContainer()->get('templating')->renderResponse('PaustianBookModule:Search:options.html.twig', array('active' => $active))->getContent();
-    }
-
+    private $permissionApi;
 
     /**
-     * Get the search results
-     *
-     * @param array $words array of words to search for
-     * @param string $searchType AND|OR|EXACT
-     * @param array|null $modVars module form vars passed though
-     * @return array
+     * @var SessionInterface
      */
-    function getResults(array $words, $searchType = 'AND', $modVars = null)
+    private $session;
+
+    /**
+     * $var BookArticlesRepository
+     */
+    private $articleRepo;
+
+    /**
+     * SearchHelper constructor.
+     * @param PermissionApiInterface $permissionApi
+     * @param SessionInterface $session
+     * @param BookArticlesRepository $articleRepo
+     */
+    public function __construct(
+        PermissionApiInterface $permissionApi,
+        SessionInterface $session,
+        BookArticlesRepository $articleRepo)
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('a')
-            ->from('Paustian\BookModule\Entity\BookArticlesEntity', 'a');
-        $whereExp = $this->formatWhere($qb, $words, ['a.title', 'a.contents'], $searchType);
-        $qb->andWhere($whereExp);
-        
-        
-        $query = $qb->getQuery();
-        $results = $query->getResult();
-        $returnArray = array();
-        $sessionId = session_id();
-        
-        foreach ($results as $article) {
+        $this->permissionApi = $permissionApi;
+        $this->session = $session;
+        $this->articleRepo = $articleRepo;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function amendForm(FormBuilderInterface $form)
+    {
+        // not needed because `active` child object is already added and that is all that is needed.
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getResults(array $words, $searchType = 'AND', $modVars = null)
+    {
+        //return an empty array if you don't have permission to view at least some book module contents
+        if (!$this->permissionApi->hasPermission('Book::',"::", ACCESS_OVERVIEW)){
+            return [];
+        }
+
+        $hits= $this->articleRepo->getSearchResults($words, $searchType);
+        $sessionID = $this->session->getId();
+        foreach ($hits as $article) {
             $url = new RouteUrl('paustianbookmodule_user_displayarticle', ['article' => $article->getAid()]);
             //make sure we have permission for this object.
-            if (!SecurityUtil::checkPermission('Book::', $article['bid'] . "::" . $article['cid'], ACCESS_OVERVIEW)) {
-                continue;
+            if ($this->permissionApi->hasPermission('Book::', $article->getBid() . "::" . $article->getCid(), ACCESS_READ)) {
+                $result = new SearchResultEntity();
+                $result->setTitle($article->getTitle())
+                    ->setModule('PaustianBookModule')
+                    ->setText($this->shorten_text($article->getContents()))
+                    ->setSesid($sessionID)
+                    ->setUrl($url);
+                $returnArray[] = $result;
             }
-            $returnArray[] = array(
-                    'title' => $article->getTitle(),
-                    'text' => $this->shorten_text($article->getContents()),
-                    'module' => $this->name,
-                    'created' => '',
-                    'sesid' => $sessionId,
-                    'url' => $url
-                );
         }
         return $returnArray;
+    }
+
+    public function getErrors()
+    {
+        return [];
     }
 
     /**

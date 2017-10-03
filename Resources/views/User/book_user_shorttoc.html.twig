@@ -46,8 +46,8 @@
     </select>
 </div>
 <script type="text/javascript">
-    (function ($) {
-        $("#dialog").dialog({
+    function displayTable() {
+        jQuery("#dialog").dialog({
             position: ["right", "bottom"],
             autoOpen: true,
             resizeable: false,
@@ -60,24 +60,29 @@
                 duration: 500
             }
         });
-        $("#opener").click(function () {
-            $("#dialog").dialog("open");
+        jQuery("#opener").click(function () {
+            jQuery("#dialog").dialog("open");
         });
         var lockright = function () {
-            $("#dialog").dialog('option', 'position', ['right', 'bottom']);
+            jQuery("#dialog").dialog('option', 'position', ['right', 'bottom']);
         };
-        $(window).scroll(lockright);
-        $(window).resize(lockright);
+        jQuery(window).scroll(lockright);
+        jQuery(window).resize(lockright);
 
-        $(function () {
+        jQuery(function () {
             // bind change event to select
-            $('#quick_link').on('change', function () {
-                var url = $(this).val(); // get selected value
+            jQuery('#quick_link').on('change', function () {
+                var url = jQuery(this).val(); // get selected value
                 if (url) { // require a URL
                     window.location = url; // redirect
                 }
                 return false;
             });
         });
-    })(jQuery);
+    };
+    document.onreadystatechange = function () {
+        if (document.readyState === 'complete') {
+            displayTable();
+        }
+    };
 </script>

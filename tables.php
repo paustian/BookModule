@@ -31,6 +31,7 @@
  * This function is called internally by the core whenever the module is
  * loaded.  It adds in the information
  */
+//TODO: check to see if this is called. I doubt it. You could just delete it and see if the module still works.
 function book_pntables()
 {
     // Initialise table array

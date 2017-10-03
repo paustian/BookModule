@@ -28,8 +28,9 @@ use Paustian\BookModule\Form\Glossary;
 use Paustian\BookModule\Form\ImportGloss;
 use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
-use Paustian\BookModule\Entity\Repository\BookArticlesRepository;
 use Zikula\Core\Response\Ajax\ForbiddenResponse;
+use Zikula\Bundle\HookBundle\Hook\ProcessHook;
+
 
 /**
  * @Route("/admin")
@@ -416,12 +417,12 @@ class AdminController extends AbstractController {
 
     private function _generate_chapter_menu() {
         //get the complete list of books
-        $books = ModUtil::apiFunc('Book', 'user', 'getall', array('startnum' => 1));
-
+        $repo = $this->getDoctrine()->getManager()-getRepository('PaustianBookModule:BookEntity');
+        $books = $repo->getBooks();
         if ($books == false) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return LogUtil::addWarningPopup($this->__('You have to create a book before you can create a chapter or an article'));
+            return $this->addFlash('error', $this->__('You have to create a book before you can create a chapter or an article'));
         }
 
         $chapters = array();
@@ -435,7 +436,8 @@ class AdminController extends AbstractController {
         foreach ($books as $book_item) {
             $bid = $book_item['bid'];
             //grab all the chapters for this book
-            $chap_info = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
+            $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookChaptersEntity');
+            $chap_info = $repo->getChapters($bid);
             //check to make sure they are legitimate. The function will
             //send back false if it fails
             $j++;
@@ -450,7 +452,7 @@ class AdminController extends AbstractController {
         }
         //there are no chapters
         if ($j == $i) {
-            return LogUtil::addErrorPopup($this->__('There are no chapters.'));
+            return $this->addFlash('error', $this->__('There are no chapters.'));
         }
 
         // Start the table
@@ -559,7 +561,7 @@ class AdminController extends AbstractController {
         $em->flush();
         $this->addFlash('status', $this->__('Article Deleted.'));
         //Let any providers hooked to this article that it was deleted.
-        $this->get('hook_dispatcher')->dispatch(ARTICLE_DELETE_PROCESS::DELETE_PROCESS, new ProcessHook($article->getAid()));
+        $this->get('hook_dispatcher')->dispatch(\Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber::ARTICLE_DELETE_PROCESS, new ProcessHook($article->getAid()));
 
         return $response;
     }
@@ -616,23 +618,6 @@ class AdminController extends AbstractController {
      */
     public function updateconfig() {
         return true;
-    }
-
-    /**
-     * modifyaccess
-     *
-     * Change the access to the book. If this is turned on, then only one person per username is allowed to
-     * access the book at a time. This prevents people from cheating.
-     */
-    public function modifyaccess() {
-// Security check
-        /*if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADMIN)) {
-            return LogUtil::registerPermissionError();
-        }
-        $secure = FormUtil::getPassedValue('secure', isset($args['secure']) ? $args['secure'] : null);
-        ModUtil::setVar('Book', 'securebooks', $secure == "makesecure");
-
-        return new RedirectResponse(ModUtil::url('book', 'admin', 'modifyconfig'));*/
     }
 
     /**
@@ -750,46 +735,7 @@ class AdminController extends AbstractController {
         ));
     }
 
-    /**
-     * * @Route("/listfigures")
-     * @param Request $request
-     * @return type
-     */
-    public function listfiguresAction(Request $request) {
-        return $this->redirect($this->generateUrl('paustianbookmodule_admin_edit'));
-        /* if (!$this->hasPermission($this->name::', "::", ACCESS_EDIT)) {
-          return LogUtil::registerPermissionError();
-          }
-
-          if (!SecurityUtil::confirmAuthKey()) {
-          return LogUtil::registerAuthidError(ModUtil::url('Book', 'admin', 'view'));
-          }
-          $bid = FormUtil::getPassedValue('bid', isset($args['bid']) ? $args['bid'] : null);
-          $button = FormUtil::getPassedValue('submit');
-
-          $this->view->caching = false;
-
-          // The user API function is called
-          $figData = ModUtil::apiFunc('Book', 'user', 'getallfigures', array('bid' => $bid));
-
-          if ($figData == false) {
-          LogUtil::addWarningPopup($this->__('There are no figures to list'));
-          return ModUtil::url('book', 'admin', 'dolistbookfigures');
-          }
-
-
-          $this->view->assign('figData', $figData);
-          $ret_text = "";
-          if ($button == 'listpaths') {
-          $ret_text = $this->view->fetch('book_admin_listpaths.tpl');
-          } else {
-          $ret_text = $this->view->fetch('book_admin_listigures.tpl');
-          }
-          // Return the output that has been generated by this function
-          return $ret_text; */
-    }
-
-    public function modifyimagepaths($args) {
+    /*public function modifyimagepaths($args) {
         //only admins can do this
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_ADD)) {
             return new ForbiddenResponse($this->__('Access Denied'));
@@ -814,15 +760,15 @@ class AdminController extends AbstractController {
             // Call apiupdate to do all the work
             if ($result) {
                 // Success
-                LogUtil::addStatusPopup($this->__('The figure was updated.'));
+                $this->addFlash('status', $this->__('The figure was updated.'));
             } else {
-                LogUtil::addErrorPopup($this->__('Update of figure failed.'));
+                $this->addFlash('error', $this->__('Update of figure failed.'));
                 return false;
             }
         }
 
         return new RedirectResponse(ModUtil::url('book', 'admin', 'dolistbookfigures'));
-    }
+    }*/
 
     /**
      * @Route("/verifyurls/{chapter}")
@@ -885,7 +831,7 @@ class AdminController extends AbstractController {
 
     public function checkurls($urls) {
         //the url to the current server
-        $baseurl = ModUtil::getBaseDir();
+        $baseurl = $GLOBALS['request']->getBaseUrl();
         $i = 0;
         foreach ($urls as $items) {
             //check to see if it is a valid url

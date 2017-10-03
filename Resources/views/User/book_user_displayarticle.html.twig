@@ -53,6 +53,6 @@
             <a href="{{ path('paustianbookmodule_user_displayarticle', {theme:'printer'}) }}/{{ article.aid }}" title="{{ __('Printable Version') }}" class="fa fa-print"></a>|
             <a href="{{ path('paustianbookmodule_user_displayarticlesinchapter', {theme:'printer', cid:article.cid}) }}" title="{{ __('Printable Chapter') }}" class="fa fa-bookmark-o"></a>
         </p>
-        {{ notifyDisplayHooks(constant('Paustian\\BookModule\\HookSubscriber\\ArticleUiHooksSubscriber::ARTICLE_DISPLAY'), article.aid|default(null), return_url) }}
+        {{ notifyDisplayHooks(constant('Paustian\\BookModule\\HookSubscriber\\ArticleUiHookSubscriber::ARTICLE_DISPLAY'), article.aid|default(null), return_url) }}
     </div>
 </div>

@@ -20,11 +20,16 @@
         {% endfor %}
     </div>
     <script type="text/javascript">
-        (function ($) {
-            $('#ArticleList').accordion({
+        function displayBook() {
+            jQuery('#ArticleList').accordion({
                 collapsible: true,
                 heightStyle: "content"
             });
-        })(jQuery);
+        };
+        document.onreadystatechange = function () {
+            if (document.readyState === 'complete') {
+                displayBook();
+            }
+        };
     </script>
 </div>

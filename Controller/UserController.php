@@ -35,18 +35,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotatio
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-/*use SecurityUtil;
-use DataUtil;
-use UserUtil;
-use ModUtil;
-use LogUtil;
-use System;*/
 use Paustian\BookModule\Entity\BookEntity;
 use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
 use Paustian\BookModule\Entity\BookChaptersEntity;
 use Paustian\BookModule\Entity\BookGlossEntity;
-use Paustian\BookModule\Entity\Repository\BookArticlesRepository;
+
 
 class UserController extends AbstractController {
 
@@ -59,7 +53,7 @@ class UserController extends AbstractController {
     public function indexAction(Request $request) {
 // Security check
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
-            throw new AccessDeniedException(__('You do not have pemission to access any books.'));
+            throw new AccessDeniedException($this->__('You do not have pemission to access any books.'));
         }
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
@@ -73,7 +67,7 @@ class UserController extends AbstractController {
      * 
      * @param Request $request
      * @param BookEntity $book
-     * @return type
+     * @return Response
      */
     public function tocAction(Request $request, BookEntity $book = null) {
         $bid = -1;
@@ -88,7 +82,7 @@ class UserController extends AbstractController {
 
         $chatperids = null;
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
-        $booktoc = $repo->buildtoc($bid, $chapterids);
+        $booktoc = $repo->buildtoc($bid, $chatperids);
 
         //we can simplifiy this quite a bit since we only need 1 book.
         $bookData = $booktoc[0];
@@ -225,7 +219,7 @@ class UserController extends AbstractController {
 
         $where['cond'] = "u.term=:term";
         $where['paramkey'] = 'term';
-        $where['paramval'] = DataUtil::formatForStore($inTerm);
+        $where['paramval'] =$inTerm;
 
         $item = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->getGloss('', null, $where);
 
@@ -235,7 +229,7 @@ class UserController extends AbstractController {
             //   ->setParameter('title', '%'.$data['search'].'%')
             $where['cond'] = "u.term LIKE ?1";
             $where['paramkey'] = '1';
-            $where['paramval'] = '%' . DataUtil::formatForStore($inTerm) . '%';
+            $where['paramval'] = '%' . $inTerm . '%';
             $item = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->getGloss('', null, $where);
         }
         // Check for an error and if so
@@ -247,7 +241,7 @@ class UserController extends AbstractController {
         }
         $definition = $item[0]['definition'];
         $lcterm = strtolower($inTerm);
-        $url = DataUtil::formatForDisplayHTML($this->generateUrl('paustianbookmodule_user_displayglossary')) . "#$lcterm";
+        $url = $this->generateUrl('paustianbookmodule_user_displayglossary') . "#$lcterm";
         $ret_text = "<a class=\"glossary\" href=\"$url\" title=\"$definition\">$inTerm</a>";
         return $ret_text;
     }
@@ -369,15 +363,14 @@ class UserController extends AbstractController {
         }
 
 
-        $return_text = "";
+        $ret_text = "";
         $chapRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookChaptersEntity');
         $chapters = $chapRepo->getChapter($bid);
         //now iterate through each chapter and call display_chapter
-        $chapters = ModUtil::apiFunc('Book', 'user', 'getallchapters', array('bid' => $bid));
         foreach ($chapters as $chap_item) {
             $cid = $chap_item->getCid();
             if ($this->hasPermission($this->name . '::Chapter', "$bid::$cid", ACCESS_READ)) {
-                $ret_text = $ret_text . $this->displaychapterAction($request, $chapter);
+                $ret_text .= $this->displaychapterAction($request, $chap_item);
             }
         }
         return $ret_text;
@@ -388,7 +381,7 @@ class UserController extends AbstractController {
      * 
      * @param Request $request
      * @param BookChaptersEntity $chapter
-     * @return type
+     * @return Response
      */
     public function displaychapterAction(Request $request, BookChaptersEntity $chapter = null) {
         if (null === $chapter) {
@@ -403,7 +396,7 @@ class UserController extends AbstractController {
         $bid = $chapter->getBid();
         //grab the chapter data
         if (!$this->hasPermission($this->name . '::Chapter', "$bid::$cid", ACCESS_READ)) {
-            throw new AccessDeniedException(__('You do not have pemission to access the contents of this chapter.'));
+            throw new AccessDeniedException($this->__('You do not have pemission to access the contents of this chapter.'));
             ;
         }
         $artRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
@@ -576,7 +569,7 @@ class UserController extends AbstractController {
             return $response;
         }
         if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_READ)) {
-            return LogUtil::registerPermissionError();
+            throw new AccessDeniedException();
         }
         $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');

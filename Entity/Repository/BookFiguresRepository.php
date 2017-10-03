@@ -46,6 +46,9 @@ class BookFiguresRepository extends EntityRepository {
 
         // execute query
         $figures = $query->getResult();
+        if(empty($figures)){
+            return null;
+        }
         return $figures[0];
     }
 }
