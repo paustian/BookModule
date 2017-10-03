@@ -37,13 +37,15 @@ use Zikula\Bundle\HookBundle\Hook\ProcessHook;
  */
 class AdminController extends AbstractController {
 
+    private $theRequest;
+
     /**
      * @Route("")
      * @param request - the incoming request.
      * The main entry point
-     * 
+     *
      * @return Response The rendered output consisting mainly of the admin menu
-     * 
+     *
      * @throws AccessDeniedException Thrown if the user does not have the appropriate access level for the function.
      */
     public function indexAction(Request $request) {
@@ -56,10 +58,10 @@ class AdminController extends AbstractController {
     }
 
     /**
-     * 
+     *
      * @Route("/edit/{book}")
      * Create a new book. This presents the form for giving a title to the book
-     * 
+     *
      * @return Response The rendered output of the modifyconfig template.
      *
      * @throws AccessDeniedException Thrown if the user does not have the appropriate access level for the function.
@@ -129,7 +131,7 @@ class AdminController extends AbstractController {
     }
 
     /**
-     * 
+     *
      * @Route("/editchapter/{chapter}")
      * @param Request $request
      * @param \Paustian\BookModule\Controller\BookChaptersEntity $chapter
@@ -185,7 +187,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/editarticle/{article}")
-     * 
+     *
      * edit an article.
      * @param Request $request
      * @param \Paustian\BookModule\Controller\BookArticlesEntity $article
@@ -233,7 +235,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/editfigure/{figure}")
-     * 
+     *
      * @param Request $request
      * @param \Paustian\BookModule\Controller\BookFiguresEntity $figure
      * @return RedirectResponse or Repsonse;
@@ -283,7 +285,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/editglossary/{gloss}")
-     * 
+     *
      * @param Request $request
      * @param BookGlossEntity $gloss
      * @return type
@@ -364,7 +366,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/modifyarticle")
-     * 
+     *
      * Create an interface for picking the article you want to edit
      * @param Request $request
      * @return type
@@ -474,7 +476,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/export/{chapter}")
-     * 
+     *
      * @param Request $request
      * @param BookChaptersEntity $chapter - the chapter to export
      * @return type
@@ -502,7 +504,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("deletechapter/{chapter}")
-     * 
+     *
      * @param Request $request
      * @param BookChaptersEntity $chapter
      * @return type
@@ -529,7 +531,7 @@ class AdminController extends AbstractController {
             $artClass = $em->find('PaustianBookModule:BookArticlesEntity', $article['aid']);
             $artClass->setCid(0);
         }
-        
+
         $em->remove($chapter);
         $em->flush();
         $this->addFlash('status', $this->__('Chapter Deleted.'));
@@ -555,8 +557,8 @@ class AdminController extends AbstractController {
         }
 
         $em = $this->getDoctrine()->getManager();
-        
-        
+
+
         $em->remove($article);
         $em->flush();
         $this->addFlash('status', $this->__('Article Deleted.'));
@@ -657,7 +659,7 @@ class AdminController extends AbstractController {
             }
             parse_str($order, $matches);
             $artIds = $matches['art'];
-            //we put this in to make sure we don't try to persist 
+            //we put this in to make sure we don't try to persist
             //an empty set.
             if (count($artIds) < 1) {
                 continue;
@@ -688,7 +690,7 @@ class AdminController extends AbstractController {
                 $number++;
                 $oldArticle = $article;
             }
-            //we dropped out of the chapter, 
+            //we dropped out of the chapter,
             //zero out the next and then save
             $oldArticle->setNext(0);
             if ($number == 1) {
@@ -772,7 +774,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/verifyurls/{chapter}")
-     * 
+     *
      * verifyurls
      *
      * Given a book id or chapter id, work through the articles in the book and find each
@@ -781,6 +783,7 @@ class AdminController extends AbstractController {
      * without error due to the way zikula is set up.
      */
     public function verifyurlsAction(Request $request, BookChaptersEntity $chapter = null) {
+        $this->theRequest = $request;
         //if there is not chapter, then redirect to the modify chapter screen.
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifychapter'));
         $cid = null;
@@ -807,8 +810,8 @@ class AdminController extends AbstractController {
                 $this->buildtable($article->getContents(), $url_table, $chapter->getNumber(), $article->getNumber());
             }
         }
-        
-        return $this->render('PaustianBookModule:Admin:book_admin_verifyurls.html.twig', 
+
+        return $this->render('PaustianBookModule:Admin:book_admin_verifyurls.html.twig',
                 ['urltable' => $url_table]);
     }
 
@@ -836,43 +839,13 @@ class AdminController extends AbstractController {
         foreach ($urls as $items) {
             //check to see if it is a valid url
             if (!$this->_is_url($items['url'])) {
-                if (preg_match("/^\\//", $items['url'])) {
-                    //root directory. Append the host and stop
-                    //remove the first /
-                    $items['url'] = Request::getScheme() . "://" . Request::getHost() . $items['url'];
-                } else {
-                    //relative link
-                    $items['url'] = $baseurl . trim($items['url'], "/");
-                }
-            }
-            //this is an internal link
-            if (strpos(strtolower($items['url']), strtolower($baseurl)) !== FALSE) {
-                //check it internally
-                //first parse it.
-                $url_array = parse_url($items['url']);
-                $arr_query = array();
-                $args = explode('&', $url_array['query']);
-                foreach ($args as $arg) {
-                    $parts = explode('=', $arg);
-                    $parts[0] = str_replace('amp;', '', $parts[0]);
-                    $arr_query[$parts[0]] = $parts[1];
-                }
-                $modname = $arr_query['module'];
-                if (isset($arr_query['type'])) {
-                    $type = $arr_query['type'];
-                } else {
-                    $type = 'user';
-                }
-                if (isset($arr_query['func'])) {
-                    $func = $arr_query['func'];
-                } else {
-                    $func = 'main';
-                }
-                //check to see if we can actually call this function
-                if (ModUtil::getCallable($modname, $type, $func)) {
+                //if not its a local link.
+                //strip out the baseurl
+                $items['url'] = str_replace($baseurl, "", $items['url']);
+                $result = $this->get('router')->match($items['url']);
+                if(!empty($result)){
                     $urls[$i]['valid'] = 'Yes';
-                } else {
-                    $urls[$i]['valid'] = 'No';
+                    continue;
                 }
             } else {
                 $urls[$i]['valid'] = $this->_check_http_link($items);
@@ -925,7 +898,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/checkstudentdefs")
-     * 
+     *
      * @param Request $request
      * @return boolean
      * Students can request words to be defined. These will appear as words with empty definitions.
@@ -983,11 +956,11 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/searchreplace/{chapter}")
-     * 
+     *
      * Set up for the search replace feature of the module. The function diplsays
      * a form to the user for entrance of a search string, replace string, chooses
      * a chapter, and then whether to search through figures.
-     * 
+     *
      * @param Request $request
      * @param BookChaptersEntity $chapter
      * @return type
