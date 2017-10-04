@@ -36,14 +36,19 @@
     {% endfor %}
 
     <script type="text/javascript">
-        {% for book in books %}    
-        (function ($) {
-            $('#FigureList{{ book.bid }}').accordion({
-                collapsible: true,
-                heightStyle: "content"
-            });
-        })(jQuery);
-        {% endfor %}
+        function buildFigureTable() {
+            {% for book in books %}
+                jQuery('#FigureList{{ book.bid }}').accordion({
+                    collapsible: true,
+                    heightStyle: "content"
+                });
+            {% endfor %}
+        }
+        document.onreadystatechange = function () {
+            if (document.readyState === 'complete') {
+                buildFigureTable();
+            }
+        };
     </script>
 </div>
 {{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}

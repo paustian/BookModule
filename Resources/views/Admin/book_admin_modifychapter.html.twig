@@ -19,7 +19,8 @@
                     <td class="actions">
                         <a href="{{ path('paustianbookmodule_admin_editchapter') }}/{{ item.cid }}" class="fa fa-pencil" title="{{ __('Edit chapter') }}"></a>
                         <a href="{{ path('paustianbookmodule_admin_deletechapter') }}/{{ item.cid }}" class="fa fa-trash-o" title="{{ __('Delete chapter') }}" onclick="return confirm('Are you sure you want to delete this chapter?')"></a>
-                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}" class="fa fa-download" title="{{ __('Export chapter') }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}" class="fa fa-download" title="{{ __('Export html chapter') }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}/0" class="fa fa-arrow-circle-down" title="{{ __('Export xml chapter') }}"></a>
                         <a href="{{ path('paustianbookmodule_admin_searchreplace') }}/{{ item.cid }}" class="fa fa-search" title="{{ __('Do regex search and replace') }}"></a>
                         <a href="{{ path('paustianbookmodule_admin_verifyurls') }}/{{ item.cid }}" class="fa fa-link" title="{{ __('Verify the urls in the chapter') }}"></a>
                     </td>

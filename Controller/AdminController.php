@@ -475,7 +475,7 @@ class AdminController extends AbstractController {
     }
 
     /**
-     * @Route("/export/{chapter}")
+     * @Route("/export/{chapter}/{inlinefig}")
      *
      * @param Request $request
      * @param BookChaptersEntity $chapter - the chapter to export
@@ -495,7 +495,7 @@ class AdminController extends AbstractController {
         if($inlinefig){
             $return_text = $this->render('PaustianBookModule:User:book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter, 'articles' => $articles])->getContent();
             $return_text = $repo->addfigures($return_text, $this);
-            return $this->render('PaustianBookModule:Admin:book_admin_export2.html.twig', ['text' => $return_text]);
+            return $this->render('PaustianBookModule:Admin:book_admin_export2.html.twig', ['chapter' => $chapter, 'text' => $return_text]);
         }
         //The rest of this can be done in the template.
         return $this->render('PaustianBookModule:Admin:book_admin_export.html.twig', ['chapter' => $chapter,
@@ -832,23 +832,38 @@ class AdminController extends AbstractController {
         $url_table = array_merge($url_table, $new_urls);
     }
 
+    /**
+     * checkurls
+     *
+     * This function checks the urls in a chapter and sees if they are real links
+     * The internal links use the router to see if they match. It fails if you use old style
+     * ugly urls. This is by design to encourage changing the url style
+     *
+     * The external links check using
+     * @param $urls
+     * @return mixed
+     */
     public function checkurls($urls) {
         //the url to the current server
         $baseurl = $GLOBALS['request']->getBaseUrl();
         $i = 0;
         foreach ($urls as $items) {
             //check to see if it is a valid url
-            if (!$this->_is_url($items['url'])) {
+            if ($this->_is_url($items['url'])) {
+                $urls[$i]['valid'] = $this->_check_http_link($items);
+
+            } else {
                 //if not its a local link.
                 //strip out the baseurl
                 $items['url'] = str_replace($baseurl, "", $items['url']);
-                $result = $this->get('router')->match($items['url']);
-                if(!empty($result)){
+                try {
+                    $result = $this->get('router')->match($items['url']);
+                    //determine if the url is valid based upon whether it found an object
                     $urls[$i]['valid'] = 'Yes';
-                    continue;
+                } catch (\Exception $e) {
+                    //we don't want this to blow up the script, just catch it
+                    $urls[$i]['valid'] = 'No';
                 }
-            } else {
-                $urls[$i]['valid'] = $this->_check_http_link($items);
             }
             $i++;
         }
@@ -857,7 +872,7 @@ class AdminController extends AbstractController {
     }
 
     private function _is_url($url) {
-        if (!preg_match('/^http\\:\\/\\/[a-z0-9\-]+\.([a-z0-9\-]+\.)?[a-z]+/i', $url)) {
+        if (!preg_match('/^http[s]*\\:\\/\\/[a-z0-9\-]+\.([a-z0-9\-]+\.)?[a-z]+/i', $url)) {
             return false;
         } else {
             return true;
