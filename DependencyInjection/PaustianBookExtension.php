@@ -19,5 +19,6 @@ class PaustianBookExtension extends Extension
         $loader->load('services.yml');
         $loader->load('doctrine.yml');
         $loader->load('helpers.yml');
+        $loader->load('hooks.yml');
     }
 }

@@ -1,4 +1,5 @@
-paustian_book_module.hook_subscriber.article_ui_hooks_subscriber:
+services:
+  paustian_book_module.hook_subscriber.ui_hooks_subscriber:
       class: Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber
       arguments:
         - "@translator.default"

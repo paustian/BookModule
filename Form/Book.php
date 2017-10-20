@@ -28,7 +28,6 @@ class Book extends AbstractType {
     /**
      * BlockType constructor.
      * @param TranslatorInterface $translator
-     * @param LocaleApiInterface $localeApi
      */
     public function __construct(
         TranslatorInterface $translator)   {
