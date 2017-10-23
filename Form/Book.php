@@ -24,7 +24,6 @@ class Book extends AbstractType {
      */
     private $translator;
 
-
     /**
      * BlockType constructor.
      * @param TranslatorInterface $translator

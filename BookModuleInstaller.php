@@ -4,17 +4,22 @@ namespace Paustian\BookModule;
 
 
 use Zikula\Core\AbstractExtensionInstaller;
+use Paustian\BookModule\Entity\BookArticlesEntity;
+use Paustian\BookModule\Entity\BookChaptersEntity;
+use Paustian\BookModule\Entity\BookEntity;
+use Paustian\BookModule\Entity\BookFiguresEntity;
+use Paustian\BookModule\Entity\BookGlossEntity;
+use Paustian\BookModule\Entity\BookUserDataEntity;
 
 class BookModuleInstaller extends AbstractExtensionInstaller {
-    private $entities = array(
-            'Paustian\BookModule\Entity\BookArticlesEntity',
-            'Paustian\BookModule\Entity\BookChaptersEntity',
-            'Paustian\BookModule\Entity\BookEntity',
-            'Paustian\BookModule\Entity\BookFiguresEntity',
-            'Paustian\BookModule\Entity\BookGlossEntity',
-            'Paustian\BookModule\Entity\BookUserDataEntity',
-            
-        );
+    private $entities = [
+            BookArticlesEntity::class,
+            BookChaptersEntity::class,
+            BookEntity::class,
+            BookFiguresEntity::class,
+            BookGlossEntity::class,
+            BookUserDataEntity::class,
+    ];
     
     /**
      * initialise the book module
