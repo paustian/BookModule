@@ -26,7 +26,7 @@ class Article extends AbstractType
     private $localeApi;
 
     /**
-     * BlockType constructor.
+     * constructor.
      * @param TranslatorInterface $translator
      * @param LocaleApiInterface $localeApi
      */
