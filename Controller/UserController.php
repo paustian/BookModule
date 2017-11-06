@@ -160,7 +160,7 @@ class UserController extends AbstractController {
         }
 
         //this code is used for the hook
-        $return_url = new RouteUrl($this->generateUrl('paustianbookmodule_user_displayarticle', array('aid' => $aid)));
+        $return_url = new RouteUrl('paustianbookmodule_user_displayarticle', array('aid' => $aid));
 
         //call the user api to increment the counter
         $doc->getRepository('PaustianBookModule:BookArticlesEntity')->incrementCounter($article);
