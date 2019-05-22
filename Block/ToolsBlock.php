@@ -34,7 +34,8 @@ class ToolsBlock extends AbstractBlockHandler {
      * @return       output      the rendered bock
      */
     public function display(array $properties) {
-        if (!UserUtil::isLoggedIn()) {
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        if (!$currentUserApi->isLoggedIn()) {
             return false;
         }
         
@@ -43,7 +44,7 @@ class ToolsBlock extends AbstractBlockHandler {
         //first try to get the book id
         //the book tools are only useful when an article is being displayed.
         $pattern = '|displayarticle/([0-9]{1,3})|';
-        $em = $this->get('doctrine.entitymanager');
+        $em = $this->get('doctrine')->getManager();
         $matches = array();
         if (preg_match($pattern, $url, $matches)) {
             $aid = $matches[1];

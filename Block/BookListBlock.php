@@ -26,7 +26,7 @@ class BookListBlock extends AbstractBlockHandler{
      */
     public function display(array $properties) {
         
-        $em = $this->get('doctrine.entitymanager');
+        $em = $this->get('doctrine')->getManager();
         // Call the modules API to get the items
         $books = $em->getRepository('PaustianBookModule:BookEntity')->buildtoc();
         

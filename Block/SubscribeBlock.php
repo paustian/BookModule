@@ -36,7 +36,8 @@ class SubscribeBlock extends AbstractBlockHandler {
      */
     public function display(array $properties) {
         $content = "";
-        if (!UserUtil::isLoggedIn()) {
+        $currentUserApi = $this->get('zikula_users_module.current_user');
+        if (!$currentUserApi->isLoggedIn()) {
             $content = __('You must <a href="register">register</a> before you can purchase any books.');
         } else {
             $uid = $em = $this->get('session')->get('uid');
