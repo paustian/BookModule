@@ -178,10 +178,8 @@ class BookArticlesRepository extends EntityRepository
         $count = count($words);
         for($i = 0; $i < $count; $i++) {
             if ($searchType == 'AND') {
-                $qb->andWhere('a.title LIKE :word' . $i);
                 $qb->andWhere('a.contents LIKE :word' . $i);
             } else {
-                $qb->orWhere('a.title LIKE :word'. $i);
                 $qb->orWhere('a.contents LIKE :word' . $i);
             }
             $qb->setParameter('word'. $i, '%' . $words[$i] . '%');

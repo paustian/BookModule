@@ -66,6 +66,7 @@ class SearchHelper implements SearchableInterface
      */
     public function getResults(array $words, $searchType = 'AND', $modVars = null)
     {
+        $returnArray = [];
         //return an empty array if you don't have permission to view at least some book module contents
         if (!$this->permissionApi->hasPermission('Book::',"::", ACCESS_OVERVIEW)){
             return [];
@@ -80,7 +81,7 @@ class SearchHelper implements SearchableInterface
                 $result = new SearchResultEntity();
                 $result->setTitle($article->getTitle())
                     ->setModule('PaustianBookModule')
-                    ->setText($this->shorten_text($article->getContents()))
+                    ->setText($this->shorten_text($article->getContents(), $words))
                     ->setSesid($sessionID)
                     ->setUrl($url);
                 $returnArray[] = $result;
@@ -99,13 +100,23 @@ class SearchHelper implements SearchableInterface
      * I think the search display stuff should be doing this
      * but it is not
      */
-    private function shorten_text($text) {
+    private function shorten_text($text, $words) {
 // Change to the number of characters you want to display
         $chars = 500;
-        $text = $text . " ";
-        $text = substr($text, 0, $chars);
-        $text = substr($text, 0, strrpos($text, ' '));
-        $text = $text . "...";
+        $startPos = 0;
+        $text = strip_tags($text);
+        //Find the start position of the first match
+        foreach($words as $search_string) {
+            if (preg_match("|$search_string|", $text, $matches, PREG_OFFSET_CAPTURE) === 1) {
+                $startPos = $matches[0][1];
+                if ($startPos > 100) {
+                    $startPos = $startPos - 100;
+                }
+            }
+        }
+
+        $text = substr($text, $startPos, $chars);
+        $text .=  "...";
 
         return $text;
     }

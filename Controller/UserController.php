@@ -222,8 +222,7 @@ class UserController extends AbstractController {
         $where['paramval'] =$inTerm;
 
         $item = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->getGloss('', null, $where);
-
-        if ($item === false) {
+        if (count($item) == 0) {
             //This did not work, try searching for match instead
             //->where('a.title LIKE :title')
             //   ->setParameter('title', '%'.$data['search'].'%')
@@ -236,7 +235,7 @@ class UserController extends AbstractController {
         //just return. This is not an error, we just won't replace it
         //$matches[0] contains the found string, so we just return the found
         //string.
-        if ($item === false) {
+        if (count($item) == 0) {
             return $matches[0];
         }
         $definition = $item[0]['definition'];
