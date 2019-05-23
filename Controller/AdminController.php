@@ -167,15 +167,19 @@ class AdminController extends AbstractController {
             $em = $this->getDoctrine()->getManager();
             $bid = $request->get('book');
             $chapter->setBid($bid);
+            $route = 'paustianbookmodule_admin_editchapter';
+            $flashText = $this->__('Chapter ' . $chapter->getName() . ' Saved');
             if ($doMerge) {
+                $route = 'paustianbookmodule_admin_modifychapter';
+                $flashText = $this->__('Chapter ' . $chapter->getName() . ' Updated');
                 $em->merge($chapter);
             } else {
                 $em->persist($chapter);
             }
             $em->flush();
 
-            $this->addFlash('status', 'Chapter Saved');
-            return $this->redirect($this->generateUrl('paustianbookmodule_admin_editchapter'));
+            $this->addFlash('status', $flashText);
+            return $this->redirect($this->generateUrl($route));
         }
 
         return $this->render('PaustianBookModule:Admin:book_admin_editchapter.html.twig', array(
@@ -215,8 +219,12 @@ class AdminController extends AbstractController {
             //upon creation, articles are not attached to books
             //you attach them later in a drag and drop interface
             $em = $this->getDoctrine()->getManager();
+            $route = 'paustianbookmodule_admin_editarticle';
+            $flashText = $this->__('Article ' . $article->getTitle() .  ' Saved');
             if ($doMerge) {
                 $em->merge($article);
+                $route = 'paustianbookmodule_admin_modifyarticle';
+                $flashText = $this->__('Article ' . $article->getTitle() .  ' Updated');
             } else {
                 //This is a new article so Book and Chapter not set.
                 $article->setBid(0);
@@ -224,9 +232,8 @@ class AdminController extends AbstractController {
                 $em->persist($article);
             }
             $em->flush();
-
-            $this->addFlash('status', 'Article Saved');
-            return $this->redirect($this->generateUrl('paustianbookmodule_admin_editarticle'));
+            $this->addFlash('status', $flashText);
+            return $this->redirect($this->generateUrl($route));
         }
 
         return $this->render('PaustianBookModule:Admin:book_admin_editarticle.html.twig', [
@@ -265,16 +272,18 @@ class AdminController extends AbstractController {
             $em = $this->getDoctrine()->getManager();
             $bid = $request->get('book');
             $figure->setBid($bid);
-
+            $route ='paustianbookmodule_admin_editfigure';
+            $flashText = $this->__('Figure Saved');
             if ($doMerge) {
+                $route = 'paustianbookmodule_admin_modifyfigure';
+                $flashText = $this->__('Figure Updated');
                 $em->merge($figure);
             } else {
                 $em->persist($figure);
             }
             $em->flush();
-
-            $this->addFlash('status', 'Figure Saved');
-            return $this->redirect($this->generateUrl('paustianbookmodule_admin_editfigure'));
+            $this->addFlash('status', $flashText);
+            return $this->redirect($this->generateUrl($route));
         }
 
         return $this->render('PaustianBookModule:Admin:book_admin_editfigure.html.twig', [
@@ -305,16 +314,19 @@ class AdminController extends AbstractController {
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-
+            $route = 'paustianbookmodule_admin_editglossary';
+            $flashText = $this->__('Glossary Term ' . $gloss->getTerm() . ' Saved');
             if ($doMerge) {
+                $route = 'paustianbookmodule_admin_modifyglossary';
+                $flashText = $this->__('Glossary Term ' . $gloss->getTerm() . ' Updated');
                 $em->merge($gloss);
             } else {
                 $em->persist($gloss);
             }
             $em->flush();
 
-            $this->addFlash('status', 'Glossary Item Saved');
-            return $this->redirect($this->generateUrl('paustianbookmodule_admin_editglossary'));
+            $this->addFlash('status', $flashText);
+            return $this->redirect($this->generateUrl($route));
         }
 
         return $this->render('PaustianBookModule:Admin:book_admin_editglossary.html.twig', [
