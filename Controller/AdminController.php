@@ -1020,9 +1020,45 @@ class AdminController extends AbstractController {
             } else {
                 $this->addFlash('error', $this->__("Your search string was invliad"));
             }
-            //if we did a preview or there was an error in the serach tring, then just fall through and show it.
+            //if we did a preview or there was an error in the serach string, then just fall through and show it.
         }
 
         return $this->render('PaustianBookModule:Admin:book_admin_searchreplace.html.twig', ['form' => $form->createView(), 'preview' => $previewText, 'chapter' => $chapter]);
     }
+
+    /**
+     * @Route("addglossarytoarticle/{article}")
+     *
+     * Add a glossary link to the first instance of each glossary word in an article
+     *
+     * @param Request $request
+     * @param BookArticlesEntity $article
+     *
+     * @return Response
+     *
+     */
+    public function addglossarytoarticleAction(Request $request, BookArticlesEntity $article = null){
+        if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
+            throw new AccessDeniedException($this->__("You do not have permission to perform a glossary add."));
+        }
+        $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyarticle'));
+        if (null == $article) {
+            return $response;
+        }
+        $content = $article->getContents();
+        //first we need to remove any glossary terms that are already there.
+        $content =  preg_replace('|<a href="glossary">(.*?)</a>|', "$1", $content, 1);
+        $glossRep = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
+        $glossTerms = $glossRep->getGloss("", null, null, 'u.term');
+        foreach($glossTerms as $term){
+            $content = preg_replace('|(' . $term['term'] . ')\b|', '<a class="glossary">$1</a>', $content, 1);
+        }
+        $article->setContents($content);
+        //persist the article
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($article);
+        $em->flush();
+        return $response;
+    }
+
 }

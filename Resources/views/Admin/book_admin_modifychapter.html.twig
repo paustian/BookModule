@@ -7,6 +7,7 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>{{ __('id') }}</th>
                 <th>{{ __('Chapter') }}</th>
                 <th>{{ __('Book') }}</th>
                 <th> {{ __('Actions') }} </th></tr>
@@ -14,6 +15,7 @@
         <tbody>
             {% for item in chapters %}
                 <tr>
+                    <td>{{ item.cid }}</td>
                     <td>{{ item.name }}</td>
                     <td>{{ books[loop.index0] }}</td>
                     <td class="actions">

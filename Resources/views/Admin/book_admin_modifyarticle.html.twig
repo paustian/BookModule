@@ -20,8 +20,9 @@
                             {% for article in chapter.articles %}
                                 <tr>    
                                     <td><a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></td>
-                                    <td><a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" class="fa fa-pencil"></a>
-                                        <a href="{{ path('paustianbookmodule_admin_deletearticle') }}/{{ article.aid }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
+                                    <td><a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" title="{{ __('Edit Article') }}" class="fa fa-pencil"></a>
+                                        <a href="{{ path('paustianbookmodule_admin_addglossarytoarticle') }}/{{ article.aid }}" title="{{ __('Add Glossary Terms to Article') }}" class="fa fa-book"></a>
+                                        <a href="{{ path('paustianbookmodule_admin_deletearticle') }}/{{ article.aid }}" title="{{ __('Delete Article') }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
                                 </tr>
                             {% endfor %}
                     </table>

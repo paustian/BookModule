@@ -38,7 +38,7 @@ class SubscribeBlock extends AbstractBlockHandler {
         $content = "";
         $currentUserApi = $this->get('zikula_users_module.current_user');
         if (!$currentUserApi->isLoggedIn()) {
-            $content = __('You must <a href="register">register</a> before you can purchase any books.');
+            $content = $this->__('You must <a href="register">register</a> before you can purchase any books.');
         } else {
             $uid = $em = $this->get('session')->get('uid');
             $content = $this->renderView('PaustianBookModule:Block:subscribe_block.html.twig', ['uid' => $uid]);
