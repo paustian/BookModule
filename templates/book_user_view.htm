@@ -1,5 +1,0 @@
-{*  book_user_view.htm,v 1.3 2006/01/02 01:51:12 paustian Exp  *}
-<h2>{$book|pnvarcensor}</h2>
-{section name=i loop=$titles}
-<p>{gt text="Chapter"} {$chap_number[i]|pnvarcensor} - <a href="{pnmodurl modname="Book" func="display" chap_id=$ids[i]}">{$titles[i]|pnvarcensor}</a><br/>
-{/section}

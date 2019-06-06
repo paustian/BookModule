@@ -1,0 +1,35 @@
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
+{{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+
+<div class="container-fluid">
+    {{ showflashes() }}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{ __('Link') }}</th>
+                <th>{{ __('Chapter Number') }}</th>
+                <th> {{ __('Article Number') }} </th>
+                <th> {{ __('Valid URL') }} </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in urltable %}
+                <tr>
+                    <td>{{ item.url }}</td>
+                    <td>{{ item.chap_no }}</td>
+                    <td>{{ item.article_no }}</td>
+                    <td>{{ item.valid }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>    
+</div>
+<script>
+    (function ($) {
+        $(document).toolTip();
+    })(jQuery);
+</script>
+{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
+

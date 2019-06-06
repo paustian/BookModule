@@ -1,0 +1,3 @@
+bookmodule:
+    resource: "@PaustianBookModule/Controller"
+    type:     annotation

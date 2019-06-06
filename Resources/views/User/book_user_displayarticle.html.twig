@@ -1,0 +1,58 @@
+{{ pageSetVar('title', article.title) }}
+{{ pageAddAsset('javascript', zasset('@PaustianBookModule:js/book.js')) }}
+<p> {{ showflashes() }} </p>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h2>{{ chnumber }}-{{ article.number }} {{ article.title|raw }}</h2>
+        <ul class="list-inline panel-actions">
+            <li><a href="#" id="panel-fullscreen" role="button" title="Toggle fullscreen"><i class="fa fa-expand"></i></a></li>
+        </ul>
+    </div>
+    <div class="panel-body">
+        {% if article.counter==1 %}
+            <p>( {{ article.counter }} Read)</p>
+            {else}
+            <p>( {{ article.counter }} Reads)</p>
+        {% endif %}
+
+        {% if show_internals %}
+            <a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" class="fa fa-pencil">{{ __('Edit Article') }}</a>
+            <p>{{ __('Article id:') }} {{ article.aid }}</p>
+            <p>{{ __('Chapter id:') }}{{ article.cid }}</p>
+            <p>{{ __('Book id:') }}{{ article.bid }}</p>
+        {% endif %}
+        <p> <a href="{{ path('paustianbookmodule_user_toc', {bid:article.bid}) }}" title="{{ __('Table of Contents') }}" class="fa fa-book"></a>|
+            <a href="{{ path('paustianbookmodule_user_displaychapter', {cid:article.cid}) }}" title="{{ __('Chapter Article List') }}" class="fa fa-bookmark"></a>|
+            <a href="{{ path('paustianbookmodule_user_displayarticle', {theme:'Printer', aid:article.aid}) }}" title="{{ __('Printable Version') }}" class="fa fa-print"></a>|
+            <a href="{{ path('paustianbookmodule_user_displayarticlesinchapter', {theme:'Printer', cid:article.cid}) }}" title="{{ __('Printable Chapter') }}" class="fa fa-bookmark-o"></a>
+        </p>
+        {% if article.prev !=0 %}
+            <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.prev }}" title="{{ __('Previous Article') }}" class="fa fa-arrow-left"></a>
+        {% endif %}
+        {% if article.next != 0 and article.prev != 0 %}
+            |
+        {% endif %}
+        {% if article.next != 0 %}
+            <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.next }}" title="{{ __('Next Article') }}" class="fa fa-arrow-right"></a>
+        {% endif %}
+        <br />
+        {{ content|raw }}
+        <p>
+            {% if article.prev !=0 %}
+                <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.prev }}" title="{{ __('Previous Article') }}" class="fa fa-arrow-left"></a>
+            {% endif %}
+            {% if article.next != 0 and article.prev != 0 %}
+                |
+            {% endif %}
+            {% if article.next != 0 %}
+                <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.next }}" title="{{ __('Next Article') }}" class="fa fa-arrow-right"></a>
+            {% endif %}
+        </p>
+        <p> <a href="{{ path('paustianbookmodule_user_toc') }}" title="{{ __('Table of Contents') }}" class="fa fa-book"></a>|
+            <a href="{{ path('paustianbookmodule_user_displaychapter') }}/{{ article.cid }}" title="{{ __('Chapter Article List') }}" class="fa fa-bookmark"></a>|
+            <a href="{{ path('paustianbookmodule_user_displayarticle', {theme:'printer'}) }}/{{ article.aid }}" title="{{ __('Printable Version') }}" class="fa fa-print"></a>|
+            <a href="{{ path('paustianbookmodule_user_displayarticlesinchapter', {theme:'printer', cid:article.cid}) }}" title="{{ __('Printable Chapter') }}" class="fa fa-bookmark-o"></a>
+        </p>
+        {{ notifyDisplayHooks(constant('Paustian\\BookModule\\HookSubscriber\\ArticleUiHookSubscriber::ARTICLE_DISPLAY'), article.aid|default(null), return_url) }}
+    </div>
+</div>

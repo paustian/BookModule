@@ -1,0 +1,79 @@
+{{ pageSetVar('title', 'Arrange Articles') }}
+{{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }}
+<div class="container-fluid">
+    <h3>
+        <span class="fa fa-book"></span>
+        {{ __('Arrange Articles') }}
+    </h3>
+    <p>{{ __("Arrange the articles by dragging and dropping them into the chapter boxes") }}</p>
+    <form action="{{ path('paustianbookmodule_admin_savearrangement') }}" method="post"
+          enctype="application/x-www-form-urlencoded">
+
+        <input id='chatperids' name="chapterids" value="{{ chapterids }}" type="hidden"/>
+        {% for book in books %}
+            <div class="row">
+                <fieldset>
+                    <h3 class="legend">{{ __('Book:') }} {{ book.name }}</h3>
+                    {% for chapter in book.chapters %}
+                        {% if chapter.number == -1 %}
+                            <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
+                            <ul id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
+                                {% for article in chapter.articles %}
+                                    <li id="art_{{ article.aid }}"
+                                        class="ui-state-default sortable">{{ article.title }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <h5>{{ __('Chapter') }} {{ chapter.number }} - {{ chapter.name }}</h5>
+                            <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
+                            <ul id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
+                                {% for article in chapter.articles %}
+                                    <li id="art_{{ article.aid }}"
+                                        class="ui-state-default sortable">{{ article.title }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endfor %}
+                </fieldset>
+            </div>
+        {% endfor %}
+        {# I had a LONG struggle with this until I realized you have to have an underscore in your recognized items. I was doing item33 instead of
+        item_33. If I had remembered the docs, I would have figured this out much sooner #}
+        <div class="form-group">
+            <div class="col-lg-offset-3 col-lg-9">
+                <button class="btn btn-success" type="submit" name="create" value="create">
+                    {{ __('Save Order') }}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    function arrangeCode() {
+        {% for booka in books %}
+        {% for chaptera in booka.chapters %}
+        jQuery("#sortable{{ chaptera.cid }}").sortable({
+            update: function (event, ui) {
+                var Order = jQuery(this).sortable('serialize');
+
+                jQuery('#order_{{ chaptera.cid }}').val(Order);
+            }
+        });
+        jQuery("#sortable{{ chaptera.cid }}").sortable({
+            connectWith: ".connectedSortable"
+        }).disableSelection();
+        {% endfor %}
+        {% endfor %}
+    };
+
+    document.onreadystatechange = function () {
+        if (document.readyState === 'complete') {
+            arrangeCode();
+        }
+    };
+</script>
+{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}

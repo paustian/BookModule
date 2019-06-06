@@ -1,0 +1,7 @@
+services:
+  paustian_book_module.hook_subscriber.ui_hooks_subscriber:
+      class: Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber
+      arguments:
+        - "@translator.default"
+      tags:
+          - { name: zikula.hook_subscriber, areaName: "subscriber.book.ui_hooks.article" }

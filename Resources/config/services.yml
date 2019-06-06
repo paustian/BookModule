@@ -1,0 +1,66 @@
+services:
+  paustian_book_module.container.link_container:
+    class: Paustian\BookModule\Container\LinkContainer
+    arguments:
+      - "@translator.default"
+      - "@router"
+      - "@zikula_permissions_module.api.permission"
+    tags:
+      - { name: zikula.link_container }
+
+  paustian_book_module.form.article_type:
+    class: Paustian\BookModule\Form\Article
+    arguments:
+      - "@translator.default"
+      - "@zikula_settings_module.locale_api"
+    tags:
+      - { name: form.type }
+
+  paustian_book_module.form.chapter_type:
+    class: Paustian\BookModule\Form\Chapter
+    arguments:
+      - "@translator.default"
+    tags:
+      - { name: form.type }
+
+  paustian_book_module.form.book_type:
+     class: Paustian\BookModule\Form\Book
+     arguments:
+       - "@translator.default"
+     tags:
+      - { name: form.type }
+
+  paustian_book_module.form.searchreplace_type:
+    class: Paustian\BookModule\Form\SearchReplace
+    arguments:
+      - "@translator.default"
+    tags:
+      - { name: form.type }
+
+  paustian_book_module.form.importchapter_type:
+    class: Paustian\BookModule\Form\ImportChapter
+    arguments:
+      - "@translator.default"
+    tags:
+      - { name: form.type }
+
+  paustian_book_module.form.figure_type:
+      class: Paustian\BookModule\Form\Figure
+      arguments:
+        - "@translator.default"
+      tags:
+        - { name: form.type }
+
+  paustian_book_module.form.glossary_type:
+    class: Paustian\BookModule\Form\Glossary
+    arguments:
+        - "@translator.default"
+    tags:
+        - { name: form.type }
+
+  paustian_book_module.form.importgloss_type:
+      class: Paustian\BookModule\Form\ImportGloss
+      arguments:
+          - "@translator.default"
+      tags:
+          - { name: form.type }

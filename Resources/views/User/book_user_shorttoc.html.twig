@@ -1,0 +1,88 @@
+{{ pageSetVar('title', 'The book') }}
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
+{% if loggedIn %}
+    <button id="opener">{{ __("Open Book Tools") }}</button>
+    <div id="dialog" title="Book Tools"> 
+        <form class="form" name="highlight" action="{{ path('paustianbookmodule_user_dohighlight' }}" method="post" enctype="application/x-www-form-urlencoded">
+            <input type="button" value="{{ __("Toggle Highlight") }}" name="highlight" onmousedown="document.highlight.text.value = getSelectionHtml();
+                    document.highlight.submit()" title="Select the text you want to highlight.">
+            <input type='hidden' name="aid" value="{{ aid }}">
+        </form>
+        <form class="form" name="collect_highlights" action="{{ path('paustianbookmodule_user_collecthighlights' }}" method="post" enctype="application/x-www-form-urlencoded">
+            <table>
+                <tr style="text-align:center">
+                    <td><input type="button" value="{{__("Collect Highlights")}}" name="collect_highlights" onmousedown="document.collect_highlights.submit()"
+                               title="Choose the chapters in the list box on the right then click this button. All the highlights that you have made for the choosen chapter(s) will be displayed."></td>
+                    <td>
+                        <select name="cids[]" size="5" multiple>
+                            {% for chapter in chapters %}
+                                <option label="Chapter {{ chapter.number }}" value="{{ chapter.number}}">Chapter {{ chapter.number }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                <tr></tr>
+            </table>
+        </form>
+        <form class="form" name="dodef" action="{{ path('paustianbookmodule_user_dodef') }}" method="post" enctype="application/x-www-form-urlencoded">
+            <input type="button" value="{{ __("Create Definition") }}" onmousedown="document.dodef.text.value = getSelectionHtml();
+                    document.dodef.submit()"
+                   title="{{ __('Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you.') }}">
+        </form>
+        <hr />
+    {% endif %}
+    <h4>{{ __("Table of Contents") }}</h4>  
+
+    <select id="quick_link" onChange="location.href = document.jump.quick_link.options[document.jump.quick_link.selectedIndex].value;">
+        <option selected="selected">
+            {{ __('Select a Chapter...') }}
+        </option>
+        <option>
+            ---------
+        </option>
+        {% for item in chapters %}
+            <option value="{{ baseuri }}/{{ path('paustianbookmodule_user_displayarticlesinchapter') }}/{{ chapter.cid }}">{{ chapter.number }} - {{ chapter.name }}</option>
+        {% endfor %} 
+    </select>
+</div>
+<script type="text/javascript">
+    function displayTable() {
+        jQuery("#dialog").dialog({
+            position: ["right", "bottom"],
+            autoOpen: true,
+            resizeable: false,
+            show: {
+                effect: "blind",
+                duration: 500
+            },
+            hide: {
+                effect: "blind",
+                duration: 500
+            }
+        });
+        jQuery("#opener").click(function () {
+            jQuery("#dialog").dialog("open");
+        });
+        var lockright = function () {
+            jQuery("#dialog").dialog('option', 'position', ['right', 'bottom']);
+        };
+        jQuery(window).scroll(lockright);
+        jQuery(window).resize(lockright);
+
+        jQuery(function () {
+            // bind change event to select
+            jQuery('#quick_link').on('change', function () {
+                var url = jQuery(this).val(); // get selected value
+                if (url) { // require a URL
+                    window.location = url; // redirect
+                }
+                return false;
+            });
+        });
+    };
+    document.onreadystatechange = function () {
+        if (document.readyState === 'complete') {
+            displayTable();
+        }
+    };
+</script>

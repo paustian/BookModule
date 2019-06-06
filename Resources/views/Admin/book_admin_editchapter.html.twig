@@ -1,0 +1,39 @@
+{% form_theme form 'ZikulaFormExtensionBundle:Form:bootstrap_3_zikula_admin_layout.html.twig' %}
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+<div class="container-fluid">
+    <div class="row">
+        <h3>
+            <span class="fa fa-edit"></span>
+            {{ __("Edit a Chapter") }}
+        </h3>
+        <p>{{ __("Give the Chapter a name") }}</p>
+        {{ showflashes() }}
+        {{ form_start(form) }}
+        {{ form_errors(form) }}
+        <fieldset>
+            <legend>{{ __('Chapter Name') }}</legend>
+            {{ form_row(form.name) }}
+            {{ form_row(form.number) }}
+            <div class="form-group"><label class="col-lg-3 control-label required" >Book</label>
+            <div class="col-lg-9">
+            <select name="book">
+                {% for item in books %}
+                    {% if chapter.bid == item.bid %}
+                        <option value="{{ item.bid }}" selected>{{ item.name }}</option>
+                    {% else %}
+                        <option value="{{ item.bid }}">{{ item.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            </div>
+        </fieldset>
+        <div class="form-group">
+            <div class="col-lg-offset-3 col-lg-9">
+                {{ form_widget(form.add, {'attr': {'class': 'btn btn-danger'}}) }}
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
