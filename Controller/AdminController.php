@@ -1047,17 +1047,20 @@ class AdminController extends AbstractController {
         }
         $content = $article->getContents();
         //first we need to remove any glossary terms that are already there.
-        $content =  preg_replace('|<a href="glossary">(.*?)</a>|', "$1", $content, 1);
+        $content =  preg_replace("/<a class=\"glossary\">(.*?)<\/a>/", "$1", $content);
         $glossRep = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
         $glossTerms = $glossRep->getGloss("", null, null, 'u.term');
+        $totalCount = 0;
         foreach($glossTerms as $term){
-            $content = preg_replace('|(' . $term['term'] . ')\b|', '<a class="glossary">$1</a>', $content, 1);
+            $content = preg_replace("|\b(" . $term['term'] . ")\b|", "<a class=\"glossary\">$1</a>", $content, 1, $count);
+            $totalCount += $count;
         }
         $article->setContents($content);
         //persist the article
         $em = $this->getDoctrine()->getManager();
         $em->persist($article);
         $em->flush();
+        $this->addFlash('status', $this->__("$totalCount glossary terms were added."));
         return $response;
     }
 
