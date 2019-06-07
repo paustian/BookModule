@@ -141,7 +141,7 @@ class UserController extends AbstractController {
         $cid = $article->getCid();
         $aid = $article->getAid();
         if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::$cid", ACCESS_READ)) {
-            throw new AccessDeniedException(__('You do not have pemission for this chapter.'));
+            throw new AccessDeniedException($this->__('You do not have pemission for this chapter.'));
         }
         $doc = $this->getDoctrine();
         $chapter = $doc->getRepository('PaustianBookModule:BookChaptersEntity')->find($cid);
@@ -314,7 +314,7 @@ class UserController extends AbstractController {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
         if (!$this->hasPermission($this->name . '::', $figure->getBid() . "::", ACCESS_OVERVIEW)) {
-            throw new AccessDeniedException(__('You do not have pemission to access any figures.'));
+            throw new AccessDeniedException($this->__('You do not have pemission to access any figures.'));
         }
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $figureText = $repo->_renderFigure($figure, 450, 360, true, $this);
@@ -330,7 +330,7 @@ class UserController extends AbstractController {
     public function displayglossaryAction(Request $request) {
 //you must have permission to read some book.
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
-            throw new AccessDeniedException(__('You do not have pemission to access any glossry items.'));
+            throw new AccessDeniedException($this->__('You do not have pemission to access any glossry items.'));
         }
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
@@ -358,7 +358,7 @@ class UserController extends AbstractController {
             $bid = $book->getBid();
         }
         if (!$this->hasPermission($this->name . '::', "$bid::", ACCESS_READ)) {
-            throw new AccessDeniedException(__('You do not have pemission to access this book.'));
+            throw new AccessDeniedException($this->__('You do not have pemission to access this book.'));
         }
 
 
@@ -429,7 +429,7 @@ class UserController extends AbstractController {
         $bid = $chapter->getBid();
         //grab the chapter data
         if (!$this->hasPermission($this->name . '::Chapter', "$bid::$cid", ACCESS_READ)) {
-            throw new AccessDeniedException(__('You do not have pemission to access the contents of this chapter.'));
+            throw new AccessDeniedException($this->__('You do not have pemission to access the contents of this chapter.'));
             ;
         }
         $artRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
