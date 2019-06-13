@@ -260,14 +260,18 @@ class BookArticlesRepository extends EntityRepository
         $alt_link = preg_replace("|<.*?>|", "", $title);
         $ret_link = "nothing";
 
-        if (strstr($link, ".html")) {
-            $file_link = fopen($link, "r");
-            $ret_link = fread($file_link, filesize($link));
-            fclose($file_link);
-        } else
-            if ((strstr($link, ".gif")) || (strstr($link, ".jpg")) || (strstr($link, ".png"))) {
-                //This was added to prevent failures on file missing. For some reason getimagesize sometimes throws
-                //an error, even though the path to the file is correct
+        $pInfo = pathinfo($link);
+        $extension = $pInfo['extension'];
+
+        switch ($extension) {
+            case "html":
+                $file_link = fopen($link, "r");
+                $ret_link = fread($file_link, filesize($link));
+                fclose($file_link);
+                break;
+            case "gif":
+            case "jpg":
+            case "png":
                 $docRoot = $_SERVER['DOCUMENT_ROOT'];
                 $test_link = $docRoot . $link;
                 if (file_exists($test_link)) {
@@ -291,28 +295,36 @@ class BookArticlesRepository extends EntityRepository
                     $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink2.html.twig', ['link' => $link,
                         'alt_link' => $alt_link])->getContent();
                 }
-            } else
-                if (strstr($link, ".mov")) {
-                    if (($width == 0) || ($height == 0)) {
-                        $width = 320;
-                        $height = 336;
-                    }
-                    $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink3.html.twig', ['link' => $link,
-                        'width' => $width,
-                        'height' => $height])->getContent();
-                } else
-                    if (strstr($link, ".swf")) {
-                        if (($width == 0) || ($height == 0)) {
-                            $image_data = getimagesize($link);
-                            $width = $image_data[0];
-                            $height = $image_data[1];
-                        }
-                        $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink4.html.twig', ['link' => $link,
-                            'width' => $width,
-                            'height' => $height])->getContent();
-                    } else {
-                        $ret_link = $link;
-                    }
+                break;
+            case "mov":
+                if (($width == 0) || ($height == 0)) {
+                    $width = 320;
+                    $height = 336;
+                }
+                $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink3.html.twig', ['link' => $link,
+                    'width' => $width,
+                    'height' => $height])->getContent();
+                break;
+            case "swf":
+                if (($width == 0) || ($height == 0)) {
+                    $image_data = getimagesize($link);
+                    $width = $image_data[0];
+                    $height = $image_data[1];
+                }
+                $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink4.html.twig', ['link' => $link,
+                    'width' => $width,
+                    'height' => $height])->getContent();
+                break;
+            case "canvas":
+                $jLink = $pInfo['dirname'] . "/" . $pInfo['filename'] . ".js";
+                $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink5.html.twig', ['link' => $link,
+                    'width' => $width,
+                    'height' => $height,
+                    'jlink' => $jLink])->getContent();
+                break;
+            default:
+                $ret_link = $link;
+        }
         return $ret_link;
     }
 
