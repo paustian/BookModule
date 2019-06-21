@@ -8,7 +8,7 @@ of canvas. (The file name in the directlry would be js and these would be in the
 genereated files. It may be somewhere else for things you create. You have to change all these paths
 #}
 {{ pageAddAsset('javascript', "https://code.createjs.com/createjs-2015.11.26.min.js", -100) }}
-{{ pageAddAsset('javascript', jlink, 1000) }}
+{{ pageAddAsset('javascript', jlink, weight) }}
 <div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:{{ width }}px; height:{{ height }}px">
     <canvas id="{{ movName }}" width="{{ width }}" height=" {{ height }}" style="position: static; display: block; background-color:rgba(255, 255, 255, 1.00);">
     </canvas>
@@ -16,5 +16,9 @@ genereated files. It may be somewhere else for things you create. You have to ch
     </div>
 </div>
 <script>
-    document.getElementById("home").onload = function() {init()};
+    document.addEventListener('readystatechange', (event) => {
+        if(document.readyState === 'complete'){
+            init{{ movName }}();
+        }
+    });
 </script>

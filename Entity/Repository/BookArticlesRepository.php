@@ -195,6 +195,7 @@ class BookArticlesRepository extends EntityRepository
         $chap_number = $matches[2];
         $fig_number = $matches[3];
         $movName = "canvas";
+        $weight = 1000;
         $width = 0;
         $height = 0;
         //grab the width and height if present. The synthax to use here is
@@ -205,15 +206,21 @@ class BookArticlesRepository extends EntityRepository
         switch ($countPieces){
             case 2:
                 $width = $pieces[1];
-            break;
+                break;
             case 3:
                 $width = $pieces[1];
                 $height = $pieces[2];
-            break;
+                break;
             case 4:
                 $width = $pieces[1];
                 $height = $pieces[2];
                 $movName = $pieces[3];
+                break;
+            case 5:
+                $width = $pieces[1];
+                $height = $pieces[2];
+                $movName = $pieces[3];
+                $weight = $pieces[4];
                 break;
             default:
                 break;
@@ -224,21 +231,21 @@ class BookArticlesRepository extends EntityRepository
         $figure = $repo->findFigure($fig_number, $chap_number, $book_number);
 
         if ($figure != null) {
-            $figureText = $this->_renderFigure($figure, $width, $height, false, $movName);
+            $figureText = $this->_renderFigure($figure, $width, $height, false, $movName, null, $weight);
         } else {
             $figureText = "";
         }
         return $figureText;
     }
 
-    public function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false, $movName = 'canvas', $contr = null)
+    public function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false, $movName = 'canvas', $contr = null, $weight=1000)
     {
         if ($contr != null) {
             $this->controller = $contr;
         }
 //check to see if we have permission to use the figure
         if ($figure->getPerm() != 0) {
-            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone, $movName);
+            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone, $movName, $weight);
         } else {
             $visible_link = __("This figure cannot be displayed because permission has not been granted yet.");
         }
@@ -272,7 +279,8 @@ class BookArticlesRepository extends EntityRepository
                                 $loop = "false",
                                 $autoplay = "true",
                                 $stand_alone = false,
-                                $movName = 'canvas')
+                                $movName = 'canvas',
+                                $weight = 1000)
     {
         //if it is a image link, then set it up, else trust that the user
         //has set it up with the right tags.
@@ -339,7 +347,8 @@ class BookArticlesRepository extends EntityRepository
                     'width' => $width,
                     'height' => $height,
                     'jlink' => $jLink,
-                    'movName' => $movName])->getContent();
+                    'movName' => $movName,
+                    'weight' => $weight])->getContent();
                 break;
             default:
                 $ret_link = $link;
