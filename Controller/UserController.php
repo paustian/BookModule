@@ -317,7 +317,7 @@ class UserController extends AbstractController {
             throw new AccessDeniedException($this->__('You do not have pemission to access any figures.'));
         }
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
-        $figureText = $repo->_renderFigure($figure, 450, 360, true, $this);
+        $figureText = $repo->_renderFigure($figure, 450, 360, true, "", $this);
         return new Response($figureText);
     }
 

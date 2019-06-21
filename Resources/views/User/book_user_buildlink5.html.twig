@@ -1,15 +1,16 @@
 {# I think all I need to do now is rename the linke to a canvas link (or maybe JS.
 Here are the steps
-Take the completed canvas link that Animate gives you. Take the script code out of the html file and put it at the top of the other js file
-rename that file to whatever you want.
-When you create the figure, make the end extension canvas (I am thinking canvas  just to make it clear what you need to do)
-So it would be the path to the js file, but with an extension of canvas. (The file name in the directlry would be js and these would be in the imaages)
-Any assests that the file needed would have to have their paths changed. This is in the lib.properties manifest. You have to change all these paths
-I may have a problem if I have more than one animation loaded per page. I may have to add the javascript code here in another way #}
+1. Take the completed canvas link that Animate gives you. Take the script code out of the html file and put it at the top of the other js file
+2. Rename that file to whatever you want and end with the extension .canvas. So it would be the path to the js file, but with an extension
+of canvas. (The file name in the directlry would be js and these would be in the imaages)
+3. When you create the figure, make name some name that matches what the js file retrieves. {Figure 6-3-15,height,width,name}
+4. Any assests that the file needed would have to have their paths changed. This is in the lib.properties manifest for Adobe Animate
+genereated files. It may be somewhere else for things you create. You have to change all these paths
+#}
 {{ pageAddAsset('javascript', "https://code.createjs.com/createjs-2015.11.26.min.js", -100) }}
 {{ pageAddAsset('javascript', jlink, 1000) }}
 <div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:{{ width }}px; height:{{ height }}px">
-    <canvas id="canvas" width="{{ width }}" height=" {{ height }}" style="position: static; display: block; background-color:rgba(255, 255, 255, 1.00);">
+    <canvas id="{{ movName }}" width="{{ width }}" height=" {{ height }}" style="position: static; display: block; background-color:rgba(255, 255, 255, 1.00);">
     </canvas>
     <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:{{ width }}px; height:{{ height }}px; position: static; left: 0px; top: 0px; display: block;">
     </div>

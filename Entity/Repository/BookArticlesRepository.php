@@ -157,10 +157,10 @@ class BookArticlesRepository extends EntityRepository
         $this->controller = $contr;
         //substitute all the figures
         //this is a legacy pattern
-        $pattern = "|<!--\(Figure ([0-9]{1,2})-([0-9]{1,3})-([0-9]{1,3})\)-->|";
+        $pattern = "|<!--\(Figure ([0-9]{1,2})-([0-9]{1,3})-([0-9]{1,3})(.*)\)-->|";
         $ioText = preg_replace_callback($pattern, array(&$this, "_inlinefigures"), $ioText);
 
-        $pattern = "|{Figure ([0-9]{1,2})-([0-9]{1,3})-([0-9]{1,3}).*}|";
+        $pattern = "|{Figure ([0-9]{1,2})-([0-9]{1,3})-([0-9]{1,3})(.*)}|";
         $ioText = preg_replace_callback($pattern, array(&$this, "_inlinefigures"), $ioText);
         return $ioText;
     }
@@ -194,40 +194,51 @@ class BookArticlesRepository extends EntityRepository
         $book_number = $matches[1];
         $chap_number = $matches[2];
         $fig_number = $matches[3];
+        $movName = "canvas";
+        $width = 0;
+        $height = 0;
+        //grab the width and height if present. The synthax to use here is
+        //4-26-1,640,480,movie the second number is the width, the third is the height,
+        //the fourth is the name of any html5 canvas.
+        $pieces = explode(',', rtrim($matches[4], "}"));
+        $countPieces = count($pieces);
+        switch ($countPieces){
+            case 2:
+                $width = $pieces[1];
+            break;
+            case 3:
+                $width = $pieces[1];
+                $height = $pieces[2];
+            break;
+            case 4:
+                $width = $pieces[1];
+                $height = $pieces[2];
+                $movName = $pieces[3];
+                break;
+            default:
+                break;
+        }
 
-        //grab the width and heigh if present. The synthax to use here is
-        //4-26-1,640,480 the second number is the width, the third is the height
-        $pieces = explode(',', rtrim($matches[0], "}"));
-        if (count($pieces) > 1) {
-            $width = $pieces[1];
-            $height = $pieces[2];
-        }
-        if (!isset($width)) {
-            $width = 0;
-        }
-        if (!isset($height)) {
-            $height = 0;
-        }
 
         $repo = $this->_em->getRepository('PaustianBookModule:BookFiguresEntity');
         $figure = $repo->findFigure($fig_number, $chap_number, $book_number);
 
         if ($figure != null) {
-            $figureText = $this->_renderFigure($figure, $width, $height, false);
+            $figureText = $this->_renderFigure($figure, $width, $height, false, $movName);
         } else {
             $figureText = "";
         }
         return $figureText;
     }
 
-    public function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false, $contr = null)
+    public function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false, $movName = 'canvas', $contr = null)
     {
         if ($contr != null) {
             $this->controller = $contr;
         }
 //check to see if we have permission to use the figure
         if ($figure->getPerm() != 0) {
-            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone);
+            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone, $movName);
         } else {
             $visible_link = __("This figure cannot be displayed because permission has not been granted yet.");
         }
@@ -253,13 +264,20 @@ class BookArticlesRepository extends EntityRepository
      * @param bool $stand_alone
      * @return bool|string
      */
-    private function _buildlink($link, $title = "", $width = 0, $height = 0, $controller = "true", $loop = "false", $autoplay = "true", $stand_alone = false)
+    private function _buildlink($link,
+                                $title = "",
+                                $width = 0,
+                                $height = 0,
+                                $controller,
+                                $loop = "false",
+                                $autoplay = "true",
+                                $stand_alone = false,
+                                $movName = 'canvas')
     {
         //if it is a image link, then set it up, else trust that the user
         //has set it up with the right tags.
         $alt_link = preg_replace("|<.*?>|", "", $title);
         $ret_link = "nothing";
-
         $pInfo = pathinfo($link);
         $extension = $pInfo['extension'];
 
@@ -320,7 +338,8 @@ class BookArticlesRepository extends EntityRepository
                 $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink5.html.twig', ['link' => $link,
                     'width' => $width,
                     'height' => $height,
-                    'jlink' => $jLink])->getContent();
+                    'jlink' => $jLink,
+                    'movName' => $movName])->getContent();
                 break;
             default:
                 $ret_link = $link;
