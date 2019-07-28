@@ -1,7 +1,8 @@
 {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
-{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+{{ adminHeader() }}
 <div class="container-fluid">
     {{ showflashes() }}
     <table class="table table-striped">
@@ -36,4 +37,4 @@
         $(document).toolTip();
     })(jQuery);
 </script>
-{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
+{{ adminFooter() }}

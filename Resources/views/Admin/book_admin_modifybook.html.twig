@@ -1,6 +1,6 @@
-{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+{{ pageAddAsset('javascript', asset('jquery-ui/jquery-ui.min.js')) }}
+{{ adminHeader() }}
 <div class="container-fluid">
-    {#{ dump(books) }#}
     {{ showflashes() }}
     <table class="table table-striped">
         <thead>
@@ -21,4 +21,4 @@
         </tbody>
     </table>    
 </div>
-{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
+{{ adminFooter() }}

@@ -1,6 +1,7 @@
 {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
-{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }} 
+{{ adminHeader() }}
 <div class="container-fluid">
     {{ showflashes() }}
     <h3>{{ __('Chose a figure to edit or delete') }}</h3>
@@ -51,4 +52,4 @@
         };
     </script>
 </div>
-{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
+{{ adminFooter() }}

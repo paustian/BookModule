@@ -11,6 +11,7 @@ use Zikula\Core\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotations - do not remove
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
 use Symfony\Component\Routing\RouterInterface;
@@ -30,6 +31,7 @@ use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
 use Zikula\Core\Response\Ajax\ForbiddenResponse;
 use Zikula\Bundle\HookBundle\Hook\ProcessHook;
+use Zikula\ThemeModule\Engine\Annotation\Theme;
 
 
 /**
@@ -41,7 +43,10 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("")
+     * @Theme("admin")
      * @param request - the incoming request.
+     * @Template("PaustianBookModule:Admin:book_admin_menu.html.twig'")
+     * @return Response|array
      * The main entry point
      *
      * @return Response The rendered output consisting mainly of the admin menu
@@ -54,15 +59,16 @@ class AdminController extends AbstractController {
             throw new AccessDeniedException($this->__('You do not have pemission to access the Book admin interface.'));
         }
         // Return a page of menu items.
-        return new Response($this->render('PaustianBookModule:Admin:book_admin_menu.html.twig'));
+        return [];
     }
 
     /**
      *
      * @Route("/edit/{book}")
+     * @Theme("admin")
+     * @Template("PaustianBookModule:Admin:book_admin_editbook.html.twig")
+     * @return Response|array
      * Create a new book. This presents the form for giving a title to the book
-     *
-     * @return Response The rendered output of the modifyconfig template.
      *
      * @throws AccessDeniedException Thrown if the user does not have the appropriate access level for the function.
      */
@@ -97,13 +103,14 @@ class AdminController extends AbstractController {
             return $this->redirect($this->generateUrl('paustianbookmodule_admin_edit'));
         }
 
-        return $this->render('PaustianBookModule:Admin:book_admin_editbook.html.twig', array(
-                    'form' => $form->createView(),
-        ));
+        return[
+            'form' => $form->createView()
+        ];
     }
 
     /**
      * @Route("/delete/{book}")
+     * @Theme("admin")
      * @param Request $request
      * @param BookEntity $book
      */
@@ -133,6 +140,7 @@ class AdminController extends AbstractController {
     /**
      *
      * @Route("/editchapter/{chapter}")
+     * @Theme("admin")
      * @param Request $request
      * @param \Paustian\BookModule\Controller\BookChaptersEntity $chapter
      * @return RedirectRespsonse or Response
@@ -191,7 +199,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/editarticle/{article}")
-     *
+     * @Theme("admin")
      * edit an article.
      * @param Request $request
      * @param \Paustian\BookModule\Controller\BookArticlesEntity $article
@@ -242,7 +250,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/editfigure/{figure}")
-     *
+     * @Theme("admin")
      * @param Request $request
      * @param \Paustian\BookModule\Controller\BookFiguresEntity $figure
      * @return RedirectResponse or Repsonse;
@@ -294,7 +302,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/editglossary/{gloss}")
-     *
+     * @Theme("admin")
      * @param Request $request
      * @param BookGlossEntity $gloss
      * @return type
@@ -335,6 +343,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/modify")
+     * @Theme("admin")
      * @param Request $request
      * @return type
      */
@@ -364,6 +373,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/modifychapter")
+     * @Theme("admin")
      * @param Request $request
      * @return type
      */
@@ -378,6 +388,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/modifyarticle")
+     * @Theme("admin")
      *
      * Create an interface for picking the article you want to edit
      * @param Request $request
@@ -393,6 +404,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/modifyfigure")
+     * @Theme("admin")
      * @param Request $request
      * @return type
      */
@@ -421,6 +433,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/modifyglossary/{letter}", defaults={"letter"="A"})
+     * @Theme("admin")
      * @return type
      */
     public function modifyglossaryAction($letter) {
@@ -488,7 +501,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/export/{chapter}/{inlinefig}")
-     *
+     * @Theme("admin")
      * @param Request $request
      * @param BookChaptersEntity $chapter - the chapter to export
      * @return type
@@ -516,7 +529,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("deletechapter/{chapter}")
-     *
+     * @Theme("admin")
      * @param Request $request
      * @param BookChaptersEntity $chapter
      * @return type
@@ -552,6 +565,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("deletearticle/{article}")
+     * @Theme("admin")
      * @param Request $request
      * @param BookArticlesEntity $article
      * @return RedirectResponse
@@ -582,6 +596,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/deletefigure/{figure}")
+     * @Theme("admin")
      * @param Request $request
      * @param BookFiguresEntity $figure
      * @return RedirectResponse
@@ -605,6 +620,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("deleteglossary/{gloss}")
+     * @Theme("admin")
      * @param Request $request
      * @param BookGlossEntity $gloss
      * @return type
@@ -636,6 +652,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/arrangearticlesAction")
+     * @Theme("admin")
      * @param Request $request
      * @return type
      */
@@ -650,6 +667,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/savearrangement")
+     * @Theme("admin")
      * @param Request $request
      * @return type
      */
@@ -717,7 +735,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/import")
-     *
+     * @Theme("admin")
      * Import a chapter into the textbook. This should take the exported text
      * and reprocess it. One problem I may need to solve is munged text.
      * I will have to do some serious checking for missing params, and if not
@@ -786,7 +804,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/verifyurls/{chapter}")
-     *
+     * @Theme("admin")
      * verifyurls
      *
      * Given a book id or chapter id, work through the articles in the book and find each
@@ -925,7 +943,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/checkstudentdefs")
-     *
+     * @Theme("admin")
      * @param Request $request
      * @return boolean
      * Students can request words to be defined. These will appear as words with empty definitions.
@@ -947,6 +965,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/importglossary")
+     * @Theme("admin")
      * @param Request $request
      * @return type
      */
@@ -983,7 +1002,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("/searchreplace/{chapter}")
-     *
+     * @Theme("admin")
      * Set up for the search replace feature of the module. The function diplsays
      * a form to the user for entrance of a search string, replace string, chooses
      * a chapter, and then whether to search through figures.
@@ -1028,7 +1047,7 @@ class AdminController extends AbstractController {
 
     /**
      * @Route("addglossarytoarticle/{article}")
-     *
+     * @Theme("admin")
      * Add a glossary link to the first instance of each glossary word in an article
      *
      * @param Request $request

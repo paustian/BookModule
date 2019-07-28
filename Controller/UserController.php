@@ -329,7 +329,7 @@ class UserController extends AbstractController {
      */
     public function displayglossaryAction(Request $request) {
 //you must have permission to read some book.
-        if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::', '::', ACCESS_OVERVIEW)) {
             throw new AccessDeniedException($this->__('You do not have pemission to access any glossry items.'));
         }
 

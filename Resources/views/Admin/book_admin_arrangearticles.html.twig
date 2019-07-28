@@ -1,8 +1,8 @@
+
 {{ pageSetVar('title', 'Arrange Articles') }}
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
-{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
-{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }}
+{{ adminHeader() }}
 <div class="container-fluid">
     <h3>
         <span class="fa fa-book"></span>
@@ -76,4 +76,4 @@
         }
     };
 </script>
-{{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}
+{{ adminFooter() }}
