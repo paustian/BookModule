@@ -2,12 +2,13 @@
 {{ pageAddAsset('javascript', "/images/musicplayer.js", weight) }}
 {{ pageAddAsset('javascript', "/images/musicPlayerParams.js", 700) }}
  <canvas id="{{ movName }}" width="{{ width }}" height=" {{ height }}" style="position: static; display: block; background-color:rgba(255, 255, 255, 1.00);">
+     <img id="musicLink" src="{{ imgLink }}" alt="A music piece" \>
  </canvas>
 <div id="{{ movName }}_buttons">
-    <button id="{{ movName }}_play" type="button" class="btn btn-default btn-sm">
+    <button id="{{ movName }}_play" type="button" class="btn btn-default btn-sm" style="display:none">
         <span class="fa fa-play-circle-o fa-2x"></span>
     </button>
-    <button id="{{ movName }}_pause" type="button" class="btn btn-default btn-sm">
+    <button id="{{ movName }}_pause" type="button" class="btn btn-default btn-sm" style="display:none">
         <i class="fa fa-pause-circle-o fa-2x" aria-hidden="true"></i>
     </button>
 </div>

@@ -351,12 +351,13 @@ class BookArticlesRepository extends EntityRepository
                     'weight' => $weight])->getContent();
                 break;
             case 'music':
-                $jLink = $pInfo['dirname'] . "/" . $pInfo['filename'] . ".js";
+                $imglink = $pInfo['dirname'] . "/" . $pInfo['filename'];
                 $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink6.html.twig', ['link' => $link,
                     'width' => $width,
                     'height' => $height,
                     'movName' => $movName,
-                    'weight' => $weight])->getContent();
+                    'weight' => $weight,
+                    'imgLink' => $imglink])->getContent();
                 break;
             default:
                 $ret_link = $link;
