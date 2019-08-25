@@ -1,0 +1,19 @@
+{{ pageAddAsset('javascript', "https://code.createjs.com/createjs-2015.11.26.min.js", -100) }}
+{{ pageAddAsset('javascript', "/images/musicplayer.js", weight) }}
+{{ pageAddAsset('javascript', "/images/musicPlayerParams.js", 700) }}
+ <canvas id="{{ movName }}" width="{{ width }}" height=" {{ height }}" style="position: static; display: block; background-color:rgba(255, 255, 255, 1.00);">
+ </canvas>
+<div id="{{ movName }}_buttons">
+    <button id="{{ movName }}_play" type="button" class="btn btn-default btn-sm">
+        <span class="fa fa-play-circle-o fa-2x"></span>
+    </button>
+    <button id="{{ movName }}_pause" type="button" class="btn btn-default btn-sm">
+        <i class="fa fa-pause-circle-o fa-2x" aria-hidden="true"></i>
+    </button>
+</div>
+<script>
+    window.addEventListener("load", function(){
+        let stage = new createjs.Stage("{{ movName }}");
+        new musicPlayer(stage, "{{ movName }}", "#{{ movName }}_play", "#{{ movName }}_pause");
+    });
+</script>
