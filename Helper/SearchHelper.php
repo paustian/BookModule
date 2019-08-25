@@ -67,10 +67,6 @@ class SearchHelper implements SearchableInterface
     public function getResults(array $words, $searchType = 'AND', $modVars = null)
     {
         $returnArray = [];
-        //return an empty array if you don't have permission to view at least some book module contents
-        if (!$this->permissionApi->hasPermission('Book::',"::", ACCESS_OVERVIEW)){
-            return [];
-        }
 
         $hits= $this->articleRepo->getSearchResults($words, $searchType);
         $sessionID = $this->session->getId();
@@ -84,6 +80,13 @@ class SearchHelper implements SearchableInterface
                     ->setText($this->shorten_text($article->getContents(), $words))
                     ->setSesid($sessionID)
                     ->setUrl($url);
+                $returnArray[] = $result;
+            } else {
+                $result = new SearchResultEntity();
+                $result->setTitle($article->getTitle())
+                ->setModule('PaustianBookModule')
+                 ->setText($this->shorten_text($article->getContents(), $words))
+                 ->setSesid($sessionID);
                 $returnArray[] = $result;
             }
         }
