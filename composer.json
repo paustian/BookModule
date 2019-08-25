@@ -1,6 +1,6 @@
 {
   "name": "paustian/book-module",
-  "version": "4.0",
+  "version": "4.0.0",
   "description": "A module for displaying a large structured document, creating figure descriptions for the book, and a glossary.",
   "type": "zikula-module",
   "license": "LGPL-3.0+",
@@ -22,7 +22,7 @@
     "zikula": {
       "url": "book",
       "class": "Paustian\\BookModule\\PaustianBookModule",
-      "core-compatibility": ">=1.4.3",
+      "core-compatibility": ">=2.0.0",
       "displayname": "Book Module",
       "oldnames": [],
       "capabilities": {
