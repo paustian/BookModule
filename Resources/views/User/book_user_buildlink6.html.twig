@@ -1,3 +1,24 @@
+{#
+This template sets up the music player for TheoryGizmos. You need specify the link like this"
+{Figure 5-1-16,640,480,oneSixteen,110}
+
+{Figure bookid-chapter-fignumber,width,eight,movName,loadorder}
+
+The image link specified in the figure text must be a path to the file and must end with the extension
+.music For example:
+
+/images/book_5/chapter_1/kabalevsky.png.music
+
+The image and the mp3 file must have the same name:
+kabalevsky.png
+kabalevsky.mp3
+
+The movName can be anything, but it must be unique for the page. I tend to name them the figure name
+in text.
+
+Finally, the loadorder must be larger that 100, since the musicPlayerParams must load first and cannot
+have the same number as any other js figure being loaded.
+#}
 {{ pageAddAsset('javascript', "https://code.createjs.com/createjs-2015.11.26.min.js", -100) }}
 {{ pageAddAsset('javascript', "/images/musicplayer.js", weight) }}
 {{ pageAddAsset('javascript', "/images/musicPlayerParams.js", 100) }}

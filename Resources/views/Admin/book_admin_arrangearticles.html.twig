@@ -17,24 +17,28 @@
             <div class="row">
                 <fieldset>
                     <h3 class="legend">{{ __('Book:') }} {{ book.name }}</h3>
-                    {% for chapter in book.chapters %}
+                   {% for chapter in book.chapters %}
                         {% if chapter.number == -1 %}
                             <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
-                            <ul id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
+                            <div id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
+                               <div class="pin">&nbsp;</div>
                                 {% for article in chapter.articles %}
-                                    <li id="art_{{ article.aid }}"
-                                        class="ui-state-default sortable">{{ article.title }}</li>
+                                    <div id="art_{{ article.aid }}"
+                                        class="ui-state-default sortable">{{ article.title }}</div>
                                 {% endfor %}
-                            </ul>
+                            </div>
                         {% else %}
-                            <h5>{{ __('Chapter') }} {{ chapter.number }} - {{ chapter.name }}</h5>
+                            <div class="columnorg">
+                            <h5>{{ __('Chapter') }} {{ chapter.number }} - {%  if chapter.name | length > 30 %}{{ chapter.name | slice(0,30) }}... {% else %} {{ chapter.name }} {% endif %}</h5>
                             <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
-                            <ul id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
+                            <div id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
+                                 <div class="pin">&nbsp;</div>
                                 {% for article in chapter.articles %}
-                                    <li id="art_{{ article.aid }}"
-                                        class="ui-state-default sortable">{{ article.title }}</li>
+                                    <div id="art_{{ article.aid }}"
+                                        class="ui-state-default sortable">{%  if article.title | length > 40 %}{{ article.title | slice(0,40) }}... {% else %} {{ article.title | raw }} {%  endif %}</div>
                                 {% endfor %}
-                            </ul>
+                            </div>
+                            </div>
                         {% endif %}
                     {% endfor %}
                 </fieldset>
@@ -64,7 +68,8 @@
             }
         });
         jQuery("#sortable{{ chaptera.cid }}").sortable({
-            connectWith: ".connectedSortable"
+            connectWith: ".connectedSortable",
+            cancel: ".pin"
         }).disableSelection();
         {% endfor %}
         {% endfor %}

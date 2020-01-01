@@ -1,18 +1,40 @@
-{# I think all I need to do now is rename the linke to a canvas link (or maybe JS.
-Here are the steps
-1. Take the completed canvas link that Animate gives you. Take the script code out of the html file and put it at the top of the other js file
-2. Rename that file to whatever you want and end with the extension .canvas. So it would be the path to the js file, but with an extension
-of canvas. (The file name in the directlry would be js and these would be in the imaages)
-3. When you create the figure, make name some name that matches what the js file retrieves. {Figure 6-3-15,height,width,name}
-4. Any assests that the file needed would have to have their paths changed. This is in the lib.properties manifest for Adobe Animate
-genereated files. It may be somewhere else for things you create. You have to change all these paths
+{#
+Once you have published a working copy of your animate file as an HTML5 canvas doucument.
+Here are the steps to integrate it into the book module.
+1. Take the completed canvas link that Animate gives you. Take the script code out of the html file and put it at the top of the other js file.
+Rename this file to whatever you want, but remember it for adding to the Figure link in the Book module.
+2. Rename the figure path in the book module to end with the extension .canvas. So it would be the path to the js file, but with an extension
+of canvas. (The file name in the directlry would be js and these would be in the images)
+3. When you create the figure, use the name that matches what the js file retrieves. {Figure 6-3-15,height,width,movName,weight}. THe weight variable
+says where to rank the js file compared to other ones. You want the createjs files being loaded first before these animation files since
+they depend upon them. This template gives the createjs file a weight of -100. I think it is most safe to make the weights >100 and NOT the same
+for each figure that you load in a page.
+4. Any assests that the js file needed would have to have their paths changed. This is in the lib.properties manifest for Adobe Animate
+genereated files. It may be somewhere else for things you create. You have to change all these paths.
+5. Rename the init routine that is now at the top of your js file. It should be init(movName)
+6. You are going to need to rename the canvas, animation_container and dom_container. Name the canvas link the movName,
+then append movName to animation_container and dom_overlay_container. This will prevent collisions.
+These lines will be at the top of the script that gets placed in the example export file. For example:
+    canvas = document.getElementById("Transcription");
+	anim_container = document.getElementById("animation_containerTranscription");
+	dom_overlay_container = document.getElementById("dom_overlay_containerTranscription");
+7. If you have two html5 animations exported directly from Adobe animate they will clash. To fix the problem the second loadded script needs to be edited like this:
+function initDivPlan() { <- this is the function that is called from the template and has the name movName below
+	setTimeout(initDivPlanAni, 500);
+}
+function initDivPlanAni(){ <- you can call this anything you like, but I would make it as specific as possible to avoid clashes
+This could have all been avoided if Adobe would use classes!
+You also have to rename the HandleFileLoad and HandleComplete methods. Again make it specific to allow multiple animations on the same page.
+HandleFileLoadDivPlan and HandleCompleteDivPlan in this example
 #}
-{{ pageAddAsset('javascript', "https://code.createjs.com/createjs-2015.11.26.min.js", -100) }}
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js', -50)) }}
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }
+{{ pageAddAsset('javascript', "https://code.createjs.com/1.0.0/createjs.min.js", -100) }}
 {{ pageAddAsset('javascript', jlink, weight) }}
-<div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:{{ width }}px; height:{{ height }}px">
+<div id="animation_container{{ movName }}" style="background-color:rgba(255, 255, 255, 1.00); width:{{ width }}px; height:{{ height }}px">
     <canvas id="{{ movName }}" width="{{ width }}" height=" {{ height }}" style="position: static; display: block; background-color:rgba(255, 255, 255, 1.00);">
     </canvas>
-    <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:{{ width }}px; height:{{ height }}px; position: static; left: 0px; top: 0px; display: block;">
+    <div id="dom_overlay_container{{ movName }}" style="pointer-events:none; overflow:hidden; width:{{ width }}px; height:{{ height }}px; position: static; left: 0px; top: 0px; display: block;">
     </div>
 </div>
 <script>

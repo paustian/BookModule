@@ -31,3 +31,9 @@
 .panel-actions a {
     color:#333;
 }
+
+div.columnorg{
+    float:left;
+    width: 30%;
+    padding:0px 10px 0px 10px;
+}

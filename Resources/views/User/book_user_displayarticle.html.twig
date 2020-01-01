@@ -9,9 +9,9 @@
         </ul>
     </div>
     <div class="panel-body">
-        {% if article.counter==1 %}
+        {% if article.counter == 1 %}
             <p>( {{ article.counter }} Read)</p>
-            {else}
+            {% else %}
             <p>( {{ article.counter }} Reads)</p>
         {% endif %}
 

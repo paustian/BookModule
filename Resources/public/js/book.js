@@ -59,3 +59,4 @@ function getSelectionHtml2() {
         });
     });
 })(jQuery);
+

@@ -316,8 +316,24 @@ class UserController extends AbstractController {
         if (!$this->hasPermission($this->name . '::', $figure->getBid() . "::", ACCESS_OVERVIEW)) {
             throw new AccessDeniedException($this->__('You do not have pemission to access any figures.'));
         }
+        //we look for these parameters in the query string. If they are not there
+        //they are set to defaults.
+        if(!($width = $request->query->get('width'))){
+            $width = 450;
+        }
+        if(!($height = $request->query->get('height'))){
+            $height = 360;
+        }
+        if(!($movName = $request->query->get('movName'))){
+            $movName = 'movieName';
+        }
+        if(!($weight = $request->query->get('weight'))){
+            $weight = 101;
+        }
+
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
-        $figureText = $repo->_renderFigure($figure, 450, 360, true, "", $this);
+
+        $figureText = $repo->_renderFigure($figure, $width, $height, true, $movName, $this, $weight);
         return new Response($figureText);
     }
 
