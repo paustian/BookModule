@@ -143,7 +143,7 @@ class AdminController extends AbstractController {
      * @Theme("admin")
      * @param Request $request
      * @param \Paustian\BookModule\Controller\BookChaptersEntity $chapter
-     * @return RedirectRespsonse or Response
+     * @return RedirectRespsonse | Response | AccessDeniedException
      * @throws AccessDeniedException
      */
     public function editchapterAction(Request $request, BookChaptersEntity $chapter = null) {

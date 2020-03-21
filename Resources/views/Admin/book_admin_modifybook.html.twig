@@ -11,7 +11,7 @@
         <tbody>
             {% for item in books %}
                 <tr>
-                    <td>{{ item.name }}</td>
+                    <td>{{ item.name }} ({{  item.bid }})</td>
                     <td class="actions">
                         <a href="{{ path('paustianbookmodule_admin_edit') }}/{{ item.bid }}" class="fa fa-pencil"></a>
                         <a href="{{ path('paustianbookmodule_admin_delete') }}/{{ item.bid }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this book?')"></a>

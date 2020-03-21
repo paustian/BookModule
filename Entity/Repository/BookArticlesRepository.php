@@ -176,13 +176,24 @@ class BookArticlesRepository extends EntityRepository
         $qb->select('a')
             ->from('PaustianBookModule:BookArticlesEntity', 'a');
         $count = count($words);
-        for($i = 0; $i < $count; $i++) {
-            if ($searchType == 'AND') {
-                $qb->andWhere('a.contents LIKE :word' . $i);
-            } else {
-                $qb->orWhere('a.contents LIKE :word' . $i);
-            }
-            $qb->setParameter('word'. $i, '%' . $words[$i] . '%');
+        switch($searchType){
+            case 'AND':
+                for($i=0; $i<$count; $i++){
+                    $qb->andWhere('a.contents LIKE :word' . $i);
+                    $qb->setParameter('word'. $i, '%' . $words[$i] . '%');
+                }
+                break;
+            case 'OR':
+                for($i=0; $i<$count; $i++){
+                    $qb->orWhere('a.contents LIKE :word' . $i);
+                    $qb->setParameter('word'. $i, '%' . $words[$i] . '%');
+                }
+                break;
+            case 'EXACT':
+                $phrase = implode(" ", $words);
+                $qb->where('a.contents LIKE :word');
+                $qb->setParameter('word', '%' . $phrase . '%');
+                break;
         }
         $query = $qb->getQuery();
         $results = $query->getResult();
@@ -198,6 +209,7 @@ class BookArticlesRepository extends EntityRepository
         $weight = 1000;
         $width = 0;
         $height = 0;
+        $delay = 0;
         //grab the width and height if present. The synthax to use here is
         //4-26-1,640,480,movie the second number is the width, the third is the height,
         //the fourth is the name of any html5 canvas.
@@ -222,6 +234,13 @@ class BookArticlesRepository extends EntityRepository
                 $movName = $pieces[3];
                 $weight = $pieces[4];
                 break;
+            case 6:
+                $width = $pieces[1];
+                $height = $pieces[2];
+                $movName = $pieces[3];
+                $weight = $pieces[4];
+                $delay = $pieces[5];
+                break;
             default:
                 break;
         }
@@ -231,21 +250,21 @@ class BookArticlesRepository extends EntityRepository
         $figure = $repo->findFigure($fig_number, $chap_number, $book_number);
 
         if ($figure != null) {
-            $figureText = $this->_renderFigure($figure, $width, $height, false, $movName, null, $weight);
+            $figureText = $this->_renderFigure($figure, $width, $height, false, $movName, null, $weight, $delay);
         } else {
             $figureText = "";
         }
         return $figureText;
     }
 
-    public function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false, $movName = 'canvas', $contr = null, $weight=1000)
+    public function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false, $movName = 'canvas', $contr = null, $weight=1000, $delay=0)
     {
         if ($contr != null) {
             $this->controller = $contr;
         }
 //check to see if we have permission to use the figure
         if ($figure->getPerm() != 0) {
-            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone, $movName, $weight);
+            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone, $movName, $weight, $delay);
         } else {
             $visible_link = __("This figure cannot be displayed because permission has not been granted yet.");
         }
@@ -280,7 +299,8 @@ class BookArticlesRepository extends EntityRepository
                                 $autoplay = "true",
                                 $stand_alone = false,
                                 $movName = 'canvas',
-                                $weight = 1000)
+                                $weight = 1000,
+                                $delay = 0)
     {
         //if it is a image link, then set it up, else trust that the user
         //has set it up with the right tags.
@@ -357,6 +377,7 @@ class BookArticlesRepository extends EntityRepository
                     'height' => $height,
                     'movName' => $movName,
                     'weight' => $weight,
+                    'delay' => $delay,
                     'imgLink' => $imglink])->getContent();
                 break;
             default:

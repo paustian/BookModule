@@ -36,6 +36,6 @@ have the same number as any other js figure being loaded.
 <script>
     window.addEventListener("load", function(){
         let stage = new createjs.Stage("{{ movName }}");
-        new musicPlayer(stage, "{{ movName }}", "#{{ movName }}_play", "#{{ movName }}_pause");
+        new musicPlayer(stage, "{{ movName }}", "#{{ movName }}_play", "#{{ movName }}_pause", {{ delay }});
     });
 </script>

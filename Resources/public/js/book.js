@@ -34,7 +34,6 @@ function getSelectionHtml2() {
 
         htmlContent = placeholder.innerHTML;
         $('#selection_html_placeholder').remove();
-
     }
     return htmlContent;
 }
@@ -57,6 +56,20 @@ function getSelectionHtml2() {
             }
             $(this).closest('.panel').toggleClass('panel-fullscreen');
         });
+
     });
+
+   /*
+   This code is toying with the idea of highlighing where the reading spot when the text scrolls. It may be as simple as
+   having a div in an absolute position on the page and then flashing a highlight color to show the reading spot
+   var iScrollPos = 0;
+
+    $(window).scroll(function () {
+        var iCurScrollPos = $(this).scrollTop();
+        if (iCurScrollPos > iScrollPos) {
+
+        }
+        iScrollPos = iCurScrollPos;
+    });*/
 })(jQuery);
 
