@@ -7,6 +7,3 @@ Fixed modurl calls
 Fixed PnRedirect calls
 Fixed LogUtil calls
 Fixed SessionUtil::setVar for status message, use addStatusPopup instead
-
-Verion 4.0 
-Adds further integration with Symphony, fontawesome, and JQuery. This sports a much cleaner interface for manipulaitng documents.
