@@ -17,6 +17,9 @@
             {{ form_row(form.term) }}
             {{ form_row(form.definition, {'attr': {'class': 'fig_contents'}}) }}
         </fieldset>
+        {% for hook_template in hook_templates %}
+            {{ include(hook_template.0, hook_template.1, ignore_missing = true) }}
+        {% endfor %}
         <div class="form-group">
             <div class="col-lg-offset-3 col-lg-9">
                 {{ form_widget(form.save, {'attr': {'class': 'btn btn-success'}}) }}

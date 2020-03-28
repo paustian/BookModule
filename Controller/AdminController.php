@@ -7,6 +7,7 @@
 
 namespace Paustian\BookModule\Controller;
 
+use Zikula\Bundle\HookBundle\FormAwareHook\FormAwareHook;
 use Zikula\Core\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -220,7 +221,8 @@ class AdminController extends AbstractController {
         }
 
         $form = $this->createForm(Article::class, $article, ['locale' => $request->getLocale()]);
-
+        $formHook = new FormAwareHook($form);
+        $this->get('hook_dispatcher')->dispatch('book.form_aware_hook.article.edit', $formHook);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
@@ -245,7 +247,8 @@ class AdminController extends AbstractController {
         }
 
         return $this->render('PaustianBookModule:Admin:book_admin_editarticle.html.twig', [
-                    'form' => $form->createView()]);
+                    'form' => $form->createView(),
+                    'hook_templates' => $formHook->getTemplates()]);
     }
 
     /**
@@ -270,13 +273,21 @@ class AdminController extends AbstractController {
         }
 
         $form = $this->createForm(Figure::class, $figure);
-
+        $formHook = new FormAwareHook($form);
+        $this->get('hook_dispatcher')->dispatch('book.form_aware_hook.article.edit', $formHook);
         $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookEntity');
         $books = $repo->getBooks();
 
         $form->handleRequest($request);
 
         if ($form->isValid()) {
+            //strip out the beginning and ending <p> tags.
+            $content = $figure->getContent();
+            //remove the initial paragraph tag
+            $content = preg_replace('/<p[^>]*>/im', '', $content, 1);
+            //remove the ending </p>
+            $content = substr($content, 0,-4);
+            $figure->setContent($content);
             $em = $this->getDoctrine()->getManager();
             $bid = $request->get('book');
             $figure->setBid($bid);
@@ -297,7 +308,8 @@ class AdminController extends AbstractController {
         return $this->render('PaustianBookModule:Admin:book_admin_editfigure.html.twig', [
                     'form' => $form->createView(),
                     'books' => $books,
-                    'figure' => $figure]);
+                    'figure' => $figure,
+            'hook_templates' => $formHook->getTemplates()]);
     }
 
     /**
@@ -305,7 +317,8 @@ class AdminController extends AbstractController {
      * @Theme("admin")
      * @param Request $request
      * @param BookGlossEntity $gloss
-     * @return type
+     * @return Response
+     * @return RedirectResponse
      */
     public function editglossaryAction(Request $request, BookGlossEntity $gloss = null) {
         if (!$this->hasPermission($this->name . '::', '.*::', ACCESS_ADD)) {
@@ -318,11 +331,19 @@ class AdminController extends AbstractController {
             $doMerge = true;
         }
         $form = $this->createForm(Glossary::class, $gloss);
+        $formHook = new FormAwareHook($form);
+        $this->get('hook_dispatcher')->dispatch('book.form_aware_hook.article.edit', $formHook);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $route = 'paustianbookmodule_admin_editglossary';
+            //strip out the beginning and ending <p> and </p> marks
+            $content = $gloss->getDefinition();
+            //remove the initial paragraph tag
+            $content = preg_replace('/<p[^>]*>/im', '', $content, 1);
+            $content = substr($content, 0,-4);
+            $gloss->getDefinition($content);
             $flashText = $this->__('Glossary Term ' . $gloss->getTerm() . ' Saved');
             if ($doMerge) {
                 $route = 'paustianbookmodule_admin_modifyglossary';
@@ -338,7 +359,8 @@ class AdminController extends AbstractController {
         }
 
         return $this->render('PaustianBookModule:Admin:book_admin_editglossary.html.twig', [
-                    'form' => $form->createView()]);
+                    'form' => $form->createView(),
+            'hook_templates' => $formHook->getTemplates()]);
     }
 
     /**

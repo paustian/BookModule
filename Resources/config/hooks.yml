@@ -5,3 +5,10 @@ services:
         - "@translator.default"
       tags:
           - { name: zikula.hook_subscriber, areaName: "subscriber.book.ui_hooks.article" }
+
+  paustian_book_module.hook_subscriber.form_aware_hook.messages:
+    class: Paustian\BookModule\HookSubscriber\FormAwareHookSubscriber
+    arguments:
+      - "@translator.default"
+    tags:
+      - { name: zikula.hook_subscriber, areaName: 'subscriber.book.form_aware_hook.messages' }

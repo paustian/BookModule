@@ -262,6 +262,7 @@ class BookArticlesRepository extends EntityRepository
         if ($contr != null) {
             $this->controller = $contr;
         }
+
 //check to see if we have permission to use the figure
         if ($figure->getPerm() != 0) {
             $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone, $movName, $weight, $delay);
