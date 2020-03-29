@@ -1,6 +1,7 @@
 <?php
 namespace Paustian\BookModule\Entity;
 
+use Paustian\BookModule\Helper\TagHelper;
 use Zikula\Core\Doctrine\EntityAccess;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -169,7 +170,7 @@ class BookFiguresEntity extends EntityAccess {
     }
 
     public function setContent($content) {
-        $this->content = $content;
+        $this->content = \Paustian\BookModule\Helper\TagHelper::stripFrontAndBackPTags($content);
     }
 
 }

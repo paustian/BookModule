@@ -281,13 +281,6 @@ class AdminController extends AbstractController {
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            //strip out the beginning and ending <p> tags.
-            $content = $figure->getContent();
-            //remove the initial paragraph tag
-            $content = preg_replace('/<p[^>]*>/im', '', $content, 1);
-            //remove the ending </p>
-            $content = substr($content, 0,-4);
-            $figure->setContent($content);
             $em = $this->getDoctrine()->getManager();
             $bid = $request->get('book');
             $figure->setBid($bid);
@@ -338,12 +331,6 @@ class AdminController extends AbstractController {
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $route = 'paustianbookmodule_admin_editglossary';
-            //strip out the beginning and ending <p> and </p> marks
-            $content = $gloss->getDefinition();
-            //remove the initial paragraph tag
-            $content = preg_replace('/<p[^>]*>/im', '', $content, 1);
-            $content = substr($content, 0,-4);
-            $gloss->getDefinition($content);
             $flashText = $this->__('Glossary Term ' . $gloss->getTerm() . ' Saved');
             if ($doMerge) {
                 $route = 'paustianbookmodule_admin_modifyglossary';

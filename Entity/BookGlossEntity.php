@@ -86,7 +86,7 @@ class BookGlossEntity extends EntityAccess {
     }
 
     public function setDefinition($definition) {
-        $this->definition = $definition;
+        $this->definition = \Paustian\BookModule\Helper\TagHelper::stripFrontAndBackPTags($definition);
     }
     
     public function getUser() {

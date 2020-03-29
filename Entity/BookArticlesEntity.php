@@ -7,6 +7,7 @@ namespace Paustian\BookModule\Entity;
  * @license GNU/LGPLv3 (or at your option, any later version).
  */
 use Zikula\Core\Doctrine\EntityAccess;
+use Paustian\Helper\TagHelper;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
