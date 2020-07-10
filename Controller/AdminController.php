@@ -33,8 +33,7 @@ use Paustian\BookModule\Form\ImportGloss;
 use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
 use Zikula\Bundle\HookBundle\Hook\ProcessHook;
-use \Zikula\Bundle\CoreBundle\Translation\TranslatorTrait;
-
+use Zikula\ThemeModule\Engine\Annotation\Theme;
 
 /**
  * @Route("/admin")
@@ -68,7 +67,7 @@ class AdminController extends AbstractController {
      *
      * @Route("/edit/{book}")
      * @Theme("admin")
-     * @Template("PaustianBookModule:Admin:book_admin_editbook.html.twig")
+     * @Template("@PaustianBookModule/Admin/book_admin_editbook.html.twig")
      * @return Response|array
      * Create a new book. This presents the form for giving a title to the book
      *
@@ -92,7 +91,7 @@ class AdminController extends AbstractController {
 
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             if ($doMerge) {
                 $em->merge($book);
@@ -669,9 +668,9 @@ class AdminController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function arrangearticlesAction(Request $request)  : string{
+    public function arrangearticlesAction(Request $request)  : Response {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
-        $chapterids="";
+        $chapterids=[];
         $books = $repo->buildtoc(0, $chapterids);
 
         return $this->render('PaustianBookModule:Admin:book_admin_arrangearticles.html.twig', ['books' => $books,

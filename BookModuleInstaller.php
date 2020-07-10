@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Paustian\BookModule;
 
 
-use Zikula\Core\AbstractExtensionInstaller;
+use Zikula\ExtensionsModule\Installer\AbstractExtensionInstaller;
 use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookChaptersEntity;
 use Paustian\BookModule\Entity\BookEntity;
