@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Book Module
  * 
@@ -33,10 +35,10 @@ class ToolsBlock extends AbstractBlockHandler {
      * @param        array       $blockinfo     a blockinfo structure
      * @return       output      the rendered bock
      */
-    public function display(array $properties) {
+    public function display(array $properties) :string {
         $currentUserApi = $this->get('zikula_users_module.current_user');
         if (!$currentUserApi->isLoggedIn()) {
-            return false;
+            return '';
         }
         
         $url = $_SERVER['REQUEST_URI'];
@@ -54,10 +56,5 @@ class ToolsBlock extends AbstractBlockHandler {
             $content = $this->renderView('PaustianBookModule:Block:tools_block.html.twig', ['aid' => $aid, 'book' => $booktoc[0]]);
         }
         return $content;
-    }
-    
-    public function getFormClassName()
-    {
-        return null;
     }
 }

@@ -6,9 +6,9 @@
 <div class="container-fluid">
     <h3>
         <span class="fa fa-book"></span>
-        {{ __('Arrange Articles') }}
+        {{ 'Arrange Articles' | trans }}
     </h3>
-    <p>{{ __("Arrange the articles by dragging and dropping them into the chapter boxes") }}</p>
+    <p>{{ "Arrange the articles by dragging and dropping them into the chapter boxes" | trans  }}</p>
     <form action="{{ path('paustianbookmodule_admin_savearrangement') }}" method="post"
           enctype="application/x-www-form-urlencoded">
 
@@ -16,7 +16,7 @@
         {% for book in books %}
             <div class="row">
                 <fieldset>
-                    <h3 class="legend">{{ __('Book:') }} {{ book.name }}</h3>
+                    <h3 class="legend">{{ 'Book:' | trans  }} {{ book.name }}</h3>
                    {% for chapter in book.chapters %}
                         {% if chapter.number == -1 %}
                             <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
@@ -29,7 +29,7 @@
                             </div>
                         {% else %}
                             <div class="columnorg">
-                            <h5>{{ __('Chapter') }} {{ chapter.number }} - {%  if chapter.name | length > 30 %}{{ chapter.name | slice(0,30) }}... {% else %} {{ chapter.name }} {% endif %}</h5>
+                            <h5>{{ 'Chapter' | trans  }} {{ chapter.number }} - {%  if chapter.name | length > 30 %}{{ chapter.name | slice(0,30) }}... {% else %} {{ chapter.name }} {% endif %}</h5>
                             <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
                             <div id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
                                  <div class="pin">&nbsp;</div>
@@ -49,7 +49,7 @@
         <div class="form-group">
             <div class="col-lg-offset-3 col-lg-9">
                 <button class="btn btn-success" type="submit" name="create" value="create">
-                    {{ __('Save Order') }}
+                    {{ 'Save Order' | trans  }}
                 </button>
             </div>
         </div>

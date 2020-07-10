@@ -4,9 +4,9 @@
     <div class="row">
         <h3>
             <span class="fa fa-edit"></span>
-            {{ __("Edit a glossary term") }}
+            {{ "Edit a glossary term" | trans  }}
         </h3>
-        <p>{{ __("Enter the id of the term to edit and click ok") }}</p>
+        <p>{{ "Enter the id of the term to edit and click ok" | trans  }}</p>
         {{ showflashes() }}
         <fieldset>
             <ul class="pagination pagination-sm"> 
@@ -17,8 +17,8 @@
         <table class="table table-striped">
         <thead>
             <tr>
-                <th>{{ __('Term') }}</th>
-                <th> {{ __('Actions') }} </th></tr>
+                <th>{{ 'Term' | trans  }}</th>
+                <th> {{ 'Actions' | trans  }} </th></tr>
         </thead>
         <tbody>
             {% for term in terms %}

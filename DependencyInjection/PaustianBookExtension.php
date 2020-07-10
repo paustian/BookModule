@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
@@ -16,9 +18,6 @@ class PaustianBookExtension extends Extension
     {
         $loader = new YamlFileLoader($container, new FileLocator(realpath(__DIR__ . '/../Resources/config')));
 
-        $loader->load('services.yml');
-        $loader->load('doctrine.yml');
-        $loader->load('helpers.yml');
-        $loader->load('hooks.yml');
+        $loader->load('services.yaml');
     }
 }

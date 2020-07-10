@@ -6,13 +6,13 @@
     <div class="row">
         <h3>
             <span class="fa fa-upload"></span>
-            {{ __("Import Glossary Items") }}
+            {{ "Import Glossary Items" | trans  }}
         </h3>
-        <p>{{ __("Paste the correctly formated xml into the textarea below and click Import Glossary Items. Below is an example of properly formatted xml.") }}</p>
+        <p>{{ "Paste the correctly formated xml into the textarea below and click Import Glossary Items. Below is an example of properly formatted xml." | trans  }}</p>
         <p>&lt;glossary&gt;<br />
             &lt;glossitem&gt;<br />
-            &lt;term&gt;<b>{{ __("term") }}</b>&lt;/term&gt;<br />
-            &lt;definition&gt;<b>{{ __("definition") }}</b> &lt;/definition&gt;<br />
+            &lt;term&gt;<b>{{ "term" | trans  }}</b>&lt;/term&gt;<br />
+            &lt;definition&gt;<b>{{ "definition" | trans  }}</b> &lt;/definition&gt;<br />
             &lt;/glossitem&gt;<br />
             &lt;/glossary&gt;
         </p>
@@ -20,7 +20,7 @@
         {{ form_start(form) }}
         {{ form_errors(form) }}
         <fieldset>
-            <legend>{{ __('Glossary xml') }}</legend>
+            <legend>{{ 'Glossary xml' | trans  }}</legend>
             {{ form_row(form.importText, {'attr': {'class': 'book_contents'}}) }}
         </fieldset>
         <div class="form-group">

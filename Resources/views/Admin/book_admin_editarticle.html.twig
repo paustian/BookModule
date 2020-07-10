@@ -6,14 +6,14 @@
     <div class="row">
         <h3>
             <span class="fa fa-edit"></span>
-            {{ __("Edit an Article") }}
+            {{ "Edit an Article" | trans  }}
         </h3>
-        <p>{{ __("Give the article a name") }}</p>
+        <p>{{ "Give the article a name" | trans  }}</p>
         {{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
         <fieldset>
-            <legend>{{ __('Article Data') }}</legend>
+            <legend>{{ 'Article Data' | trans  }}</legend>
             {{ form_row(form.title) }}
             {{ form_row(form.contents, {'attr': {'class': 'book_contents'}}) }}
             {{ form_row(form.lang) }}

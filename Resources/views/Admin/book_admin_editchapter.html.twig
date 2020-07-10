@@ -5,14 +5,14 @@
     <div class="row">
         <h3>
             <span class="fa fa-edit"></span>
-            {{ __("Edit a Chapter") }}
+            {{ "Edit a Chapter" | trans  }}
         </h3>
-        <p>{{ __("Give the Chapter a name") }}</p>
+        <p>{{ "Give the Chapter a name" | trans  }}</p>
         {{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
         <fieldset>
-            <legend>{{ __('Chapter Name') }}</legend>
+            <legend>{{ 'Chapter Name' | trans  }}</legend>
             {{ form_row(form.name) }}
             {{ form_row(form.number) }}
             <div class="form-group"><label class="col-lg-3 control-label required" >Book</label>

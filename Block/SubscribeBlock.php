@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Book Module
  * 
@@ -22,7 +24,6 @@
 namespace Paustian\BookModule\Block;
 
 use Zikula\BlocksModule\AbstractBlockHandler;
-use UserUtil;
 
 class SubscribeBlock extends AbstractBlockHandler {
 
@@ -34,20 +35,15 @@ class SubscribeBlock extends AbstractBlockHandler {
      * @param        array       $blockinfo     a blockinfo structure
      * @return       output      the rendered bock
      */
-    public function display(array $properties) {
-        $content = "";
+    public function display(array $properties) : string {
         $currentUserApi = $this->get('zikula_users_module.current_user');
         if (!$currentUserApi->isLoggedIn()) {
-            $content = $this->__('You must <a href="register">register</a> before you can purchase any books.');
+            $content = $this->trans('You must <a href="register">register</a> before you can purchase any books.');
         } else {
             $uid = $em = $this->get('session')->get('uid');
-            $content = $this->renderView('PaustianBookModule:Block:subscribe_block.html.twig', ['uid' => $uid]);
+            $content = $this->renderView('@PaustianBookModule/Block/subscribe_block.html.twig', ['uid' => $uid]);
         }
         return $content;
-    }
-
-    public function getFormClassName() {
-        return null;
     }
 
 }

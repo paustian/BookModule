@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // pnuser.php,v 1.18 2007/03/16 01:58:56 paustian Exp
 // ----------------------------------------------------------------------
 // PostNuke Content Management System
@@ -26,14 +28,13 @@
 
 namespace Paustian\BookModule\Controller;
 
-use Zikula\Core\Controller\AbstractController;
-use Zikula\Core\RouteUrl;
+use Zikula\Bundle\CoreBundle\Controller\AbstractController;
+use Zikula\Bundle\CoreBundle\RouteUrl;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotations - do not remove
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Paustian\BookModule\Entity\BookEntity;
 use Paustian\BookModule\Entity\BookArticlesEntity;
@@ -50,10 +51,10 @@ class UserController extends AbstractController {
      * @param $request
      * @return Response
      */
-    public function indexAction(Request $request) {
+    public function indexAction(Request $request) : Response {
 // Security check
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
-            throw new AccessDeniedException($this->__('You do not have pemission to access any books.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission to access any books.'));
         }
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
@@ -64,12 +65,12 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/toc/{book}")
-     * 
+     *
      * @param Request $request
      * @param BookEntity $book
      * @return Response
      */
-    public function tocAction(Request $request, BookEntity $book = null) {
+    public function tocAction(Request $request, BookEntity $book = null) : Response {
         $bid = -1;
         if (null === $book) {
             $bid = $request->get('bid');
@@ -106,28 +107,28 @@ class UserController extends AbstractController {
     /**
      * @Route("/view")
      * @param Request $request
-     * @return type
+     * @return Response
      */
-    public function viewAction(Request $request) {
+    public function viewAction(Request $request) : Response {
         return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
     }
 
     /**
      * @Route("/display")
-     * 
+     * @return Response
      */
-    public function displayAction(Request $request) {
+    public function displayAction(Request $request) : Response {
         return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
     }
 
     /**
      * @Route("/displayarticle/{article}")
-     * 
+     *
      * @param Request $request
      * @param BookArticlesEntity $article
-     * @return type
+     * @return Response
      */
-    public function displayarticleAction(Request $request, BookArticlesEntity $article = null, $doglossary = true) {
+    public function displayarticleAction(Request $request, BookArticlesEntity $article = null, bool $doglossary = true) : Response {
         if (null === $article) {
             $aid = $request->get('aid');
             if (isset($aid)) {
@@ -141,7 +142,7 @@ class UserController extends AbstractController {
         $cid = $article->getCid();
         $aid = $article->getAid();
         if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::$cid", ACCESS_READ)) {
-            throw new AccessDeniedException($this->__('You do not have pemission for this chapter.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission for this chapter.'));
         }
         $doc = $this->getDoctrine();
         $chapter = $doc->getRepository('PaustianBookModule:BookChaptersEntity')->find($cid);
@@ -192,11 +193,11 @@ class UserController extends AbstractController {
      *
      * Given some text, insert the glossary definitions.
      *
-     * @param inText - the text to add glossary definitions to
-     * @return retText - the text with glossary definitions addeed
+     * @param string inText - the text to add glossary definitions to
+     * @return string retText - the text with glossary definitions addeed
      *
      */
-    private function _add_glossary_defs($in_text) {
+    private function _add_glossary_defs(string $in_text) {
         //all the work is done in this funcion
         $pattern = "|<a class=\"glossary\">(.*?)</a>|";
         $ret_text = preg_replace_callback($pattern, array(&$this, "_glossary_add"), $in_text);
@@ -207,13 +208,13 @@ class UserController extends AbstractController {
     /**
      *  glossary_add
      * This is a callback function to convert glossary terms into their definitions.
-     * I am added it here and not into the text to keep from polluting the text 
+     * I am added it here and not into the text to keep from polluting the text
      * with glossary definitions.
-     * 
+     *
      * @param $matches
-     * @return the match text to insert 
+     * @return string
      */
-    private function _glossary_add($matches) {
+    private function _glossary_add(array $matches) : string {
         $inTerm = $matches[1];
         $item = array();
 
@@ -251,7 +252,7 @@ class UserController extends AbstractController {
      * Add highlight to the incomping text, based upon the offsets in the highlights array
      *
      */
-    private function _process_highlights($content, $aid) {//A modifier that has to go in to account for
+    private function _process_highlights(string $content, int $aid) {//A modifier that has to go in to account for
         $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($uid == "") {
@@ -300,21 +301,21 @@ class UserController extends AbstractController {
         return $content;
     }
 
-    
+
 
     /**
      * @Route("/displayfigure/{figure}")
-     * 
+     *
      * @param Request $request
-     * @param \Paustian\BookModule\Controller\BookFiguresEntity $figure
-     * @return type
+     * @param BookFiguresEntity $figure
+     * @return Response
      */
-    public function displayfigureAction(Request $request, BookFiguresEntity $figure = null) {
+    public function displayfigureAction(Request $request, BookFiguresEntity $figure = null) : Response{
         if (null === $figure) {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
         if (!$this->hasPermission($this->name . '::', $figure->getBid() . "::", ACCESS_OVERVIEW)) {
-            throw new AccessDeniedException($this->__('You do not have pemission to access any figures.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission to access any figures.'));
         }
         //we look for these parameters in the query string. If they are not there
         //they are set to defaults.
@@ -339,14 +340,14 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/displayglossary")
-     * 
+     *
      * @param Request $request
-     * @return type
+     * @return Response
      */
-    public function displayglossaryAction(Request $request) {
+    public function displayglossaryAction(Request $request) : Response {
 //you must have permission to read some book.
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_OVERVIEW)) {
-            throw new AccessDeniedException($this->__('You do not have pemission to access any glossry items.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission to access any glossry items.'));
         }
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
@@ -361,9 +362,9 @@ class UserController extends AbstractController {
      * The purpose is to just get all of this.
      * @param Request $request
      * @param BookEntity $book
-     * @return string
+     * @return Response
      */
-    public function displaybookAction(Request $request, BookEntity $book) {
+    public function displaybookAction(Request $request, BookEntity $book) : Response {
         $bid = -1;
         if (null === $book) {
             $bid = $request->get('bid');
@@ -374,7 +375,7 @@ class UserController extends AbstractController {
             $bid = $book->getBid();
         }
         if (!$this->hasPermission($this->name . '::', "$bid::", ACCESS_READ)) {
-            throw new AccessDeniedException($this->__('You do not have pemission to access this book.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission to access this book.'));
         }
 
 
@@ -393,12 +394,12 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/displaychapter/{chapter}")
-     * 
+     *
      * @param Request $request
      * @param BookChaptersEntity $chapter
      * @return Response
      */
-    public function displaychapterAction(Request $request, BookChaptersEntity $chapter = null) {
+    public function displaychapterAction(Request $request, BookChaptersEntity $chapter = null) : Response {
         if (null === $chapter) {
             //Old style URL, look for the chapter using the cid
             $cid = $request->get('cid');
@@ -411,7 +412,7 @@ class UserController extends AbstractController {
         $bid = $chapter->getBid();
         //grab the chapter data
         if (!$this->hasPermission($this->name . '::Chapter', "$bid::$cid", ACCESS_READ)) {
-            throw new AccessDeniedException($this->__('You do not have pemission to access the contents of this chapter.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission to access the contents of this chapter.'));
             ;
         }
         $artRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
@@ -426,12 +427,12 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/displayarticlesinchapter/{chapter}")
-     * 
+     *
      * @param Request $request
      * @param BookChaptersEntity $chapter
-     * @return type
+     * @return Response
      */
-    public function displayarticlesinchapterAction(Request $request, BookChaptersEntity $chapter = null) {
+    public function displayarticlesinchapterAction(Request $request, BookChaptersEntity $chapter = null) : Response {
         if (null === $chapter) {
             $cid = $request->get('cid');
             if (isset($cid)) {
@@ -445,7 +446,7 @@ class UserController extends AbstractController {
         $bid = $chapter->getBid();
         //grab the chapter data
         if (!$this->hasPermission($this->name . '::Chapter', "$bid::$cid", ACCESS_READ)) {
-            throw new AccessDeniedException($this->__('You do not have pemission to access the contents of this chapter.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission to access the contents of this chapter.'));
             ;
         }
         $artRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
@@ -462,7 +463,7 @@ class UserController extends AbstractController {
 
         //process all inline figures.
         $return_text = $this->render('PaustianBookModule:User:book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter,
-            'articles' => $articles]);
+            'articles' => $articles])->getContent();
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $return_text = $repo->addfigures($return_text, $this);
         $return_text = $this->_add_glossary_defs($return_text);
@@ -471,13 +472,14 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/collecthighlights")
-     * 
+     *
      * Take all the highlights that a user has highlight for the book
      * and then display them to the user. This should be a useful study tool
      * @param Request $request
-     * @return type
+     * @return Response
      */
-    public function collecthighlightsAction(Request $request, BookArticlesEntity $article = null) {
+    public function collecthighlightsAction(Request $request, BookArticlesEntity $article = null) :Response
+    {
         //build an organization of the book
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
         $books = null;
@@ -494,22 +496,22 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/studypage")
-     * 
+     *
      * @param Request $request
-     * @return type
+     * @return Response
      */
-    public function studypageAction(Request $request) {
+    public function studypageAction(Request $request) : Response {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_collecthighlights'));
         $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($uid == "") {
-            $this->addFlash('status', __('You must be logged and have access the study pages.'));
+            $this->addFlash('status', $this->trans('You must be logged and have access the study pages.'));
             return $response;
         }
         $em = $this->getDoctrine()->getManager();
         $articleIds = $request->get('aids');
         if (!isset($articleIds)) {
-            $this->addFlash('status', __('You need to select some articles for the highlighted areas to be collected..'));
+            $this->addFlash('status', $this->trans('You need to select some articles for the highlighted areas to be collected..'));
             return $response;
         }
         $articles = $em->getRepository('PaustianBookModule:BookArticlesEntity')->findBy(['aid' => $articleIds]);
@@ -547,15 +549,15 @@ class UserController extends AbstractController {
     /**
      * @Route("/customizeText/{article}")
      *
-     * The user has presumably selected some text. Act on it according to 
+     * The user has presumably selected some text. Act on it according to
      * what text was selected.
-     * 
+     *
      * @param Request $request
      * @param BookArticlesEntity $article
      * @param type $inText
-     * @return boolean|RedirectResponse
+     * @return boolean|RedirectResponse|Response
      */
-    public function customizeTextAction(Request $request, BookArticlesEntity $article) {
+    public function customizeTextAction(Request $request, BookArticlesEntity $article) : Response {
         $button = $request->get('buttonpress');
         $text = $request->get('text');
         if ($button == 'highlight') {
@@ -570,17 +572,17 @@ class UserController extends AbstractController {
     /**
      * Take the selection and make note of where it is. When it is displayed
      * the selected text will be highlighted yellow
-     * 
      * @param Request $request
      * @param BookArticlesEntity $article
-     * @param type $inText
-     * @return type
+     * @param $inText
+     * @return RedirectResponse
      */
-    private function _doHighlight(Request $request, BookArticlesEntity $article, $inText) {
+    private function _doHighlight(Request $request, BookArticlesEntity $article, $inText) :RedirectResponse
+    {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]));
 
         if ($inText == "") {
-            $this->addFlash('status', __('You must choose a selection to before clicking the button.'));
+            $this->addFlash('status', $this->trans('You must choose a selection to before clicking the button.'));
             return $response;
         }
         if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_READ)) {
@@ -590,7 +592,7 @@ class UserController extends AbstractController {
         $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             //user id is empty, we are not in
-            $this->addFlash('status', __('You are not logged in. In this case you cannot add highlights.'));
+            $this->addFlash('status', $this->trans('You are not logged in. In this case you cannot add highlights.'));
             return $response;
         }
 
@@ -610,7 +612,7 @@ class UserController extends AbstractController {
         $front_text = preg_quote(substr($inText, 0, 100));
 
         if (!preg_match("|$front_text|", $content, $matches, PREG_OFFSET_CAPTURE)) {
-            $this->addFlash('status', __('You cannot highligh that text. You cannot highlight figure text. You might also try a slightly different selection.'));
+            $this->addFlash('status', $this->trans('You cannot highligh that text. You cannot highlight figure text. You might also try a slightly different selection.'));
             return $response;
         }
         $start = $matches[0][1];
@@ -619,7 +621,7 @@ class UserController extends AbstractController {
         if ($end == 0 || ($start > $end)) {
 
             //print "Start: $start, End: $end <br />";
-            $this->addFlash('status', __('You cannot highligh that text. You cannot highlight figure text. You might also try a slightly different selection.'));
+            $this->addFlash('status', $this->trans('You cannot highlight that text. You cannot highlight figure text. You might also try a slightly different selection.'));
             return $response;
         }
 
@@ -640,30 +642,31 @@ class UserController extends AbstractController {
 
     /**
      * Take the selection and if it is not defined and passes a few other criteria
-     * add a glossary item to be defined. 
-     * 
+     * add a glossary item to be defined.
      * @param Request $request
      * @param BookArticlesEntity $article
-     * @return type
+     * @param $inTerm
+     * @return RedirectResponse
      */
-    private function _dodef(Request $request, BookArticlesEntity $article, $inTerm) {
+    private function _dodef(Request $request, BookArticlesEntity $article, $inTerm) :RedirectResponse
+    {
 
         $url = $this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]);
         $response = $this->redirect($url);
         $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($inTerm == "") {
-            $this->addFlash('status', __("No word was selected to be defined"));
+            $this->addFlash('status', $this->trans("No word was selected to be defined"));
             return $response;
         }
         if ($uid == "") {
             //user id is empty, we are not in
-            $this->addFlash('status', __('You are not logged in. In this case you cannot ask for definitions.'));
+            $this->addFlash('status', $this->trans('You are not logged in. In this case you cannot ask for definitions.'));
             return $response;
         }
         $inTerm = trim($inTerm);
         if (str_word_count($inTerm) > 3) {
-            $this->addFlash('status', __('Terms to be defined must be 3 words or less. You may have also selected a term that is already defined.'));
+            $this->addFlash('status', $this->trans('Terms to be defined must be 3 words or less. You may have also selected a term that is already defined.'));
             return $response;
         }
         //is it already defined?
@@ -682,17 +685,17 @@ class UserController extends AbstractController {
         $glossTerm->setUrl($url);
         $em->persist($glossTerm);
         $em->flush();
-        $this->addFlash('status', __('Thank you for submitting this word. The authors will define it soon.'));
+        $this->addFlash('status', $this->trans('Thank you for submitting this word. The authors will define it soon.'));
         return $response;
     }
 
     /**
      * @Route("/download")
-     * 
      * @param Request $request
-     * @return type
+     * @return Response
      */
-    public function downloadAction(Request $request) {
+    public function downloadAction(Request $request) : Response
+    {
         $allow_dl = false;
         $currentUserApi = $this->get('zikula_users_module.current_user');
         if ($currentUserApi->isLoggedIn()) {

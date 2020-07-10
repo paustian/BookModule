@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
 
 class BookArticlesRepository extends EntityRepository
 {
-
     private $controller;
 
     private $maxpixels = 700;
 
-    public function parseImportedChapterXML($xmlText)
+    public function parseImportedChapterXML(string $xmlText)
     {
         $match = null;
         $pattern = "|<chapid>(.*?)</chapid>|";
@@ -85,7 +87,7 @@ class BookArticlesRepository extends EntityRepository
         $this->_em->flush();
     }
 
-    public function searchAndReplaceText($searchText, $replaceText, $doPreview, $cid, &$count = 0)
+    public function searchAndReplaceText(string $searchText, string $replaceText, bool $doPreview, int $cid, int &$count = 0)
     {
         $articles = $this->getArticles($cid, false, true);
         $resultArray = array();
@@ -110,7 +112,7 @@ class BookArticlesRepository extends EntityRepository
         return $resultArray;
     }
 
-    public function getArticles($cid = -1, $order = false, $content = false)
+    public function getArticles(int $cid = -1, bool $order = false, bool $content = false)
     {
         $qb = $this->_em->createQueryBuilder();
 
@@ -139,7 +141,7 @@ class BookArticlesRepository extends EntityRepository
         return $articles;
     }
 
-    public function incrementCounter($article)
+    public function incrementCounter(BookArticlesEntity $article)
     {
 
         $count = $article->getCounter();
@@ -152,7 +154,7 @@ class BookArticlesRepository extends EntityRepository
     //book_user_addfigures
 //I factored this out of the above so that I could call it from the admin
 //code for exporting the chapters.
-    public function addfigures($ioText, \Zikula\Core\Controller\AbstractController $contr)
+    public function addfigures(string $ioText, \Zikula\Core\Controller\AbstractController $contr)
     {
         $this->controller = $contr;
         //substitute all the figures
@@ -170,7 +172,7 @@ class BookArticlesRepository extends EntityRepository
      * @param $searchType - is this an AND or an OR search
      * @return array = the search results
      */
-    public function getSearchResults($words, $searchType)
+    public function getSearchResults(string $words, string $searchType)
     {
         $qb = $this->_em->createQueryBuilder();
         $qb->select('a')
@@ -200,7 +202,7 @@ class BookArticlesRepository extends EntityRepository
         return $results;
     }
 
-    private function _inlinefigures($matches)
+    private function _inlinefigures(array $matches)
     {
         $book_number = $matches[1];
         $chap_number = $matches[2];
@@ -249,7 +251,7 @@ class BookArticlesRepository extends EntityRepository
         $repo = $this->_em->getRepository('PaustianBookModule:BookFiguresEntity');
         $figure = $repo->findFigure($fig_number, $chap_number, $book_number);
 
-        if ($figure != null) {
+        if (!empty($figure)) {
             $figureText = $this->_renderFigure($figure, $width, $height, false, $movName, null, $weight, $delay);
         } else {
             $figureText = "";
@@ -257,17 +259,23 @@ class BookArticlesRepository extends EntityRepository
         return $figureText;
     }
 
-    public function _renderFigure(BookFiguresEntity $figure, $width = 0, $height = 0, $stand_alone = false, $movName = 'canvas', $contr = null, $weight=1000, $delay=0)
+    public function _renderFigure(BookFiguresEntity $figure,
+                                  int $width = 0,
+                                  int $height = 0,
+                                  bool $stand_alone = false,
+                                  string $movName = 'canvas',
+                                  \Zikula\Core\Controller\AbstractController $inController = null,
+                                  int $weight = 1000,
+                                  int $delay = 0)
     {
-        if ($contr != null) {
-            $this->controller = $contr;
+        if(null !== $inController){
+            $this->controller = $inController;
         }
-
 //check to see if we have permission to use the figure
         if ($figure->getPerm() != 0) {
-            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, true, false, true, $stand_alone, $movName, $weight, $delay);
+            $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, $stand_alone, $movName, $weight, $delay);
         } else {
-            $visible_link = __("This figure cannot be displayed because permission has not been granted yet.");
+            $visible_link = trans("This figure cannot be displayed because permission has not been granted yet.");
         }
 
         if ($stand_alone) {
@@ -281,27 +289,24 @@ class BookArticlesRepository extends EntityRepository
     /**
      * _buildlink
      *
-     * @param $link
+     * @param string $link
      * @param string $title
      * @param int $width
      * @param int $height
-     * @param string $controller
-     * @param string $loop
-     * @param string $autoplay
      * @param bool $stand_alone
+     * @param string $movName
+     * @param int $weight
+     * @param int $delay
      * @return bool|string
      */
-    private function _buildlink($link,
-                                $title = "",
-                                $width = 0,
-                                $height = 0,
-                                $controller,
-                                $loop = "false",
-                                $autoplay = "true",
-                                $stand_alone = false,
-                                $movName = 'canvas',
-                                $weight = 1000,
-                                $delay = 0)
+    private function _buildlink(string $link,
+                                string $title = "",
+                                int $width = 0,
+                                int $height = 0,
+                                bool $stand_alone = false,
+                                string $movName = 'canvas',
+                                int $weight = 1000,
+                                int $delay = 0)
     {
         //if it is a image link, then set it up, else trust that the user
         //has set it up with the right tags.

@@ -4,7 +4,7 @@
 {{ adminHeader() }}
 <div class="container-fluid">
     {{ showflashes() }}
-    <h3>{{ __('Chose a figure to edit or delete') }}</h3>
+    <h3>{{ 'Chose a figure to edit or delete' | trans  }}</h3>
     {% for book in books %}
         <h3>{{ book.bookName }}</h3>
         {% set currChap = -1 %}

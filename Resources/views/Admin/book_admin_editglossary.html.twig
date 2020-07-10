@@ -6,14 +6,14 @@
     <div class="row">
         <h3>
             <span class="fa fa-edit"></span>
-            {{ __("Edit a Glossary Term") }}
+            {{ "Edit a Glossary Term" | trans  }}
         </h3>
-        <p>{{ __("Enter the term and its defnintion") }}</p>
+        <p>{{ "Enter the term and its defnintion" | trans  }}</p>
         {{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
         <fieldset>            
-            <legend>{{ __('Glossary Term') }}</legend>
+            <legend>{{ 'Glossary Term' | trans  }}</legend>
             {{ form_row(form.term) }}
             {{ form_row(form.definition, {'attr': {'class': 'fig_contents'}}) }}
         </fieldset>

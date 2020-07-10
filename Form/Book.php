@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Form;
 
 use Symfony\Component\Form\AbstractType;
@@ -6,7 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Zikula\Common\Translator\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Description of ExamForm
@@ -19,28 +21,22 @@ use Zikula\Common\Translator\TranslatorInterface;
 
 class Book extends AbstractType {
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
 
     /**
      * BlockType constructor.
-     * @param TranslatorInterface $translator
      */
-    public function __construct(
-        TranslatorInterface $translator)   {
-        $this->translator = $translator;
+    public function __construct()   {
     }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
        $builder
-            ->add('name',TextType::class, array('label' => $this->translator->__('Book Name'), 'required' => true))
-            ->add('add', SubmitType::class, array('label' => $this->translator->__('Add Book')));
+            ->add('name',TextType::class, array('label' => 'Book Name', 'required' => true))
+            ->add('add', SubmitType::class, array('label' => 'Add Book'));
         
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix() :string
     {
         return 'paustianbookmodule_book';
     }

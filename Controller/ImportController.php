@@ -1,7 +1,9 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Controller;
 
-use Zikula\Core\Controller\AbstractController;
+use Zikula\Bundle\CoreBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;

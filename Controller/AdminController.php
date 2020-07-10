@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // ----------------------------------------------------------------------
 // Original Author of file: Timothy Paustian
 // Purpose of file:  Book administration display functions
@@ -8,7 +10,7 @@
 namespace Paustian\BookModule\Controller;
 
 use Zikula\Bundle\HookBundle\FormAwareHook\FormAwareHook;
-use Zikula\Core\Controller\AbstractController;
+use Zikula\Bundle\CoreBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -30,9 +32,8 @@ use Paustian\BookModule\Form\Glossary;
 use Paustian\BookModule\Form\ImportGloss;
 use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
-use Zikula\Core\Response\Ajax\ForbiddenResponse;
 use Zikula\Bundle\HookBundle\Hook\ProcessHook;
-use Zikula\ThemeModule\Engine\Annotation\Theme;
+use \Zikula\Bundle\CoreBundle\Translation\TranslatorTrait;
 
 
 /**
@@ -57,7 +58,7 @@ class AdminController extends AbstractController {
     public function indexAction(Request $request) {
         //security check
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_ADMIN)) {
-            throw new AccessDeniedException($this->__('You do not have pemission to access the Book admin interface.'));
+            throw new AccessDeniedException($this->trans('You do not have pemission to access the Book admin interface.'));
         }
         // Return a page of menu items.
         return [];
@@ -77,12 +78,12 @@ class AdminController extends AbstractController {
         $doMerge = false;
         if (null === $book) {
             if (!$this->hasPermission($this->name . '::', '::', ACCESS_ADD)) {
-                throw new AccessDeniedException($this->__("You do not have permission to edit books."));
+                throw new AccessDeniedException($this->trans("You do not have permission to edit books."));
             }
             $book = new BookEntity();
         } else {
             if (!$this->hasPermission($this->name . '::', $book->getBid() . '::', ACCESS_ADD)) {
-                throw new AccessDeniedException($this->__("You do not have permission to edit this book."));
+                throw new AccessDeniedException($this->trans("You do not have permission to edit this book."));
             }
             $doMerge = true;
         }
@@ -100,7 +101,7 @@ class AdminController extends AbstractController {
             }
             $em->flush();
 
-            $this->addFlash('status', $this->__('Book Saved'));
+            $this->addFlash('status', $this->trans('Book Saved'));
             return $this->redirect($this->generateUrl('paustianbookmodule_admin_edit'));
         }
 
@@ -114,10 +115,11 @@ class AdminController extends AbstractController {
      * @Theme("admin")
      * @param Request $request
      * @param BookEntity $book
+     * @return Response
      */
     public function deleteAction(Request $request, BookEntity $book = null) {
         if (!$this->hasPermission('book::', $book->getBid() . "::", ACCESS_DELETE)) {
-            throw new AccessDeniedException($this->__("You do not have permission to delete that book."));
+            throw new AccessDeniedException($this->trans("You do not have permission to delete that book."));
         }
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modify'));
         if ($book == null) {
@@ -134,7 +136,7 @@ class AdminController extends AbstractController {
         $em = $this->getDoctrine()->getManager();
         $em->remove($book);
         $em->flush();
-        $this->addFlash('status', $this->__('Book Deleted.'));
+        $this->addFlash('status', $this->trans('Book Deleted.'));
         return $response;
     }
 
@@ -151,12 +153,12 @@ class AdminController extends AbstractController {
         $doMerge = false;
         if (null === $chapter) {
             if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADD)) {
-                throw new AccessDeniedException($this->__('You do not have permission to edit chapters.'));
+                throw new AccessDeniedException($this->trans('You do not have permission to edit chapters.'));
             }
             $chapter = new BookChaptersEntity();
         } else {
             if (!$this->hasPermission($this->name . '::Chapter', $chapter->getBid() . "::" . $chapter->getCid(), ACCESS_EDIT)) {
-                throw new AccessDeniedException($this->__('You do not have permission to edit this chapters.'));
+                throw new AccessDeniedException($this->trans('You do not have permission to edit this chapters.'));
             }
             $doMerge = true;
         }
@@ -164,7 +166,7 @@ class AdminController extends AbstractController {
         $items = $repo->getBooks();
         if ($items === null) {
             //There are no books
-            $this->addFlash('status', $this->__('There are no books. Create a book first.'));
+            $this->addFlash('status', $this->trans('There are no books. Create a book first.'));
             return $this->redirect($this->generateUrl('paustianbookmodule_admin_edit'));
         }
 
@@ -177,10 +179,10 @@ class AdminController extends AbstractController {
             $bid = $request->get('book');
             $chapter->setBid($bid);
             $route = 'paustianbookmodule_admin_editchapter';
-            $flashText = $this->__('Chapter ' . $chapter->getName() . ' Saved');
+            $flashText = $this->trans('Chapter ' . $chapter->getName() . ' Saved');
             if ($doMerge) {
                 $route = 'paustianbookmodule_admin_modifychapter';
-                $flashText = $this->__('Chapter ' . $chapter->getName() . ' Updated');
+                $flashText = $this->trans('Chapter ' . $chapter->getName() . ' Updated');
                 $em->merge($chapter);
             } else {
                 $em->persist($chapter);
@@ -203,19 +205,19 @@ class AdminController extends AbstractController {
      * @Theme("admin")
      * edit an article.
      * @param Request $request
-     * @param \Paustian\BookModule\Controller\BookArticlesEntity $article
-     * @return RedirectResponse or Response
+     * @param BookArticlesEntity|null $article
+     * @return RedirectResponse|Response
      */
     public function editarticleAction(Request $request, BookArticlesEntity $article = null) {
         $doMerge = false;
         if (null === $article) {
             if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADD)) {
-                throw new AccessDeniedException($this->__('You do not have permission to create articles'));
+                throw new AccessDeniedException($this->trans('You do not have permission to create articles'));
             }
             $article = new BookArticlesEntity();
         } else {
             if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_EDIT)) {
-                throw new AccessDeniedException($this->__('You do not have permission to edit articles'));
+                throw new AccessDeniedException($this->trans('You do not have permission to edit articles'));
             }
             $doMerge = true;
         }
@@ -230,11 +232,11 @@ class AdminController extends AbstractController {
             //you attach them later in a drag and drop interface
             $em = $this->getDoctrine()->getManager();
             $route = 'paustianbookmodule_admin_editarticle';
-            $flashText = $this->__('Article ' . $article->getTitle() .  ' Saved');
+            $flashText = $this->trans('Article ' . $article->getTitle() .  ' Saved');
             if ($doMerge) {
                 $em->merge($article);
                 $route = 'paustianbookmodule_admin_modifyarticle';
-                $flashText = $this->__('Article ' . $article->getTitle() .  ' Updated');
+                $flashText = $this->trans('Article ' . $article->getTitle() .  ' Updated');
             } else {
                 //This is a new article so Book and Chapter not set.
                 $article->setBid(0);
@@ -255,20 +257,20 @@ class AdminController extends AbstractController {
      * @Route("/editfigure/{figure}")
      * @Theme("admin")
      * @param Request $request
-     * @param \Paustian\BookModule\Controller\BookFiguresEntity $figure
-     * @return RedirectResponse or Repsonse;
+     * @param BookFiguresEntity|null $figure
+     * @return RedirectResponse|Response
      */
     public function editfigureAction(Request $request, BookFiguresEntity $figure = null) {
         $doMerge = false;
         if (null === $figure) {
             $figure = new BookFiguresEntity();
             if (!$this->hasPermission($this->name . '::', ".*::", ACCESS_ADD)) {
-                throw new AccessDeniedException(_('YOu do not have permission to create figures.'));
+                throw new AccessDeniedException($this->trans('You do not have permission to create figures.'));
             }
         } else {
             $doMerge = true;
             if (!$this->hasPermission($this->name . '::', $figure->getBid() . "::", ACCESS_EDIT)) {
-                throw new AccessDeniedException($this->__('You do not have permission to edit figures.'));
+                throw new AccessDeniedException($this->trans('You do not have permission to edit figures.'));
             }
         }
 
@@ -285,10 +287,10 @@ class AdminController extends AbstractController {
             $bid = $request->get('book');
             $figure->setBid($bid);
             $route ='paustianbookmodule_admin_editfigure';
-            $flashText = $this->__('Figure Saved');
+            $flashText = $this->trans('Figure Saved');
             if ($doMerge) {
                 $route = 'paustianbookmodule_admin_modifyfigure';
-                $flashText = $this->__('Figure Updated');
+                $flashText = $this->trans('Figure Updated');
                 $em->merge($figure);
             } else {
                 $em->persist($figure);
@@ -315,7 +317,7 @@ class AdminController extends AbstractController {
      */
     public function editglossaryAction(Request $request, BookGlossEntity $gloss = null) {
         if (!$this->hasPermission($this->name . '::', '.*::', ACCESS_ADD)) {
-            throw new AccessDeniedException($this->__('You do not have permission to create glossary items.'));
+            throw new AccessDeniedException($this->trans('You do not have permission to create glossary items.'));
         }
         $doMerge = false;
         if (null === $gloss) {
@@ -331,10 +333,10 @@ class AdminController extends AbstractController {
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $route = 'paustianbookmodule_admin_editglossary';
-            $flashText = $this->__('Glossary Term ' . $gloss->getTerm() . ' Saved');
+            $flashText = $this->trans('Glossary Term ' . $gloss->getTerm() . ' Saved');
             if ($doMerge) {
                 $route = 'paustianbookmodule_admin_modifyglossary';
-                $flashText = $this->__('Glossary Term ' . $gloss->getTerm() . ' Updated');
+                $flashText = $this->trans('Glossary Term ' . $gloss->getTerm() . ' Updated');
                 $em->merge($gloss);
             } else {
                 $em->persist($gloss);
@@ -354,7 +356,7 @@ class AdminController extends AbstractController {
      * @Route("/modify")
      * @Theme("admin")
      * @param Request $request
-     * @return type
+     * @return Response
      */
     public function modifyAction(Request $request) {
         $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookEntity');
@@ -369,7 +371,7 @@ class AdminController extends AbstractController {
         $bookNames = array();
         foreach ($chapters as $chapter) {
             if ($chapter->getBid() === 0) {
-                $bookNames[] = $this->__('Unassigned');
+                $bookNames[] = $this->trans('Unassigned');
             } else {
                 $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookEntity');
                 $book = $repo->getBooks($chapter->getBid());
@@ -384,7 +386,7 @@ class AdminController extends AbstractController {
      * @Route("/modifychapter")
      * @Theme("admin")
      * @param Request $request
-     * @return type
+     * @return Response
      */
     public function modifychapterAction(Request $request) {
 
@@ -401,7 +403,7 @@ class AdminController extends AbstractController {
      *
      * Create an interface for picking the article you want to edit
      * @param Request $request
-     * @return type
+     * @return Response
      */
     public function modifyarticleAction(Request $request, BookArticlesEntity $article = null) {
         //build an organization of the book
@@ -415,7 +417,7 @@ class AdminController extends AbstractController {
      * @Route("/modifyfigure")
      * @Theme("admin")
      * @param Request $request
-     * @return type
+     * @return Response
      */
     public function modifyfigureAction(Request $request) {
         //get the list of books
@@ -443,9 +445,9 @@ class AdminController extends AbstractController {
     /**
      * @Route("/modifyglossary/{letter}", defaults={"letter"="A"})
      * @Theme("admin")
-     * @return type
+     * @return Response
      */
-    public function modifyglossaryAction($letter) {
+    public function modifyglossaryAction(string $letter) {
         $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookGlossEntity');
         $terms = $repo->getGloss($letter, ['col' => 'u.term', 'direction' => 'ASC'], null, ['u.term', 'u.gid']);
         return $this->render('PaustianBookModule:Admin:book_admin_modifyglossary.html.twig', ['terms' => $terms]);
@@ -453,12 +455,13 @@ class AdminController extends AbstractController {
 
     private function _generate_chapter_menu() {
         //get the complete list of books
-        $repo = $this->getDoctrine()->getManager()-getRepository('PaustianBookModule:BookEntity');
+        $repo = $this->getDoctrine()->getManager()-getRepository('@PaustianBookModule\BookEntity');
         $books = $repo->getBooks();
         if ($books == false) {
             //if we dont' have a book, then you
             //cannot have chapters
-            return $this->addFlash('error', $this->__('You have to create a book before you can create a chapter or an article'));
+            $this->addFlash('error', $this->trans('You have to create a book before you can create a chapter or an article'));
+            return null;
         }
 
         $chapters = array();
@@ -488,7 +491,8 @@ class AdminController extends AbstractController {
         }
         //there are no chapters
         if ($j == $i) {
-            return $this->addFlash('error', $this->__('There are no chapters.'));
+            $this->addFlash('error', $this->trans('There are no chapters.'));
+            return null;
         }
 
         // Start the table
@@ -513,7 +517,7 @@ class AdminController extends AbstractController {
      * @Theme("admin")
      * @param Request $request
      * @param BookChaptersEntity $chapter - the chapter to export
-     * @return type
+     * @return Response
      */
     public function exportAction(Request $request, BookChaptersEntity $chapter = null, $inlinefig=true) {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifychapter'));
@@ -522,7 +526,7 @@ class AdminController extends AbstractController {
             return $response;
         }
         if (!$this->hasPermission($this->name . '::Chapter', "::" . $chapter->getCid(), ACCESS_DELETE)) {
-            throw new AccessDeniedException($this->__("You do not have permission to export that chapter."));
+            throw new AccessDeniedException($this->trans("You do not have permission to export that chapter."));
         }
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $articles = $repo->getArticles($chapter->getCid(), true, true);
@@ -541,7 +545,7 @@ class AdminController extends AbstractController {
      * @Theme("admin")
      * @param Request $request
      * @param BookChaptersEntity $chapter
-     * @return type
+     * @return Response
      * @throws AccessDeniedException
      */
     public function deletechapterAction(Request $request, BookChaptersEntity $chapter = null) {
@@ -552,7 +556,7 @@ class AdminController extends AbstractController {
         }
 
         if (!$this->hasPermission($this->name . '::Chapter', "::" . $chapter->getCid(), ACCESS_DELETE)) {
-            throw new AccessDeniedException($this->__("You do not have permission to delete that chapter."));
+            throw new AccessDeniedException($this->trans("You do not have permission to delete that chapter."));
         }
 
 
@@ -568,7 +572,7 @@ class AdminController extends AbstractController {
 
         $em->remove($chapter);
         $em->flush();
-        $this->addFlash('status', $this->__('Chapter Deleted.'));
+        $this->addFlash('status', $this->trans('Chapter Deleted.'));
         return $response;
     }
 
@@ -587,7 +591,7 @@ class AdminController extends AbstractController {
             return $response;
         } else {
             if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_DELETE)) {
-                throw new AccessDeniedException($this->__("You do not have permission to delete this article."));
+                throw new AccessDeniedException($this->trans("You do not have permission to delete this article."));
             }
         }
 
@@ -596,7 +600,7 @@ class AdminController extends AbstractController {
 
         $em->remove($article);
         $em->flush();
-        $this->addFlash('status', $this->__('Article Deleted.'));
+        $this->addFlash('status', $this->trans('Article Deleted.'));
         //Let any providers hooked to this article that it was deleted.
         $this->get('hook_dispatcher')->dispatch(\Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber::ARTICLE_DELETE_PROCESS, new ProcessHook($article->getAid()));
 
@@ -615,7 +619,7 @@ class AdminController extends AbstractController {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyfigure'));
         if ($figure == null) {
             if (!$this->hasPermission($this->name . '::', "::", ACCESS_DELETE)) {
-                throw new AccessDeniedException($this->__("You do not have permission to delete figures."));
+                throw new AccessDeniedException($this->trans("You do not have permission to delete figures."));
             }
             //you want the edit interface, which has a delete option.
             return $response;
@@ -623,7 +627,7 @@ class AdminController extends AbstractController {
         $em = $this->getDoctrine()->getManager();
         $em->remove($figure);
         $em->flush();
-        $this->addFlash('status', $this->__('Figure deleted.'));
+        $this->addFlash('status', $this->trans('Figure deleted.'));
         return $response;
     }
 
@@ -632,12 +636,12 @@ class AdminController extends AbstractController {
      * @Theme("admin")
      * @param Request $request
      * @param BookGlossEntity $gloss
-     * @return type
+     * @return Response
      * @throws AccessDeniedException
      */
     public function deleteglossaryAction(Request $request, BookGlossEntity $gloss = null) {
         if (!$this->hasPermission($this->name . '::', "::", ACCESS_DELETE)) {
-            throw new AccessDeniedException($this->__("You do not have permission to delete that glossary item."));
+            throw new AccessDeniedException($this->trans("You do not have permission to delete that glossary item."));
         }
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyglossary'));
         if ($gloss == null) {
@@ -647,7 +651,7 @@ class AdminController extends AbstractController {
         $em = $this->getDoctrine()->getManager();
         $em->remove($gloss);
         $em->flush();
-        $this->addFlash('status', $this->__('Glossary item deleted.'));
+        $this->addFlash('status', $this->trans('Glossary item deleted.'));
         return $response;
     }
 
@@ -663,9 +667,9 @@ class AdminController extends AbstractController {
      * @Route("/arrangearticlesAction")
      * @Theme("admin")
      * @param Request $request
-     * @return type
+     * @return Response
      */
-    public function arrangearticlesAction(Request $request) {
+    public function arrangearticlesAction(Request $request)  : string{
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
         $chapterids="";
         $books = $repo->buildtoc(0, $chapterids);
@@ -678,7 +682,7 @@ class AdminController extends AbstractController {
      * @Route("/savearrangement")
      * @Theme("admin")
      * @param Request $request
-     * @return type
+     * @return Response
      */
     public function savearrangementAction(Request $request) {
         $chapterIds = $request->request->get('chapterids');
@@ -752,7 +756,7 @@ class AdminController extends AbstractController {
      */
     public function importAction(Request $request) {
         if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
-            throw new AccessDeniedException($this->__("You do not have permission to import text to books."));
+            throw new AccessDeniedException($this->trans("You do not have permission to import text to books."));
         }
         $form = $this->createForm(ImportChapter::class);
 
@@ -765,7 +769,7 @@ class AdminController extends AbstractController {
 
 
             $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity')->parseImportedChapterXML($xmlQuestionText);
-            $this->addFlash('status', $this->__("Chapter imported."));
+            $this->addFlash('status', $this->trans("Chapter imported."));
 
             $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_import'));
             return $response;
@@ -779,7 +783,7 @@ class AdminController extends AbstractController {
     /*public function modifyimagepaths($args) {
         //only admins can do this
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_ADD)) {
-            return new ForbiddenResponse($this->__('Access Denied'));
+            return new ForbiddenResponse($this->trans('Access Denied'));
         }
 
         $fids = FormUtil::getPassedValue('fid');
@@ -801,9 +805,9 @@ class AdminController extends AbstractController {
             // Call apiupdate to do all the work
             if ($result) {
                 // Success
-                $this->addFlash('status', $this->__('The figure was updated.'));
+                $this->addFlash('status', $this->trans('The figure was updated.'));
             } else {
-                $this->addFlash('error', $this->__('Update of figure failed.'));
+                $this->addFlash('error', $this->trans('Update of figure failed.'));
                 return false;
             }
         }
@@ -834,7 +838,7 @@ class AdminController extends AbstractController {
             $cid = $chapter->getCid();
             $bid = $chapter->getBid();
             if (!$this->hasPermission($this->name . '::Chatper', "$bid::$cid", ACCESS_EDIT)) {
-                throw new AccessDeniedException($this->__("You do not have permission to verify urls in chapters."));
+                throw new AccessDeniedException($this->trans("You do not have permission to verify urls in chapters."));
             }
         }
 
@@ -854,7 +858,7 @@ class AdminController extends AbstractController {
                 ['urltable' => $url_table]);
     }
 
-    function buildtable($content, &$url_table, $chap_no, $article_no) {
+    function buildtable(string $content, array &$url_table, int $chap_no, int $article_no) {
         $matches = array();
         $url_row = array();
         $new_urls = array();
@@ -882,7 +886,7 @@ class AdminController extends AbstractController {
      * @param $urls
      * @return mixed
      */
-    public function checkurls($urls) {
+    public function checkurls(array $urls) {
         //the url to the current server
         $baseurl = $GLOBALS['request']->getBaseUrl();
         $i = 0;
@@ -910,7 +914,7 @@ class AdminController extends AbstractController {
         return $urls;
     }
 
-    private function _is_url($url) {
+    private function _is_url(string $url) {
         if (!preg_match('/^http[s]*\\:\\/\\/[a-z0-9\-]+\.([a-z0-9\-]+\.)?[a-z]+/i', $url)) {
             return false;
         } else {
@@ -918,7 +922,7 @@ class AdminController extends AbstractController {
         }
     }
 
-    private function _check_http_link($inItem) {
+    private function _check_http_link(array $inItem) {
         if ($this->_is_valid_url($inItem['url'])) {
             return 'Yes';
         } else {
@@ -926,7 +930,7 @@ class AdminController extends AbstractController {
         }
     }
 
-    private function _is_valid_url($url) {
+    private function _is_valid_url(string $url) {
         $url = @parse_url($url);
 
         if (!$url) {
@@ -963,7 +967,7 @@ class AdminController extends AbstractController {
      */
     public function checkstudentdefsAction(Request $request) {
         if (!$this->hasPermission($this->name. '::', '::', ACCESS_EDIT)) {
-            throw new AccessDeniedException($this->__("You do not have permission to edit glossary items."));
+            throw new AccessDeniedException($this->trans("You do not have permission to edit glossary items."));
         }
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
@@ -976,11 +980,11 @@ class AdminController extends AbstractController {
      * @Route("/importglossary")
      * @Theme("admin")
      * @param Request $request
-     * @return type
+     * @return Response
      */
     public function importglossaryAction(Request $request) {
         if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
-            throw new AccessDeniedException($this->__("You do not have permission to import glossary items."));
+            throw new AccessDeniedException($this->trans("You do not have permission to import glossary items."));
         }
         $form = $this->createForm(ImportGloss::class);
 
@@ -996,9 +1000,9 @@ class AdminController extends AbstractController {
                 foreach ($defQuestions as $question) {
                     $terms .= $question . ', ';
                 }
-                $this->addFlash('status', $this->__("Glossary items imported except for " . $terms . "which were alraedy defined."));
+                $this->addFlash('status', $this->trans("Glossary items imported except for " . $terms . "which were alraedy defined."));
             } else {
-                $this->addFlash('status', $this->__("Glossary items imported."));
+                $this->addFlash('status', $this->trans("Glossary items imported."));
             }
             $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_importglossary'));
             return $response;
@@ -1018,11 +1022,11 @@ class AdminController extends AbstractController {
      *
      * @param Request $request
      * @param BookChaptersEntity $chapter
-     * @return type
+     * @return Response
      */
     public function searchreplaceAction(Request $request, BookChaptersEntity $chapter = null) {
         if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
-            throw new AccessDeniedException($this->__("You do not have permission to perform a search and replace."));
+            throw new AccessDeniedException($this->trans("You do not have permission to perform a search and replace."));
         }
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifychapter'));
         if (null == $chapter) {
@@ -1040,13 +1044,13 @@ class AdminController extends AbstractController {
                 $count = 0;
                 $previewText = $repo->searchAndReplaceText($data['searchText'], $data['replaceText'], $data['preview'], $chapter->getCid(), $count);
                 if (!$data['preview']) {
-                    $this->addFlash('status', $this->__("Search and Replace Finished, $count replacements were made."));
+                    $this->addFlash('status', $this->trans("Search and Replace Finished, $count replacements were made."));
                     return $response;
                 } else {
-                    $this->addFlash('status', $this->__("Preview of Search and Replace Finished, $count replacements were made."));
+                    $this->addFlash('status', $this->trans("Preview of Search and Replace Finished, $count replacements were made."));
                 }
             } else {
-                $this->addFlash('error', $this->__("Your search string was invliad"));
+                $this->addFlash('error', $this->trans("Your search string was invliad"));
             }
             //if we did a preview or there was an error in the serach string, then just fall through and show it.
         }
@@ -1067,7 +1071,7 @@ class AdminController extends AbstractController {
      */
     public function addglossarytoarticleAction(Request $request, BookArticlesEntity $article = null){
         if (!$this->hasPermission($this->name. '::', '::', ACCESS_ADD)) {
-            throw new AccessDeniedException($this->__("You do not have permission to perform a glossary add."));
+            throw new AccessDeniedException($this->trans("You do not have permission to perform a glossary add."));
         }
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyarticle'));
         if (null == $article) {
@@ -1077,7 +1081,7 @@ class AdminController extends AbstractController {
         //first we need to remove any glossary terms that are already there.
         $content =  preg_replace("/<a class=\"glossary\">(.*?)<\/a>/", "$1", $content);
         $glossRep = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
-        $glossTerms = $glossRep->getGloss("", null, null, 'u.term');
+        $glossTerms = $glossRep->getGloss("", null, null, ['u.term']);
         $totalCount = 0;
         foreach($glossTerms as $term){
             $content = preg_replace("|\b(" . $term['term'] . ")\b|", "<a class=\"glossary\">$1</a>", $content, 1, $count);
@@ -1088,7 +1092,7 @@ class AdminController extends AbstractController {
         $em = $this->getDoctrine()->getManager();
         $em->persist($article);
         $em->flush();
-        $this->addFlash('status', $this->__("$totalCount glossary terms were added."));
+        $this->addFlash('status', $this->trans("$totalCount glossary terms were added."));
         return $response;
     }
 

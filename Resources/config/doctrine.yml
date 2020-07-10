@@ -1,5 +1,0 @@
-services:
-    paustian_book_module.articles_repository:
-        class: Paustian\BookModule\Entity\Repository\BookArticlesRepository
-        factory: ["@doctrine.orm.default_entity_manager", getRepository]
-        arguments: ["PaustianBookModule:BookArticlesEntity"]

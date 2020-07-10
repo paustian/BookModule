@@ -2,17 +2,17 @@
 {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 {% if loggedIn %}
-    <button id="opener">{{ __("Open Book Tools") }}</button>
+    <button id="opener">{{ "Open Book Tools" | trans  }}</button>
     <div id="dialog" title="Book Tools"> 
         <form class="form" name="highlight" action="{{ path('paustianbookmodule_user_dohighlight' }}" method="post" enctype="application/x-www-form-urlencoded">
-            <input type="button" value="{{ __("Toggle Highlight") }}" name="highlight" onmousedown="document.highlight.text.value = getSelectionHtml();
+            <input type="button" value="{{ "Toggle Highlight" | trans  }}" name="highlight" onmousedown="document.highlight.text.value = getSelectionHtml();
                     document.highlight.submit()" title="Select the text you want to highlight.">
             <input type='hidden' name="aid" value="{{ aid }}">
         </form>
         <form class="form" name="collect_highlights" action="{{ path('paustianbookmodule_user_collecthighlights' }}" method="post" enctype="application/x-www-form-urlencoded">
             <table>
                 <tr style="text-align:center">
-                    <td><input type="button" value="{{__("Collect Highlights")}}" name="collect_highlights" onmousedown="document.collect_highlights.submit()"
+                    <td><input type="button" value="{{trans("Collect Highlights")}}" name="collect_highlights" onmousedown="document.collect_highlights.submit()"
                                title="Choose the chapters in the list box on the right then click this button. All the highlights that you have made for the choosen chapter(s) will be displayed."></td>
                     <td>
                         <select name="cids[]" size="5" multiple>
@@ -25,17 +25,17 @@
             </table>
         </form>
         <form class="form" name="dodef" action="{{ path('paustianbookmodule_user_dodef') }}" method="post" enctype="application/x-www-form-urlencoded">
-            <input type="button" value="{{ __("Create Definition") }}" onmousedown="document.dodef.text.value = getSelectionHtml();
+            <input type="button" value="{{ "Create Definition" | trans  }}" onmousedown="document.dodef.text.value = getSelectionHtml();
                     document.dodef.submit()"
-                   title="{{ __('Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you.') }}">
+                   title="{{ 'Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you.' | trans  }}">
         </form>
         <hr />
     {% endif %}
-    <h4>{{ __("Table of Contents") }}</h4>  
+    <h4>{{ "Table of Contents" | trans  }}</h4>
 
     <select id="quick_link" onChange="location.href = document.jump.quick_link.options[document.jump.quick_link.selectedIndex].value;">
         <option selected="selected">
-            {{ __('Select a Chapter...') }}
+            {{ 'Select a Chapter...' | trans  }}
         </option>
         <option>
             ---------

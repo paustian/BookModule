@@ -6,15 +6,15 @@
     <div class="row">
         <h3>
             <span class="fa fa-upload"></span>
-            {{ __("Import Book Chapters and Articles") }}
+            {{ "Import Book Chapters and Articles" | trans  }}
         </h3>
-        <p>{{ __("Paste the correctly formated xml into the textarea below and click Import Book. Below is an example of properly formatted xml. To 
+        <p>{{ trans("Paste the correctly formated xml into the textarea below and click Import Book. Below is an example of properly formatted xml. To
 get an example of the correct method of formatting, export a chapter.") }}</p>
         {{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
         <fieldset>
-            <legend>{{ __('Textr to import') }}</legend>
+            <legend>{{ 'Textr to import' | trans  }}</legend>
             {{ form_row(form.importText, {'attr': {'class': 'book_contents'}}) }}
         </fieldset>
         <div class="form-group">

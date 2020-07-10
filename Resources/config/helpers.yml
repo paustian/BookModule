@@ -1,9 +1,0 @@
-services:
-  paustian_book_module.helper.search_helper:
-          class: Paustian\BookModule\Helper\SearchHelper
-          arguments:
-            - '@zikula_permissions_module.api.permission'
-            - '@session'
-            - '@paustian_book_module.articles_repository'
-          tags:
-              - { name: zikula.searchable_module, bundleName: PaustianBookModule }

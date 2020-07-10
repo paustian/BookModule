@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
@@ -7,7 +9,14 @@ use Paustian\BookModule\Entity\BookChaptersEntity;
 
 class BookChaptersRepository extends EntityRepository {
 
-    public function getChapters($bid = -1, $order = false) {
+    /**
+     * Grab a list of the chapters in a book
+     * @param int $bid
+     * @param bool $order
+     * @return array
+     */
+
+    public function getChapters(int $bid = -1, bool $order = false) : array {
         $qb = $this->_em->createQueryBuilder();
 
         // add select and from params

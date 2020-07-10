@@ -1,12 +1,18 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Paustian\BookModule\Entity\BookEntity;
 
 class BookRepository extends EntityRepository {
+    /**
+     * @param int $bid
+     * @return array
+     */
 
-    public function getBooks($bid = 0) {
+    public function getBooks(int $bid = 0) : array{
         //display a book interface.
         $qb = $this->_em->createQueryBuilder();
 
@@ -21,8 +27,7 @@ class BookRepository extends EntityRepository {
         $query = $qb->getQuery();
 
         // execute query
-        $books = $query->getResult();
-        return $books;
+        return $query->getResult();
     }
     /**
      * buildtoc
@@ -48,12 +53,12 @@ class BookRepository extends EntityRepository {
      * If you do not specify a bid, all the books are sent back. This function is
      * efficient by not obtaining all the article content, which saves a bunch of
      * memory.
-     * 
-     * @param type $bid
-     * @param type $chapterids
-     * @return string
+     *
+     * @param int $bid
+     * @param array $chapterids
+     * @return array
      */
-    public function buildtoc($bid = 0, &$chapterids = "") {
+    public function buildtoc(int $bid = 0, array &$chapterids = []) : array {
         //get the list of books
         $booksEnts = $this->getBooks($bid);
 

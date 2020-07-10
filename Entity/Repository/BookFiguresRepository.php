@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
@@ -6,7 +9,13 @@ use Paustian\BookModule\Entity\BookFiguresEntity;
 
 class BookFiguresRepository extends EntityRepository {
 
-    public function getFigures($bid = -1) {
+    /**
+     * Get the figures for a book.
+     *
+     * @param int $bid
+     * @return int|mixed|string
+     */
+    public function getFigures(int $bid = -1) : string {
         $qb = $this->_em->createQueryBuilder();
 
         // add select and from params
@@ -28,8 +37,15 @@ class BookFiguresRepository extends EntityRepository {
         $figures = $query->getResult();
         return $figures;
     }
-    
-    public function findFigure($fig_number, $chap_number, $book_number){
+
+    /**
+     * Grab the information for a figure.
+     * @param int $fig_number
+     * @param int $chap_number
+     * @param int $book_number
+     * @return array
+     */
+    public function findFigure(int $fig_number, int $chap_number, int $book_number) : array {
         $qb = $this->_em->createQueryBuilder();
 
         // add select and from params
@@ -45,10 +61,6 @@ class BookFiguresRepository extends EntityRepository {
         $query = $qb->getQuery();
 
         // execute query
-        $figures = $query->getResult();
-        if(empty($figures)){
-            return null;
-        }
-        return $figures[0];
+        return $query->getResult();
     }
 }

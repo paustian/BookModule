@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Form;
 
 use Symfony\Component\Form\AbstractType;
@@ -7,7 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Zikula\Common\Translator\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * Description of Chapter
  * Set up the elements for a Chapter form.
@@ -16,30 +18,22 @@ use Zikula\Common\Translator\TranslatorInterface;
  * 
  */
 class Chapter extends AbstractType {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
 
     /**
      * BlockType constructor.
-     * @param TranslatorInterface $translator
      */
-    public function __construct(
-        TranslatorInterface $translator
-    ) {
-        $this->translator = $translator;
+    public function __construct() {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name', TextType::class, ['label' => $this->translator->__('Chapter Name'), 'required' => true]);
-        $builder->add('number', NumberType::class, ['label' => $this->translator->__('Chapter Number'), 'required' => true]);
-        $builder->add('add', SubmitType::class, array('label' => $this->translator->__('Edit Chapter')));
+        $builder->add('name', TextType::class, ['label' => 'Chapter Name', 'required' => true]);
+        $builder->add('number', NumberType::class, ['label' => 'Chapter Number', 'required' => true]);
+        $builder->add('add', SubmitType::class, array('label' => 'Edit Chapter'));
         
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix() :string
     {
         return 'paustianbookmodule_chapter';
     }

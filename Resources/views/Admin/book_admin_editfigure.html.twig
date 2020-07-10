@@ -6,14 +6,14 @@
     <div class="row">
         <h3>
             <span class="fa fa-edit"></span>
-            {{ __("Edit a Figure") }}
+            {{ "Edit a Figure" | trans  }}
         </h3>
-        <p>{{ __("Enter information about the figure") }}</p>
+        <p>{{ "Enter information about the figure" | trans  }}</p>
         {{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
         <fieldset>
-            <div class="form-group"><label class="col-lg-3 control-label required" >{{ __('Book') }}</label>
+            <div class="form-group"><label class="col-lg-3 control-label required" >{{ 'Book' | trans  }}</label>
             <select name="book">
                 {% for item in books %}
                     {% if figure.bid == item.bid %}
@@ -24,7 +24,7 @@
                 {% endfor %}
             </select>
             </div>
-            <legend>{{ __('Figure Data') }}</legend>
+            <legend>{{ 'Figure Data' | trans  }}</legend>
             {{ form_row(form.chap_number, {'attr': {'class': 'short_number'}}) }}
             {{ form_row(form.fig_number, {'attr': {'class': 'short_number'}}) }}
             {{ form_row(form.perm) }}

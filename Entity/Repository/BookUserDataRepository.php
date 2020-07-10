@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
@@ -6,7 +8,12 @@ use Paustian\BookModule\Entity\BookUserDataEntity;
 
 class BookUserDataRepository extends EntityRepository {
 
-    public function getHighlights($aid, $uid) {
+    /**
+     * @param int $aid
+     * @param int $uid
+     * @return int|mixed|string
+     */
+    public function getHighlights(int $aid, int $uid) {
         //display a book interface.
         $qb = $this->_em->createQueryBuilder();
         
@@ -21,11 +28,19 @@ class BookUserDataRepository extends EntityRepository {
         $query = $qb->getQuery();
 
         // execute query
-        $userData = $query->getResult();
-        return $userData;
+        return $query->getResult();
     }
-    
-    public function checkHighlights($aid, $uid, $start, $end){
+
+    /**
+     * @param int $aid
+     * @param int $uid
+     * @param int $start
+     * @param int $end
+     * @return bool
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function checkHighlights(int $aid, int $uid, int $start, int $end){
         $highlights = $this->getHighlights($aid, $uid);
         $highlightFound = false;
         foreach($highlights as $hItem){
@@ -46,8 +61,16 @@ class BookUserDataRepository extends EntityRepository {
         }
         return $highlightFound;
     }
-    
-    public function recordHighlight($aid, $uid, $start, $end){
+
+    /**
+     * @param int $aid
+     * @param int $uid
+     * @param int $start
+     * @param int $end
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function recordHighlight(int $aid, int $uid, int $start, int $end){
         $highlight = new BookUserDataEntity();
         $highlight->setAid($aid);
         $highlight->setUid($uid);

@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule\HookSubscriber;
 
 use Zikula\Bundle\HookBundle\Category\UiHooksCategory;
 use Zikula\Bundle\HookBundle\HookSubscriberInterface;
-use Zikula\Common\Translator\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ArticleUiHookSubscriber implements HookSubscriberInterface
 {
@@ -25,27 +27,32 @@ class ArticleUiHookSubscriber implements HookSubscriberInterface
         $this->translator = $translator;
     }
 
-    public function getOwner()
+    public function getOwner() : string
     {
         return 'PaustianBookModule';
     }
 
-    public function getCategory()
+    public function getCategory() : string
     {
         return UiHooksCategory::NAME;
     }
 
-    public function getTitle()
+    public function getTitle() : string
     {
-        return $this->translator->__('Article attachment hooks');
+        return $this->translator->trans('Article attachment hooks');
     }
 
-    public function getEvents()
+    public function getEvents() : array
     {
         return [
             UiHooksCategory::TYPE_DISPLAY_VIEW => self::ARTICLE_DISPLAY,
             UiHooksCategory::TYPE_PROCESS_EDIT => self::ARTICLE_PROCESS,
             UiHooksCategory::TYPE_PROCESS_DELETE => self::ARTICLE_DELETE_PROCESS,
         ];
+    }
+
+    public function getAreaName(): string
+    {
+        return 'subscriber.book.ui_hooks.article';
     }
 }

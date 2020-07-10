@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule\Entity;
 
-use Zikula\Core\Doctrine\EntityAccess;
+use Zikula\Bundle\CoreBundle\Doctrine\EntityAccess;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
@@ -56,55 +58,84 @@ class BookUserDataEntity extends EntityAccess
         $this->start = 0;
         $this->end = 0;
     }
-    
-    public function getUdid()
+
+    /**
+     * @return int
+     */
+    public function getUdid() : int
     {
         return $this->udid;
     }
 
-    public function setUdid($udid)
+    /**
+     * @param int $udid
+     */
+    public function setUdid(int $udid)
     {
         $this->udid = $udid;
     }
-    
-    public function getUid()
+
+    /**
+     * @return int
+     */
+    public function getUid() : int
     {
         return $this->uid;
     }
 
-    public function setUid($uid)
+    /**
+     * @param int $uid
+     */
+    public function setUid(int $uid)
     {
         $this->uid = $uid;
     }
-    
-    public function getAid()
+
+    /**
+     * @return int
+     */
+    public function getAid() : int
     {
         return $this->aid;
     }
 
-    public function setAid($aid)
+    /**
+     * @param int $aid
+     */
+    public function setAid(int $aid)
     {
         $this->aid = $aid;
     }
-    
-    public function getStart()
+
+    /**
+     * @return int
+     */
+    public function getStart() : int
     {
         return $this->start;
     }
 
-    public function setStart($start)
+    /**
+     * @param int $start
+     */
+    public function setStart(int $start)
     {
         $this->start = $start;
     }
-    
-    public function getEnd()
+
+    /**
+     * @return int
+     */
+    public function getEnd() : int
     {
         return $this->end;
     }
 
-    public function setEnd($end)
+    /**
+     * @param int $end
+     */
+    public function setEnd(int $end)
     {
         $this->end = $end;
     }
 }
-

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule\Helper;
 
 class TagHelper
@@ -11,7 +13,7 @@ class TagHelper
      * @return string
      *
      */
-    public static function stripFrontAndBackPTags($inText)
+    public static function stripFrontAndBackPTags(string $inText) : string
     {
         //remove the initial paragraph tag
         $content = preg_replace('|^<p[^>]*>|im', '', $inText, 1);

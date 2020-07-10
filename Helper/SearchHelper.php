@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule\Helper;
 /**
  * PostNuke Application Framework
@@ -56,7 +58,7 @@ class SearchHelper implements SearchableInterface
     /**
      * {@inheritdoc}
      */
-    public function amendForm(FormBuilderInterface $form)
+    public function amendForm(FormBuilderInterface $form) : void
     {
         // not needed because `active` child object is already added and that is all that is needed.
     }
@@ -64,7 +66,7 @@ class SearchHelper implements SearchableInterface
     /**
      * {@inheritdoc}
      */
-    public function getResults(array $words, $searchType = 'AND', $modVars = null)
+    public function getResults(array $words, $searchType = 'AND', $modVars = []) : array
     {
         $returnArray = [];
 
@@ -93,7 +95,7 @@ class SearchHelper implements SearchableInterface
         return $returnArray;
     }
 
-    public function getErrors()
+    public function getErrors() : array
     {
         return [];
     }
@@ -102,8 +104,11 @@ class SearchHelper implements SearchableInterface
      * private function to shorten the contents text string
      * I think the search display stuff should be doing this
      * but it is not
+     * @param string $text
+     * @param array $words
+     * @return string
      */
-    private function shorten_text($text, $words) {
+    private function shorten_text(string $text, array $words) : string  {
 // Change to the number of characters you want to display
         $chars = 500;
         $startPos = 0;
@@ -122,6 +127,11 @@ class SearchHelper implements SearchableInterface
         $text .=  "...";
 
         return $text;
+    }
+
+    public function getBundleName(): string
+    {
+        return 'PaustianBookModule';
     }
 
 }

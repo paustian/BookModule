@@ -2,7 +2,7 @@
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 <div class="container-fluid">
     {{ showflashes() }}
-    <h3>{{ __('Pick articles to study from') }}</h3>
+    <h3>{{ 'Pick articles to study from' | trans  }}</h3>
     <form action="{{ path('paustianbookmodule_user_studypage') }}" method="post" enctype="application/x-www-form-urlencoded">
         {% for book in books %}
             <h3>{{ book.name }}</h3>
@@ -32,7 +32,7 @@
         <div class="form-group">
             <div class="col-lg-offset-3 col-lg-9">
                 <button class="btn btn-success" type="submit" name="create" value="create">
-                    {{ __('Create Study Page') }}
+                    {{ 'Create Study Page' | trans  }}
                 </button>
             </div>
         </div>

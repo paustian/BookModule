@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
@@ -17,7 +19,14 @@ use Doctrine\ORM\Query\Parameter;
 //  $where = array('cond' => 'u.term = ?1', 'paramkey' => 1, 'paramval => 'antibody'))
 class BookGlossRepository extends EntityRepository {
 
-    public function getGloss($letter = '', $orderBy = null, $where = null, $columns = 'u') {
+    /**
+     * @param string $letter
+     * @param array|null $orderBy
+     * @param array|null $where
+     * @param string $columns
+     * @return int|mixed|string
+     */
+    public function getGloss(string $letter = '', array $orderBy = null, array $where = null, array $columns = ['u']) :array {
         $qb = $this->_em->createQueryBuilder();
         $qb->select($columns)
                 ->from('PaustianBookModule:BookGlossEntity', 'u');
@@ -40,17 +49,24 @@ class BookGlossRepository extends EntityRepository {
         $gloss = $query->getResult();
         return $gloss;
     }
-    
+
     /**
+     *
      * Given a term, see if it is defined
-     * @param type $inTerm
+     * @param string $inTerm
+     * @return string
      */
-    public function getTerm($inTerm){
+    public function getTerm(string $inTerm) : string {
         $glossItem = $this->findOneByTerm($inTerm);
         return $glossItem;
     }
+
+    /**
+     * Find terms that don't have definitions. These are proposed by users.
+     * @return array
+     */
     
-    public function getUndefinedTerms(){
+    public function getUndefinedTerms() : array{
         $qb = $this->_em->createQueryBuilder();
         $qb->select('u')
                 ->from('PaustianBookModule:BookGlossEntity', 'u');
@@ -65,8 +81,17 @@ class BookGlossRepository extends EntityRepository {
         return $gloss;
         
     }
+
+    /**
+     * Given a list of termsin xml, parse it and return the array of terms for display
+     *
+     * @param string $xmlText
+     * @return array
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
             
-    public function parseImportedGlossXML($xmlText){
+    public function parseImportedGlossXML(string $xmlText) :array {
         //An awesome function for parsing simple xml.
         $glossArray = simplexml_load_string($xmlText);
         $alreadydef = array();
@@ -75,14 +100,14 @@ class BookGlossRepository extends EntityRepository {
             $currTerm = $this->getGloss('', null, 
                     ['cond' => 'u.term = ?1', 
                      'paramkey' => 1, 
-                    'paramval' => $glossItem->term], 'u.term');
+                    'paramval' => $glossItem->term], ['u.term']);
             if($currTerm){
                 $alreadydef[] = $currTerm[0]['term'];
                 continue;
             }
             $gloss = new BookGlossEntity();
-            $gloss->setTerm($glossItem->term);
-            $gloss->setDefinition($glossItem->definition);
+            $gloss->setTerm($glossItem->term());
+            $gloss->setDefinition($glossItem->definition());
             $this->_em->persist($gloss);
         }
         $this->_em->flush();

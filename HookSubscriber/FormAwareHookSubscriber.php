@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * News.
  *
@@ -13,7 +15,7 @@ namespace Paustian\BookModule\HookSubscriber;
 
 use Zikula\Bundle\HookBundle\Category\FormAwareCategory;
 use Zikula\Bundle\HookBundle\HookSubscriberInterface;
-use Zikula\Common\Translator\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Base class for form aware hook subscriber.
@@ -30,22 +32,22 @@ class FormAwareHookSubscriber implements HookSubscriberInterface
         $this->translator = $translator;
     }
 
-    public function getOwner()
+    public function getOwner() : string
     {
         return 'PaustianBookModule';
     }
 
-    public function getCategory()
+    public function getCategory() : string
     {
         return FormAwareCategory::NAME;
     }
 
-    public function getTitle()
+    public function getTitle() : string
     {
-        return $this->translator->__('Message form aware subscriber');
+        return $this->translator->trans('Message form aware subscriber');
     }
 
-    public function getEvents()
+    public function getEvents() : array
     {
         return [
             // Display hook for create/edit forms.
@@ -57,5 +59,10 @@ class FormAwareHookSubscriber implements HookSubscriberInterface
             // Process the results of the delete form after the main form is processed.
             FormAwareCategory::TYPE_PROCESS_DELETE => 'book.form_aware_hook.messages.process_delete'
         ];
+    }
+
+    public function getAreaName(): string
+    {
+        return 'subscriber.book.form_aware_hook.messages';
     }
 }

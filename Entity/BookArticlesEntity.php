@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Entity;
 
 /**
@@ -6,7 +8,7 @@ namespace Paustian\BookModule\Entity;
  *
  * @license GNU/LGPLv3 (or at your option, any later version).
  */
-use Zikula\Core\Doctrine\EntityAccess;
+use Zikula\Bundle\CoreBundle\Doctrine\EntityAccess;
 use Paustian\Helper\TagHelper;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -96,7 +98,7 @@ class BookArticlesEntity extends EntityAccess {
     private $number;
 
     /**
-     * Constructor 
+     * BookArticlesEntity constructor.
      */
     public function __construct() {
 
@@ -112,86 +114,144 @@ class BookArticlesEntity extends EntityAccess {
         $this->number = 0;
     }
 
-    public function getAid() {
+    /**
+     * @return int
+     */
+    public function getAid() : int {
         return $this->aid;
     }
 
-    public function setAid($aid) {
+    /**
+     * @param int $aid
+     */
+    public function setAid(int $aid) {
         $this->aid = $aid;
     }
 
-    public function getTitle() {
+    /**
+     * @return string
+     */
+    public function getTitle() :string {
         return $this->title;
     }
 
-    public function setTitle($title) {
+    /**
+     * @param sting $title
+     */
+    public function setTitle(sting $title) {
         $this->title = $title;
     }
 
-    public function getCid() {
+    /**
+     * @return int
+     */
+    public function getCid() : int {
         return $this->cid;
     }
 
-    public function setCid($cid) {
+    /**
+     * @param int $cid
+     */
+    public function setCid(int $cid) {
         $this->cid = $cid;
     }
 
-    public function getBid() {
+    /**
+     * @return int
+     */
+    public function getBid() : int {
         return $this->bid;
     }
 
-    public function setBid($bid) {
+    /**
+     * @param int $bid
+     */
+    public function setBid(int $bid) {
         $this->bid = $bid;
     }
 
-    public function getContents() {
+    /**
+     * @return string
+     */
+    public function getContents() :string {
         return $this->contents;
     }
 
-    public function setContents($contents) {
+    /**
+     * @param string $contents
+     */
+    public function setContents(string $contents) {
         $this->contents = $contents;
     }
 
-    public function getCounter() {
+    /**
+     * @return int
+     */
+    public function getCounter() : int {
         return $this->counter;
     }
 
-    public function setCounter($counter) {
+    /**
+     * @param int $counter
+     */
+    public function setCounter(int $counter) {
         $this->counter = $counter;
     }
 
-    public function getLang() {
+    /**
+     * @return string
+     */
+    public function getLang() : string {
         return $this->lang;
     }
 
-    public function setLang($lang) {
+    /**
+     * @param string $lang
+     */
+    public function setLang(string $lang) {
         $this->lang = $lang;
     }
 
-    public function getNext() {
+    /**
+     * @return int
+     */
+    public function getNext() : int {
         return $this->next;
     }
 
-    public function setNext($next) {
+    /**
+     * @param int $next
+     */
+    public function setNext(int $next) {
         $this->next = $next;
     }
 
-    public function getPrev() {
+    /**
+     * @return int
+     */
+    public function getPrev() : int {
         return $this->prev;
     }
 
-    public function setPrev($prev) {
+    /**
+     * @param int $prev
+     */
+    public function setPrev(int $prev) {
         $this->prev = $prev;
     }
 
-    public function getNumber() {
+    /**
+     * @return int
+     */
+    public function getNumber() :int {
         return $this->number;
     }
 
-    public function setNumber($number) {
+    /**
+     * @param int $number
+     */
+    public function setNumber(int $number) {
         $this->number = $number;
     }
 
 }
-
-

@@ -1,0 +1,15 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+    bind:
+      $extension: '@Paustian\BookModule\PaustianBookModule'
+
+  Paustian\BookModule\:
+    resource: '../../*'
+
+  Paustian\BookModule\Helper\:
+    resource: '../../Helper/*'
+    lazy: true
+

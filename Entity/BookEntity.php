@@ -1,7 +1,9 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Entity;
 
-use Zikula\Core\Doctrine\EntityAccess;
+use Zikula\Bundle\CoreBundle\Doctrine\EntityAccess;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
@@ -39,22 +41,34 @@ class BookEntity extends EntityAccess
     {
     }
 
-    public function getBid()
+    /**
+     * @return int
+     */
+    public function getBid() : int
     {
         return $this->bid;
     }
 
-    public function setBid($bid)
+    /**
+     * @param int $bid
+     */
+    public function setBid(int $bid)
     {
         $this->bid = $bid;
     }
-    
-    public function getName()
+
+    /**
+     * @return string
+     */
+    public function getName() : string
     {
         return $this->name;
     }
-    
-    public function setName($name)
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
     {
         $this->name = $name;
     }

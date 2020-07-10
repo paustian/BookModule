@@ -5,12 +5,12 @@
             <input type="hidden" name="buttonpress">
             <input type='hidden' name="aid" value="{{ aid }}">
             <input type="button" value="{{ ('Toggle Highlight') }}" name="highlight" onmousedown="document.highlight.text.value = getSelectionHtml(); document.highlight.buttonpress.value='highlight';
-                    document.highlight.submit()" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="{{ __('Select the text you want to highlight.') }}">
-            <input type="button" value="{{ __('Create Definition') }}" name="dodef" onmousedown="document.highlight.text.value = getSelectionHtml();document.highlight.buttonpress.value='dodef';
+                    document.highlight.submit()" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Select the text you want to highlight.' | trans  }}">
+            <input type="button" value="{{ 'Create Definition' | trans  }}" name="dodef" onmousedown="document.highlight.text.value = getSelectionHtml();document.highlight.buttonpress.value='dodef';
                     document.highlight.submit()"
-                   class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="{{ __('Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you.') }}">
-            <input type="button" value="{{ __('Study Time') }}" name="collecthighlights" onmousedown="document.highlight.buttonpress.value='collecthighlight';document.highlight.submit()"
-                   class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="{{ __('Click this button to collect all the text you have highlighted for studying.') }}">
+                   class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you.' | trans  }}">
+            <input type="button" value="{{ 'Study Time' | trans  }}" name="collecthighlights" onmousedown="document.highlight.buttonpress.value='collecthighlight';document.highlight.submit()"
+                   class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Click this button to collect all the text you have highlighted for studying.' | trans  }}">
         </form>
    </div>
   

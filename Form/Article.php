@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Form;
 
 use Symfony\Component\Form\AbstractType;
@@ -10,16 +12,11 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Zikula\Bundle\FormExtensionBundle\Form\DataTransformer\NullToEmptyTransformer;
-use Zikula\Common\Translator\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zikula\SettingsModule\Api\ApiInterface\LocaleApiInterface;
 
 class Article extends AbstractType
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
     /**
      * @var LocaleApiInterface
      */
@@ -27,14 +24,11 @@ class Article extends AbstractType
 
     /**
      * constructor.
-     * @param TranslatorInterface $translator
      * @param LocaleApiInterface $localeApi
      */
     public function __construct(
-        TranslatorInterface $translator,
         LocaleApiInterface $localeApi
     ) {
-        $this->translator = $translator;
         $this->localeApi = $localeApi;
     }
 
@@ -46,15 +40,15 @@ class Article extends AbstractType
             ->add($builder->create('lang', ChoiceType::class, array(
                 'choices' => $this->localeApi->getSupportedLocaleNames(null, $options['locale']),
                 'required' => false,
-                'placeholder' => $this->translator->__('All')
+                'placeholder' => 'All'
                 ))->addModelTransformer(new NullToEmptyTransformer()))
-            ->add('next', NumberType::class, ['label' => $this->translator->__('Next'), 'required' => true])
-            ->add('prev', NumberType::class, ['label' => $this->translator->__('Previous'), 'required' => true])
-            ->add('number', NumberType::class, ['label' => $this->translator->__('Article Order Number'), 'required' => true])
-            ->add('save', SubmitType::class, ['label' => $this->translator->__('Edit Article')]);
+            ->add('next', NumberType::class, ['label' => 'Next', 'required' => true])
+            ->add('prev', NumberType::class, ['label' => 'Previous', 'required' => true])
+            ->add('number', NumberType::class, ['label' => 'Article Order Number', 'required' => true])
+            ->add('save', SubmitType::class, ['label' => 'Edit Article']);
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix() : string
     {
         return 'paustianbookmodule_article';
     }

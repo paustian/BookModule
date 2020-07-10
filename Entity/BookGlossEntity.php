@@ -1,7 +1,9 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Entity;
 
-use Zikula\Core\Doctrine\EntityAccess;
+use Zikula\Bundle\CoreBundle\Doctrine\EntityAccess;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -65,46 +67,73 @@ class BookGlossEntity extends EntityAccess {
         $this->url = '';
     }
 
-    public function getGid() {
+    /**
+     * @return int
+     */
+    public function getGid() : int {
         return $this->gid;
     }
 
-    public function setGid($gid) {
+    /**
+     * @param int $gid
+     */
+    public function setGid(int $gid) {
         $this->gid = $gid;
     }
 
-    public function getTerm() {
+    /**
+     * @return string
+     */
+    public function getTerm() : string {
         return $this->term;
     }
 
-    public function setTerm($term) {
+    /**
+     * @param string $term
+     */
+    public function setTerm(string $term) {
         $this->term = $term;
     }
-    
-    public function getDefinition() {
+
+    /**
+     * @return string
+     */
+    public function getDefinition() :string {
         return $this->definition;
     }
 
-    public function setDefinition($definition) {
+    /**
+     * @param string $definition
+     */
+    public function setDefinition(string $definition) {
         $this->definition = \Paustian\BookModule\Helper\TagHelper::stripFrontAndBackPTags($definition);
     }
-    
-    public function getUser() {
+
+    /**
+     * @return string
+     */
+    public function getUser() : string {
         return $this->user;
     }
 
-    public function setUser($user) {
+    /**
+     * @param string $user
+     */
+    public function setUser(string $user) {
         $this->user = $user;
     }
-    
-    public function getUrl() {
+
+    /**
+     * @return string
+     */
+    public function getUrl() : string {
         return $this->url;
     }
 
-    public function setUrl($url) {
+    /**
+     * @param string $url
+     */
+    public function setUrl(string $url) {
         $this->url = $url;
     }
-
 }
-
-

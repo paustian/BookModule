@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
 namespace Paustian\BookModule\Entity;
 
 use Paustian\BookModule\Helper\TagHelper;
-use Zikula\Core\Doctrine\EntityAccess;
+use Zikula\Bundle\CoreBundle\Doctrine\EntityAccess;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
@@ -86,93 +88,160 @@ class BookFiguresEntity extends EntityAccess {
         $this->img_link= '';
     }
 
-    public function getFid() {
+    /**
+     * @return int
+     */
+    public function getFid() : int {
         return $this->fid;
     }
 
-    public function setFid($fid) {
+    /**
+     * @param int $fid
+     */
+    public function setFid(int $fid) {
         $this->fid = $fid;
     }
 
-
-    public function getFig_number() {
+    /**
+     * @return int
+     */
+    public function getFig_number() : int {
         return $this->fig_number;
     }
-    
+
     //This is a bit of a cludge to work with symfony
     //I did not want to rename the property.
-    public function getFigNumber(){
+    /**
+     * @return int
+     */
+    public function getFigNumber() : int {
         return $this->fig_number;
     }
-    
-    public function setFigNumber($fig_number){
+
+    /**
+     * @param int $fig_number
+     */
+    public function setFigNumber(int $fig_number){
         $this->fig_number = $fig_number;
     }
-    public function setFig_number($fig_number) {
+
+    /**
+     * @param int $fig_number
+     */
+    public function setFig_number(int $fig_number) {
         $this->fig_number = $fig_number;
     }
-    
-    public function getChapNumber(){
+
+    /**
+     * @return int
+     */
+    public function getChapNumber() : int {
         return $this->chap_number;
     }
-    public function getChap_number() {
+
+    /**
+     * @return int
+     */
+    public function getChap_number() : int {
         return $this->chap_number;
     }
-    
-    public function setChapNumber($chap_number) {
-        $this->chap_number = $chap_number;
-    }
-    public function setChap_number($chap_number) {
+
+    /**
+     * @param int $chap_number
+     */
+    public function setChapNumber(int $chap_number) {
         $this->chap_number = $chap_number;
     }
 
-    public function getBid() {
+    /**
+     * @param int $chap_number
+     */
+    public function setChap_number(int $chap_number) {
+        $this->chap_number = $chap_number;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBid() : int {
         return $this->bid;
     }
 
-    public function setBid($bid) {
+    /**
+     * @param int $bid
+     */
+    public function setBid(int $bid) {
         $this->bid = $bid;
     }
-    
-    public function getImgLink(){
+
+    /**
+     * @return string
+     */
+    public function getImgLink() : string{
          return $this->img_link;
     }
-    public function getImg_link() {
+
+    /**
+     * @return string
+     */
+    public function getImg_link() : string {
         return $this->img_link;
     }
-    
+
+    /**
+     * @param $img_link
+     */
     public function setImgLink($img_link) {
         $this->img_link = $img_link;
     }
-    
-    public function setImg_link($img_link) {
+
+    /**
+     * @param string $img_link
+     */
+    public function setImg_link(string $img_link) {
         $this->img_link = $img_link;
     }
-    
-    public function getTitle() {
+
+    /**
+     * @return string
+     */
+    public function getTitle() : string {
         return $this->title;
     }
 
-    public function setTitle($title) {
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title) {
         $this->title = $title;
     }
-    
-    public function getPerm() {
+
+    /**
+     * @return bool
+     */
+    public function getPerm() : bool{
         return $this->perm;
     }
 
-    public function setPerm($perm) {
+    /**
+     * @param bool $perm
+     */
+    public function setPerm(bool $perm) {
         $this->perm = $perm;
     }
-    
-    public function getContent() {
+
+    /**
+     * @return string
+     */
+    public function getContent() : string{
         return $this->content;
     }
 
-    public function setContent($content) {
+    /**
+     * @param string $content
+     */
+    public function setContent(string $content) {
         $this->content = \Paustian\BookModule\Helper\TagHelper::stripFrontAndBackPTags($content);
     }
 
 }
-
-

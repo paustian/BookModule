@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paustian\BookModule;
 
 
@@ -26,7 +28,7 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
      * This function is only ever called once during the lifetime of a particular
      * module instance
      */
-    public function install() {
+    public function install() :bool {
         //Create the tables of the module. Book has 5
         try {
             $this->schemaTool->create($this->entities);
@@ -43,7 +45,7 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
      * upgrade the book module from an old version
      * This function can be called multiple times
      */
-    public function upgrade($oldversion) {
+    public function upgrade(string $oldversion) : bool {
         // Upgrade dependent on old version number
         switch ($oldversion) {
             case 2.1:
@@ -115,7 +117,7 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
      * This function is only ever called once during the lifetime of a particular
      * module instance
      */
-    public function uninstall() {
+    public function uninstall() : bool {
         try {
             $this->schemaTool->drop($this->entities);
         } catch (\PDOException $e) {
