@@ -32,13 +32,8 @@
     color:#333;
 }
 
-.tooltip-inner {
-    background-color: lightgrey;
-    color: darkslategrey;
-    text-align: left;
-}
-
-.glossary:hover, .glossary {
-    background-color: lightgoldenrodyellow;
-    color: black;
+div.columnorg{
+    float:left;
+    width: 30%;
+    padding:0px 10px 0px 10px;
 }

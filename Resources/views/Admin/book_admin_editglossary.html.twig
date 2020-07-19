@@ -1,23 +1,31 @@
-<h3>
-    <span class="fa fa-edit"></span>
-    {{ "Edit a Glossary Term" | trans }}
-</h3>
-<p>{{ "Enter the term and its defnintion" | trans }}</p>
-{{ showflashes() }}
+
+
+{{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
+
+<div class="container-fluid">
+    <div class="row">
+        <h3>
+            <span class="fa fa-edit"></span>
+            {{ "Edit a Glossary Term" | trans  }}
+        </h3>
+        <p>{{ "Enter the term and its defnintion" | trans  }}</p>
+        {{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
-<fieldset>
-    <legend>{{ 'Glossary Term' | trans }}</legend>
-    {{ form_row(form.term) }}
-    {{ form_row(form.definition, {'attr': {'class': 'fig_contents'}}) }}
-</fieldset>
-{% for hook_template in hook_templates %}
-    {{ include(hook_template.0, hook_template.1, ignore_missing = true) }}
-{% endfor %}
-<div class="form-group">
-    <div class="col-lg-offset-3 col-lg-9">
-        {{ form_widget(form.save, {'attr': {'class': 'btn btn-success'}}) }}
+        <fieldset>            
+            <legend>{{ 'Glossary Term' | trans  }}</legend>
+            {{ form_row(form.term) }}
+            {{ form_row(form.definition, {'attr': {'class': 'fig_contents'}}) }}
+        </fieldset>
+        {% for hook_template in hook_templates %}
+            {{ include(hook_template.0, hook_template.1, ignore_missing = true) }}
+        {% endfor %}
+        <div class="form-group">
+            <div class="col-lg-offset-3 col-lg-9">
+                {{ form_widget(form.save, {'attr': {'class': 'btn btn-success'}}) }}
+            </div>
+        </div>
+        {{ form_end(form) }}
     </div>
 </div>
-{{ form_end(form) }}
 

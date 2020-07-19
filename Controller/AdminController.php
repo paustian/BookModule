@@ -34,7 +34,6 @@ use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
 use Zikula\Bundle\HookBundle\Hook\ProcessHook;
 use Zikula\ThemeModule\Engine\Annotation\Theme;
-use Zikula\Bundle\HookBundle\Dispatcher\HookDispatcherInterface;
 
 /**
  * @Route("/admin")
@@ -47,7 +46,7 @@ class AdminController extends AbstractController {
      * @Route("")
      * @Theme("admin")
      * @param request - the incoming request.
-     * @Template("@PaustianBookModule/Admin/book_admin_menu.html.twig'")
+     * @Template("PaustianBookModule:Admin:book_admin_menu.html.twig'")
      * @return Response|array
      * The main entry point
      *
@@ -149,8 +148,7 @@ class AdminController extends AbstractController {
      * @return RedirectRespsonse | Response | AccessDeniedException
      * @throws AccessDeniedException
      */
-    public function editchapterAction(Request $request,
-                                      BookChaptersEntity $chapter = null) {
+    public function editchapterAction(Request $request, BookChaptersEntity $chapter = null) {
         $doMerge = false;
         if (null === $chapter) {
             if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADD)) {
@@ -175,9 +173,9 @@ class AdminController extends AbstractController {
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-            $bid = (int)$request->get('book');
+            $bid = $request->get('book');
             $chapter->setBid($bid);
             $route = 'paustianbookmodule_admin_editchapter';
             $flashText = $this->trans('Chapter ' . $chapter->getName() . ' Saved');
@@ -194,7 +192,7 @@ class AdminController extends AbstractController {
             return $this->redirect($this->generateUrl($route));
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_editchapter.html.twig', array(
+        return $this->render('PaustianBookModule:Admin:book_admin_editchapter.html.twig', array(
                     'form' => $form->createView(),
                     'books' => $items,
                     'chapter' => $chapter
@@ -209,9 +207,7 @@ class AdminController extends AbstractController {
      * @param BookArticlesEntity|null $article
      * @return RedirectResponse|Response
      */
-    public function editarticleAction(Request $request,
-                                      BookArticlesEntity $article = null,
-                                      HookDispatcherInterface $hookDispatcher) {
+    public function editarticleAction(Request $request, BookArticlesEntity $article = null) {
         $doMerge = false;
         if (null === $article) {
             if (!$this->hasPermission($this->name . '::', "::", ACCESS_ADD)) {
@@ -227,10 +223,10 @@ class AdminController extends AbstractController {
 
         $form = $this->createForm(Article::class, $article, ['locale' => $request->getLocale()]);
         $formHook = new FormAwareHook($form);
-        $hookDispatcher->dispatch('book.form_aware_hook.article.edit', $formHook);
+        $this->get('hook_dispatcher')->dispatch('book.form_aware_hook.article.edit', $formHook);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             //upon creation, articles are not attached to books
             //you attach them later in a drag and drop interface
             $em = $this->getDoctrine()->getManager();
@@ -251,7 +247,7 @@ class AdminController extends AbstractController {
             return $this->redirect($this->generateUrl($route));
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_editarticle.html.twig', [
+        return $this->render('PaustianBookModule:Admin:book_admin_editarticle.html.twig', [
                     'form' => $form->createView(),
                     'hook_templates' => $formHook->getTemplates()]);
     }
@@ -263,9 +259,7 @@ class AdminController extends AbstractController {
      * @param BookFiguresEntity|null $figure
      * @return RedirectResponse|Response
      */
-    public function editfigureAction(Request $request,
-                                     BookFiguresEntity $figure = null,
-                                     HookDispatcherInterface $hookDispatcher) {
+    public function editfigureAction(Request $request, BookFiguresEntity $figure = null) {
         $doMerge = false;
         if (null === $figure) {
             $figure = new BookFiguresEntity();
@@ -281,15 +275,15 @@ class AdminController extends AbstractController {
 
         $form = $this->createForm(Figure::class, $figure);
         $formHook = new FormAwareHook($form);
-        $hookDispatcher->dispatch('book.form_aware_hook.article.edit', $formHook);
+        $this->get('hook_dispatcher')->dispatch('book.form_aware_hook.article.edit', $formHook);
         $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookEntity');
         $books = $repo->getBooks();
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-            $bid = (int)$request->get('book');
+            $bid = $request->get('book');
             $figure->setBid($bid);
             $route ='paustianbookmodule_admin_editfigure';
             $flashText = $this->trans('Figure Saved');
@@ -305,7 +299,7 @@ class AdminController extends AbstractController {
             return $this->redirect($this->generateUrl($route));
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_editfigure.html.twig', [
+        return $this->render('PaustianBookModule:Admin:book_admin_editfigure.html.twig', [
                     'form' => $form->createView(),
                     'books' => $books,
                     'figure' => $figure,
@@ -320,9 +314,7 @@ class AdminController extends AbstractController {
      * @return Response
      * @return RedirectResponse
      */
-    public function editglossaryAction(Request $request,
-                                       BookGlossEntity $gloss = null,
-                                       HookDispatcherInterface $hookDispatcher) {
+    public function editglossaryAction(Request $request, BookGlossEntity $gloss = null) {
         if (!$this->hasPermission($this->name . '::', '.*::', ACCESS_ADD)) {
             throw new AccessDeniedException($this->trans('You do not have permission to create glossary items.'));
         }
@@ -334,10 +326,10 @@ class AdminController extends AbstractController {
         }
         $form = $this->createForm(Glossary::class, $gloss);
         $formHook = new FormAwareHook($form);
-        $hookDispatcher->dispatch('book.form_aware_hook.article.edit', $formHook);
+        $this->get('hook_dispatcher')->dispatch('book.form_aware_hook.article.edit', $formHook);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $route = 'paustianbookmodule_admin_editglossary';
             $flashText = $this->trans('Glossary Term ' . $gloss->getTerm() . ' Saved');
@@ -354,7 +346,7 @@ class AdminController extends AbstractController {
             return $this->redirect($this->generateUrl($route));
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_editglossary.html.twig', [
+        return $this->render('PaustianBookModule:Admin:book_admin_editglossary.html.twig', [
                     'form' => $form->createView(),
             'hook_templates' => $formHook->getTemplates()]);
     }
@@ -369,7 +361,7 @@ class AdminController extends AbstractController {
         $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookEntity');
         $books = $repo->getBooks();
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_modifybook.html.twig', ['books' => $books]);
+        return $this->render('PaustianBookModule:Admin:book_admin_modifybook.html.twig', ['books' => $books]);
     }
 
     private function _getChaptersAndBooks(&$chapters, &$books) {
@@ -400,7 +392,7 @@ class AdminController extends AbstractController {
         $chapters = array();
         $books = array();
         $this->_getChaptersAndBooks($chapters, $books);
-        return $this->render('@PaustianBookModule/Admin/book_admin_modifychapter.html.twig', ['chapters' => $chapters,
+        return $this->render('PaustianBookModule:Admin:book_admin_modifychapter.html.twig', ['chapters' => $chapters,
                     'books' => $books]);
     }
 
@@ -417,7 +409,7 @@ class AdminController extends AbstractController {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
         $books = $repo->buildtoc();
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_modifyarticle.html.twig', ['books' => $books]);
+        return $this->render('PaustianBookModule:Admin:book_admin_modifyarticle.html.twig', ['books' => $books]);
     }
 
     /**
@@ -446,7 +438,7 @@ class AdminController extends AbstractController {
             $bookArray = array();
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_modifyfigure.html.twig', ['books' => $renderBooks]);
+        return $this->render('PaustianBookModule:Admin:book_admin_modifyfigure.html.twig', ['books' => $renderBooks]);
     }
 
     /**
@@ -457,7 +449,7 @@ class AdminController extends AbstractController {
     public function modifyglossaryAction(string $letter) {
         $repo = $this->getDoctrine()->getManager()->getRepository('PaustianBookModule:BookGlossEntity');
         $terms = $repo->getGloss($letter, ['col' => 'u.term', 'direction' => 'ASC'], null, ['u.term', 'u.gid']);
-        return $this->render('@PaustianBookModule/Admin/book_admin_modifyglossary.html.twig', ['terms' => $terms]);
+        return $this->render('PaustianBookModule:Admin:book_admin_modifyglossary.html.twig', ['terms' => $terms]);
     }
 
     private function _generate_chapter_menu() {
@@ -537,16 +529,14 @@ class AdminController extends AbstractController {
         }
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $articles = $repo->getArticles($chapter->getCid(), true, true);
-        $response = "";
         if($inlinefig){
-            $return_text = $this->render('@PaustianBookModule/User/book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter, 'articles' => $articles])->getContent();
+            $return_text = $this->render('PaustianBookModule:User:book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter, 'articles' => $articles])->getContent();
             $return_text = $repo->addfigures($return_text, $this);
-            $response = $this->render('@PaustianBookModule/Admin/book_admin_export2.html.twig', ['chapter' => $chapter, 'text' => $return_text]);
-        } else {
-            $response = $this->render('@PaustianBookModule/Admin/book_admin_export.html.twig', ['chapter' => $chapter,
-                'articles' => $articles]);
+            return $this->render('PaustianBookModule:Admin:book_admin_export2.html.twig', ['chapter' => $chapter, 'text' => $return_text]);
         }
-        return $response;
+        //The rest of this can be done in the template.
+        return $this->render('PaustianBookModule:Admin:book_admin_export.html.twig', ['chapter' => $chapter,
+                    'articles' => $articles]);
     }
 
     /**
@@ -592,9 +582,7 @@ class AdminController extends AbstractController {
      * @param BookArticlesEntity $article
      * @return RedirectResponse
      */
-    public function deletearticleAction(Request $request,
-                                        BookArticlesEntity $article = null,
-                                        HookDispatcherInterface $hookDispatcher) {
+    public function deletearticleAction(Request $request, BookArticlesEntity $article = null) {
 
         $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyarticle'));
         if (null === $article) {
@@ -613,7 +601,7 @@ class AdminController extends AbstractController {
         $em->flush();
         $this->addFlash('status', $this->trans('Article Deleted.'));
         //Let any providers hooked to this article that it was deleted.
-        $hookDispatcher->dispatch(\Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber::ARTICLE_DELETE_PROCESS, new ProcessHook($article->getAid()));
+        $this->get('hook_dispatcher')->dispatch(\Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber::ARTICLE_DELETE_PROCESS, new ProcessHook($article->getAid()));
 
         return $response;
     }
@@ -654,16 +642,16 @@ class AdminController extends AbstractController {
         if (!$this->hasPermission($this->name . '::', "::", ACCESS_DELETE)) {
             throw new AccessDeniedException($this->trans("You do not have permission to delete that glossary item."));
         }
+        $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyglossary'));
         if ($gloss == null) {
             //you want the edit interface, which has a delete option.
-            return $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyglossary'));
+            return $response;
         }
         $em = $this->getDoctrine()->getManager();
         $em->remove($gloss);
         $em->flush();
         $this->addFlash('status', $this->trans('Glossary item deleted.'));
-        $firstLetter = strtoupper(substr($gloss->getTerm(), 0, 1));
-        return $this->redirect($this->generateUrl('paustianbookmodule_admin_modifyglossary', ['letter' => $firstLetter]));
+        return $response;
     }
 
     /**
@@ -685,7 +673,7 @@ class AdminController extends AbstractController {
         $chapterids=[];
         $books = $repo->buildtoc(0, $chapterids);
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_arrangearticles.html.twig', ['books' => $books,
+        return $this->render('PaustianBookModule:Admin:book_admin_arrangearticles.html.twig', ['books' => $books,
                     'chapterids' => $chapterids]);
     }
 
@@ -725,7 +713,7 @@ class AdminController extends AbstractController {
             foreach ($artIds as $aid) {
                 $article = $em->find('PaustianBookModule:BookArticlesEntity', $aid);
                 $article->setNumber($number);
-                $article->setCid((int)$chapterId);
+                $article->setCid($chapterId);
                 $article->setBid($bookId);
                 if ($oldArticle != null) {
                     if ($bookId == 0) {
@@ -733,7 +721,7 @@ class AdminController extends AbstractController {
                         $oldArticle->setNext(0);
                     } else {
                         $article->setPrev($oldArticle->getAid());
-                        $oldArticle->setNext((int)$aid);
+                        $oldArticle->setNext($aid);
                     }
                     $em->persist($oldArticle);
                 } else {
@@ -754,7 +742,6 @@ class AdminController extends AbstractController {
             $oldArticle = null;
         }
         $em->flush();
-        $this->addFlash('status', $this->trans("Article arrangement saved."));
         return $this->redirect($this->generateUrl('paustianbookmodule_admin_arrangearticles'));
     }
 
@@ -774,7 +761,7 @@ class AdminController extends AbstractController {
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             $xmlQuestionText = $form->get('importText')->getData();
             //take the xml that is imported, and parse it into an array
             //That array should have filled out a new question entity which it shoudl return
@@ -787,7 +774,7 @@ class AdminController extends AbstractController {
             return $response;
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_import.html.twig', array(
+        return $this->render('PaustianBookModule:Admin:book_admin_import.html.twig', array(
                     'form' => $form->createView(),
         ));
     }
@@ -866,7 +853,7 @@ class AdminController extends AbstractController {
             }
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_verifyurls.html.twig',
+        return $this->render('PaustianBookModule:Admin:book_admin_verifyurls.html.twig',
                 ['urltable' => $url_table]);
     }
 
@@ -985,7 +972,7 @@ class AdminController extends AbstractController {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
         $glossaryItems = $repo->getUndefinedTerms();
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_studentdefgloss.html.twig', ['glossaryItems' => $glossaryItems]);
+        return $this->render('PaustianBookModule:Admin:book_admin_studentdefgloss.html.twig', ['glossaryItems' => $glossaryItems]);
     }
 
     /**
@@ -1002,17 +989,25 @@ class AdminController extends AbstractController {
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             $xmlQuestionText = $form->get('importText')->getData();
             //take the xml that is imported, and parse it into an array
             //That array should have filled out a new question entity which it shoudl return
-            $defTerms = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->parseImportedGlossXML($xmlQuestionText);
-
-            $this->addFlash('status', $this->trans("Glossary import finished: $defTerms."));
-            return $this->redirect($this->generateUrl('paustianbookmodule_admin_importglossary'));
+            $defQuestions = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity')->parseImportedGlossXML($xmlQuestionText);
+            if (count($defQuestions)) {
+                $terms = '';
+                foreach ($defQuestions as $question) {
+                    $terms .= $question . ', ';
+                }
+                $this->addFlash('status', $this->trans("Glossary items imported except for " . $terms . "which were alraedy defined."));
+            } else {
+                $this->addFlash('status', $this->trans("Glossary items imported."));
+            }
+            $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_importglossary'));
+            return $response;
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_importgloss.html.twig', array(
+        return $this->render('PaustianBookModule:Admin:book_admin_importgloss.html.twig', array(
                     'form' => $form->createView(),
         ));
     }
@@ -1040,7 +1035,7 @@ class AdminController extends AbstractController {
 
         $form->handleRequest($request);
         $previewText="";
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isValid()) {
             $data = $form->getData();
             $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
             $valid = (@preg_match($data['searchText'], '') !== FALSE);
@@ -1059,7 +1054,7 @@ class AdminController extends AbstractController {
             //if we did a preview or there was an error in the serach string, then just fall through and show it.
         }
 
-        return $this->render('@PaustianBookModule/Admin/book_admin_searchreplace.html.twig', ['form' => $form->createView(), 'preview' => $previewText, 'chapter' => $chapter]);
+        return $this->render('PaustianBookModule:Admin:book_admin_searchreplace.html.twig', ['form' => $form->createView(), 'preview' => $previewText, 'chapter' => $chapter]);
     }
 
     /**
@@ -1099,18 +1094,5 @@ class AdminController extends AbstractController {
         $this->addFlash('status', $this->trans("$totalCount glossary terms were added."));
         return $response;
     }
-
-    /**
-     * I made this function to allow the respository to render the figure. I probably should not have
-     * removed it from the controller and will put it back in a future version.
-     *
-     * @param string $template
-     * @param array $parameters
-     * @return mixed
-     */
-    public function renderFigure(string $template, array $parameters){
-        return $this->render($template, $parameters);
-    }
-
 
 }

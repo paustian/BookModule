@@ -57,7 +57,6 @@ class ExtensionMenu implements ExtensionMenuInterface
 
         $menu = $this->factory->createItem('bookAdminMenu');
 
-        //Book functions
         $menu->addChild('Book', [
             'uri' => '#',
         ])->setAttribute('icon', 'fas fa-book')
@@ -71,64 +70,6 @@ class ExtensionMenu implements ExtensionMenuInterface
             'route' => 'paustianbookmodule_admin_modify',
         ])->setAttribute('icon', 'fas fa-pencil');
 
-        //Chapter Menu
-        $menu->addChild(
-            'Chapter', ['uri' => '#',
-        ])->setAttribute('icon', 'fas fa-bookmark')
-        ->setAttribute('dropdown', true);
-        $menu['Chapter']->addChild('Create New Chapter', [
-            'route' => 'paustianbookmodule_admin_editchapter',
-        ])->setAttribute('icon', 'fas fa-plus');
-        $menu['Chapter']->addChild('Edit, Delete, Export, Search/Replace, or check URLS in Chapter', [
-            'route' => 'paustianbookmodule_admin_modifychapter',
-        ])->setAttribute('icon', 'fas fa-edit');
-        $menu['Chapter']->addChild('Import Chapter', [
-            'route' => 'paustianbookmodule_admin_import',
-        ])->setAttribute('icon', 'fas fa-upload');
-
-        //Article
-        $menu->addChild(
-            'Article', ['uri' => '#',
-        ])->setAttribute('icon', 'fas fa-newspaper')
-            ->setAttribute('dropdown', true);
-        $menu['Article']->addChild('Create New Article', [
-            'route' => 'paustianbookmodule_admin_editarticle',
-        ])->setAttribute('icon', 'fas fa-plus');
-        $menu['Article']->addChild('Edit or Delete Article', [
-            'route' => 'paustianbookmodule_admin_modifyarticle',
-        ])->setAttribute('icon', 'fas fa-edit');
-        $menu['Article']->addChild('Arrange Articles', [
-            'route' => 'paustianbookmodule_admin_arrangearticles',
-        ])->setAttribute('icon', 'fas fa-sort');
-
-        //Figure
-        $menu->addChild(
-            'Figure', ['uri' => '#',
-        ])->setAttribute('icon', 'fas fa-image')
-            ->setAttribute('dropdown', true);
-        $menu['Figure']->addChild('Create New Figure', [
-            'route' => 'paustianbookmodule_admin_editfigure',
-        ])->setAttribute('icon', 'fas fa-plus');
-        $menu['Figure']->addChild('Edit or Delete Figure', [
-            'route' => 'paustianbookmodule_admin_modifyfigure',
-        ])->setAttribute('icon', 'fas fa-edit');
-
-        $menu->addChild(
-            'Glossary', ['uri' => '#',
-        ])->setAttribute('icon', 'fas fa-books')
-            ->setAttribute('dropdown', true);
-        $menu['Glossary']->addChild('Create New Glossary', [
-            'route' => 'paustianbookmodule_admin_editglossary',
-        ])->setAttribute('icon', 'fas fa-plus');
-        $menu['Glossary']->addChild('Edit or Delete Glossary', [
-            'route' => 'paustianbookmodule_admin_modifyglossary',
-        ])->setAttribute('icon', 'fas fa-edit');
-        $menu['Glossary']->addChild('Import Glossary', [
-            'route' => 'paustianbookmodule_admin_importglossary',
-        ])->setAttribute('icon', 'fas fa-upload');
-        $menu['Glossary']->addChild('Check for Student Definitions', [
-            'route' => 'paustianbookmodule_admin_checkstudentdefs',
-        ])->setAttribute('icon', 'fas fa-user-graduate');
         return 0 === $menu->count() ? null : $menu;
     }
 

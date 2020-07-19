@@ -64,7 +64,7 @@ class BookUserDataEntity extends EntityAccess
      */
     public function getUdid() : int
     {
-        return (int)$this->udid;
+        return $this->udid;
     }
 
     /**
@@ -80,7 +80,7 @@ class BookUserDataEntity extends EntityAccess
      */
     public function getUid() : int
     {
-        return (int)$this->uid;
+        return $this->uid;
     }
 
     /**
@@ -96,7 +96,7 @@ class BookUserDataEntity extends EntityAccess
      */
     public function getAid() : int
     {
-        return (int)$this->aid;
+        return $this->aid;
     }
 
     /**
@@ -112,7 +112,7 @@ class BookUserDataEntity extends EntityAccess
      */
     public function getStart() : int
     {
-        return (int)$this->start;
+        return $this->start;
     }
 
     /**
@@ -128,7 +128,7 @@ class BookUserDataEntity extends EntityAccess
      */
     public function getEnd() : int
     {
-        return (int)$this->end;
+        return $this->end;
     }
 
     /**

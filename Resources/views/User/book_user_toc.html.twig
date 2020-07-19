@@ -1,34 +1,35 @@
 {{ pageSetVar('title', 'The book') }}
 {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
-
-<h3>{{ book.name }}</h3>
-<div id="ArticleList">
-    {% for chapter in book.chapters %}
-        {% if chapter.print > 0 %}
-            <h4>{{ chapter.number }} - {{ chapter.name }}</h4>
-            <div>
+<div class="container-fluid">
+    <h3>{{ book.name }}</h3>
+    <div id="ArticleList">
+        {% for chapter in book.chapters %}
+            {% if chapter.print > 0 %}
+                <h4>{{ chapter.number }} - {{ chapter.name }}</h4>
+                <div>
                 {% for article in chapter.articles %}
-                    {% if chapter.print == 2 %}
-                        <p>{{ chapter.number }} - {{ article.number }} {{ article.title }}</p>
-                    {% else %}
-                        <p>
-                            <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }}
-                                - {{ article.number }} {{ article.title }}</a></p>
-                    {% endif %}
+                {% if chapter.print == 2 %}
+                    <p>{{ chapter.number }} - {{ article.number }} {{ article.title }}</p>
+                {% else %}
+                <p><a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></p>
+                {% endif %}
                 {% endfor %}
-            </div>
-        {% endif %}
-    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <script type="text/javascript">
+        function displayBook() {
+            jQuery('#ArticleList').accordion({
+                collapsible: true,
+                heightStyle: "content"
+            });
+        };
+        document.onreadystatechange = function () {
+            if (document.readyState === 'complete') {
+                displayBook();
+            }
+        };
+    </script>
 </div>
-<script type="text/javascript">
-    document.onreadystatechange = function () {
-        if (document.readyState === 'complete') {
-            (function($){
-                $('#ArticleList').accordion({
-                    collapsible: true,
-                    heightStyle: "content"});
-            }(jQuery))
-        }
-    };
-</script>

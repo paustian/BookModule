@@ -63,7 +63,7 @@ class BookChaptersEntity extends EntityAccess
      */
     public function getCid() :int
     {
-        return (int)$this->cid;
+        return $this->cid;
     }
 
     /**
@@ -79,7 +79,7 @@ class BookChaptersEntity extends EntityAccess
      */
     public function getNumber() : int
     {
-        return (int)$this->number;
+        return $this->number;
     }
 
     /**
@@ -95,7 +95,7 @@ class BookChaptersEntity extends EntityAccess
      */
     public function getBid() :int
     {
-        return (int)$this->bid;
+        return $this->bid;
     }
 
     /**

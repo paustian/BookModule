@@ -1,8 +1,23 @@
-<h3>
-    <span class="fa fa-download"></span>
-    {{ "Export Book Chapters and Articles" | trans }}
-</h3>
-<p>{{ "Below is a correctly formatted xml document. Take it into your favorite editor and change the text how you like. Do not change the unique xml tags or remove the codes listing the book id, chapter id or article id." | trans }}</p>
-<textarea rows="50" cols="100">
-    {{ text }}
-</textarea>
+
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }}
+<div class="container-fluid">
+    <div class="row">
+        <h3>
+            <span class="fa fa-download"></span>
+            {{ "Export Book Chapters and Articles" | trans  }}
+        </h3>
+        <p>{{ "Below is a correctly formatted xml document. Take it into your favorite editor and change the text how you like. Do not change the unique xml tags or remove the codes listing the book id, chapter id or article id." | trans  }}</p>
+        <textarea rows="50" cols="100">
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>{{ chapter.name }}</title>
+</head>
+<body>  
+{{text}}
+</body>
+</html>
+        </textarea>
+    </div>
+</div>

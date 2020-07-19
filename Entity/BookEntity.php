@@ -46,13 +46,13 @@ class BookEntity extends EntityAccess
      */
     public function getBid() : int
     {
-        return (int)$this->bid;
+        return $this->bid;
     }
 
     /**
      * @param int $bid
      */
-    public function setBid(int $bid) : void
+    public function setBid(int $bid)
     {
         $this->bid = $bid;
     }
@@ -68,7 +68,7 @@ class BookEntity extends EntityAccess
     /**
      * @param string $name
      */
-    public function setName(string $name) : void
+    public function setName(string $name)
     {
         $this->name = $name;
     }

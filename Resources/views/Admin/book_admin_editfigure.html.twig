@@ -1,43 +1,48 @@
-<h3>
-    <span class="fa fa-edit"></span>
-    {{ "Edit a Figure" | trans }}
-</h3>
-<div class="alert alert-info">{{ "Enter information about the figure" | trans }}</div>
-{{ showflashes() }}
+
+
+{{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
+
+<div class="container-fluid">
+    <div class="row">
+        <h3>
+            <span class="fa fa-edit"></span>
+            {{ "Edit a Figure" | trans  }}
+        </h3>
+        <p>{{ "Enter information about the figure" | trans  }}</p>
+        {{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
-<fieldset>
-    <div class="form-group row">
-        <label class="col-md-3 control-label required">{{ 'Book' | trans }}</label>
-        <div class="col-md-9">
-        <select name="book" class="custom-select form-control">
-            {% for item in books %}
-                {% if figure.bid == item.bid %}
-                    <option value="{{ item.bid }}" selected>{{ item.name }}</option>
-                {% else %}
-                    <option value="{{ item.bid }}">{{ item.name }}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
+        <fieldset>
+            <div class="form-group"><label class="col-lg-3 control-label required" >{{ 'Book' | trans  }}</label>
+            <select name="book">
+                {% for item in books %}
+                    {% if figure.bid == item.bid %}
+                        <option value="{{ item.bid }}" selected>{{ item.name }}</option>
+                    {% else %}
+                        <option value="{{ item.bid }}">{{ item.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            </div>
+            <legend>{{ 'Figure Data' | trans  }}</legend>
+            {{ form_row(form.chap_number, {'attr': {'class': 'short_number'}}) }}
+            {{ form_row(form.fig_number, {'attr': {'class': 'short_number'}}) }}
+            {{ form_row(form.perm) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.content, {'attr': {'class': 'fig_contents'}}) }}
+            {{ form_row(form.img_link) }}
+            
+        </fieldset>
+        {% for hook_template in hook_templates %}
+            {{ include(hook_template.0, hook_template.1, ignore_missing = true) }}
+        {% endfor %}
+        <div class="form-group">
+            <div class="col-lg-offset-3 col-lg-9">
+                {{ form_widget(form.add, {'attr': {'class': 'btn btn-success'}}) }}
+            </div>
         </div>
-    </div>
-    <legend>{{ 'Figure Data' | trans }}</legend>
-    {{ form_row(form.chap_number, {'attr': {'class': 'short_number'}}) }}
-    {{ form_row(form.fig_number, {'attr': {'class': 'short_number'}}) }}
-    {{ form_row(form.perm) }}
-    {{ form_row(form.title) }}
-    {{ form_row(form.content, {'attr': {'class': 'fig_contents'}}) }}
-    {{ form_row(form.img_link) }}
 
-</fieldset>
-{% for hook_template in hook_templates %}
-    {{ include(hook_template.0, hook_template.1, ignore_missing = true) }}
-{% endfor %}
-<div class="form-group">
-    <div class="col-lg-offset-3 col-lg-9">
-        {{ form_widget(form.add, {'attr': {'class': 'btn btn-success'}}) }}
+        {{ form_end(form) }}
     </div>
 </div>
-
-{{ form_end(form) }}
 

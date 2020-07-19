@@ -41,8 +41,6 @@ use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
 use Paustian\BookModule\Entity\BookChaptersEntity;
 use Paustian\BookModule\Entity\BookGlossEntity;
-use Zikula\UsersModule\Api\ApiInterface\CurrentUserApiInterface;
-use Zikula\UsersModule\Api\CurrentUserApi;
 
 
 class UserController extends AbstractController {
@@ -61,7 +59,7 @@ class UserController extends AbstractController {
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
         $books = $repo->getBooks();
-        $test = $this->render('@PaustianBookModule/User/book_user_books.html.twig', ['books' => $books]);
+        $test = $this->render('PaustianBookModule:User:book_user_books.html.twig', ['books' => $books]);
         return $test;
     }
 
@@ -75,7 +73,7 @@ class UserController extends AbstractController {
     public function tocAction(Request $request, BookEntity $book = null) : Response {
         $bid = -1;
         if (null === $book) {
-            $bid = $request->query->getInt('bid');
+            $bid = $request->get('bid');
             if (!isset($bid)) {
                 return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
             }
@@ -83,8 +81,9 @@ class UserController extends AbstractController {
             $bid = $book->getBid();
         }
 
+        $chatperids = null;
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
-        $booktoc = $repo->buildtoc($bid);
+        $booktoc = $repo->buildtoc($bid, $chatperids);
 
         //we can simplifiy this quite a bit since we only need 1 book.
         $bookData = $booktoc[0];
@@ -102,7 +101,7 @@ class UserController extends AbstractController {
             }
         }
 
-        return $this->render('@PaustianBookModule/User/book_user_toc.html.twig', ['book' => $bookData]);
+        return $this->render('PaustianBookModule:User:book_user_toc.html.twig', ['book' => $bookData]);
     }
 
     /**
@@ -127,14 +126,9 @@ class UserController extends AbstractController {
      *
      * @param Request $request
      * @param BookArticlesEntity $article
-     * @param bool $doglossary
-     * @param CurrentUserApi $currentUserApi
      * @return Response
      */
-    public function displayarticleAction(Request $request,
-                                         BookArticlesEntity $article = null,
-                                         bool $doglossary = true,
-                                         CurrentUserApi $currentUserApi) : Response {
+    public function displayarticleAction(Request $request, BookArticlesEntity $article = null, bool $doglossary = true) : Response {
         if (null === $article) {
             $aid = $request->get('aid');
             if (isset($aid)) {
@@ -159,10 +153,11 @@ class UserController extends AbstractController {
 
         $content = $article->getContents();
         //Now add the highlights if necessary
+        $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($uid != "") {
             //procesing the highlights goes here. This way the figure text won't matter
-            $content = $this->_process_highlights($content, $article->getAid(), $currentUserApi);
+            $content = $this->_process_highlights($content, $article->getAid());
         }
 
         //this code is used for the hook
@@ -176,7 +171,7 @@ class UserController extends AbstractController {
             $show_internals = true;
         }
 
-        $return_text = $this->render('@PaustianBookModule/User/book_user_displayarticle.html.twig', ['article' => $article,
+        $return_text = $this->render('PaustianBookModule:User:book_user_displayarticle.html.twig', ['article' => $article,
                     'chnumber' => $chnumber,
                     'content' => $content,
                     'return_url' => $return_url,
@@ -247,7 +242,7 @@ class UserController extends AbstractController {
         $definition = $item[0]['definition'];
         $lcterm = strtolower($inTerm);
         $url = $this->generateUrl('paustianbookmodule_user_displayglossary') . "#$lcterm";
-        $ret_text = "<a class=\"glossary\" data-html=\"true\" href=\"$url\" title=\"$definition\">$inTerm</a>";
+        $ret_text = "<a class=\"glossary\" href=\"$url\" title=\"$definition\">$inTerm</a>";
         return $ret_text;
     }
 
@@ -255,15 +250,10 @@ class UserController extends AbstractController {
      * process_highlights
      *
      * Add highlight to the incomping text, based upon the offsets in the highlights array
-     * @param string $content
-     * @param int $aid
-     * @param CurrentUserApiInterface $currentUserApi
-     * @return string
+     *
      */
-    private function _process_highlights(string $content,
-                                         int $aid,
-                                         CurrentUserApiInterface $currentUserApi)
-    {//A modifier that has to go in to account for
+    private function _process_highlights(string $content, int $aid) {//A modifier that has to go in to account for
+        $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             return $content;
@@ -363,7 +353,7 @@ class UserController extends AbstractController {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
         $gloss_data = $repo->getGloss('', ['col' => 'u.term', 'direction' => 'ASC']);
 
-        return $this->render('@PaustianBookModule/User/book_user_glossary.html.twig', ['glossary' => $gloss_data]);
+        return $this->render('PaustianBookModule:User:book_user_glossary.html.twig', ['glossary' => $gloss_data]);
     }
 
     /**
@@ -431,7 +421,7 @@ class UserController extends AbstractController {
         $articles = $artRepo->getArticles($cid, true, false);
 
         //process all inline figures.
-        return $this->render('@PaustianBookModule/User/book_user_displaychapter.html.twig', ['chapter' => $chapter,
+        return $this->render('PaustianBookModule:User:book_user_displaychapter.html.twig', ['chapter' => $chapter,
                     'articles' => $articles]);
     }
 
@@ -472,7 +462,7 @@ class UserController extends AbstractController {
         }
 
         //process all inline figures.
-        $return_text = $this->render('@PaustianBookModule/User/book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter,
+        $return_text = $this->render('PaustianBookModule:User:book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter,
             'articles' => $articles])->getContent();
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $return_text = $repo->addfigures($return_text, $this);
@@ -501,19 +491,18 @@ class UserController extends AbstractController {
             $books = $repo->buildtoc();
         }
 
-        return $this->render('@PaustianBookModule/User/book_admin_collecthighlights.html.twig', ['books' => $books]);
+        return $this->render('PaustianBookModule:User:book_admin_collecthighlights.html.twig', ['books' => $books]);
     }
 
     /**
      * @Route("/studypage")
      *
      * @param Request $request
-     * @param CurrentUserApiInterface $currentUserApi
      * @return Response
      */
-    public function studypageAction(Request $request,
-                                    CurrentUserApiInterface $currentUserApi) : Response {
+    public function studypageAction(Request $request) : Response {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_collecthighlights'));
+        $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             $this->addFlash('status', $this->trans('You must be logged and have access the study pages.'));
@@ -554,7 +543,7 @@ class UserController extends AbstractController {
                 }
             }
         }
-        return $this->render('@PaustianBookModule/User/book_user_studypage.html.twig', ['highlights' => $highlightArray]);
+        return $this->render('PaustianBookModule:User:book_user_studypage.html.twig', ['highlights' => $highlightArray]);
     }
 
     /**
@@ -565,6 +554,7 @@ class UserController extends AbstractController {
      *
      * @param Request $request
      * @param BookArticlesEntity $article
+     * @param type $inText
      * @return boolean|RedirectResponse|Response
      */
     public function customizeTextAction(Request $request, BookArticlesEntity $article) : Response {
@@ -584,13 +574,10 @@ class UserController extends AbstractController {
      * the selected text will be highlighted yellow
      * @param Request $request
      * @param BookArticlesEntity $article
-     * @param string $inText
-     * @param CurrentUserApiInterface $currentUserApi
+     * @param $inText
      * @return RedirectResponse
      */
-    private function _doHighlight(Request $request, BookArticlesEntity $article,
-                                  string $inText,
-                                  CurrentUserApiInterface $currentUserApi) :RedirectResponse
+    private function _doHighlight(Request $request, BookArticlesEntity $article, $inText) :RedirectResponse
     {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]));
 
@@ -601,7 +588,7 @@ class UserController extends AbstractController {
         if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_READ)) {
             throw new AccessDeniedException();
         }
-
+        $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             //user id is empty, we are not in
@@ -658,17 +645,15 @@ class UserController extends AbstractController {
      * add a glossary item to be defined.
      * @param Request $request
      * @param BookArticlesEntity $article
-     * @param string $inTerm
-     * @param CurrentUserApiInterface $currentUserApi
+     * @param $inTerm
      * @return RedirectResponse
      */
-    private function _dodef(Request $request, BookArticlesEntity $article,
-                            string $inTerm,
-                            CurrentUserApiInterface $currentUserApi) :RedirectResponse
+    private function _dodef(Request $request, BookArticlesEntity $article, $inTerm) :RedirectResponse
     {
 
         $url = $this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]);
         $response = $this->redirect($url);
+        $currentUserApi = $this->get('zikula_users_module.current_user');
         $uid = $currentUserApi->get('uid');
         if ($inTerm == "") {
             $this->addFlash('status', $this->trans("No word was selected to be defined"));
@@ -707,13 +692,12 @@ class UserController extends AbstractController {
     /**
      * @Route("/download")
      * @param Request $request
-     * @param CurrentUserApiInterface $currentUserApi
      * @return Response
      */
-    public function downloadAction(Request $request,
-                                   CurrentUserApiInterface $currentUserApi) : Response
+    public function downloadAction(Request $request) : Response
     {
         $allow_dl = false;
+        $currentUserApi = $this->get('zikula_users_module.current_user');
         if ($currentUserApi->isLoggedIn()) {
             $groups = $currentUserApi->get('groups');
             //I need to fix this!
@@ -724,18 +708,7 @@ class UserController extends AbstractController {
                 }
             }
         }
-        return $this->render('@PaustianBookModule/User/book_user_download.html.twig', ['allow_dl' => $allow_dl]);
+        return $this->render('PaustianBookModule:User:book_user_download.html.twig', ['allow_dl' => $allow_dl]);
     }
 
-    /**
-     * I made this function to allow the respository to render the figure. I probably should not have
-     * removed it from the controller and will put it back in a future version.
-     *
-     * @param string $template
-     * @param array $parameters
-     * @return mixed
-     */
-    public function renderFigure(string $template, array $parameters){
-        return $this->render($template, $parameters);
-    }
 }

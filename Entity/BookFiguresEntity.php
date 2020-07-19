@@ -92,7 +92,7 @@ class BookFiguresEntity extends EntityAccess {
      * @return int
      */
     public function getFid() : int {
-        return (int)$this->fid;
+        return $this->fid;
     }
 
     /**
@@ -106,7 +106,7 @@ class BookFiguresEntity extends EntityAccess {
      * @return int
      */
     public function getFig_number() : int {
-        return (int)$this->fig_number;
+        return $this->fig_number;
     }
 
     //This is a bit of a cludge to work with symfony
@@ -115,7 +115,7 @@ class BookFiguresEntity extends EntityAccess {
      * @return int
      */
     public function getFigNumber() : int {
-        return (int)$this->fig_number;
+        return $this->fig_number;
     }
 
     /**
@@ -136,14 +136,14 @@ class BookFiguresEntity extends EntityAccess {
      * @return int
      */
     public function getChapNumber() : int {
-        return (int)$this->chap_number;
+        return $this->chap_number;
     }
 
     /**
      * @return int
      */
     public function getChap_number() : int {
-        return (int)$this->chap_number;
+        return $this->chap_number;
     }
 
     /**
@@ -164,7 +164,7 @@ class BookFiguresEntity extends EntityAccess {
      * @return int
      */
     public function getBid() : int {
-        return (int)$this->bid;
+        return $this->bid;
     }
 
     /**
@@ -178,14 +178,14 @@ class BookFiguresEntity extends EntityAccess {
      * @return string
      */
     public function getImgLink() : string{
-         return (string)$this->img_link;
+         return $this->img_link;
     }
 
     /**
      * @return string
      */
     public function getImg_link() : string {
-        return (string)$this->img_link;
+        return $this->img_link;
     }
 
     /**
@@ -206,7 +206,7 @@ class BookFiguresEntity extends EntityAccess {
      * @return string
      */
     public function getTitle() : string {
-        return (string)$this->title;
+        return $this->title;
     }
 
     /**
@@ -220,7 +220,7 @@ class BookFiguresEntity extends EntityAccess {
      * @return bool
      */
     public function getPerm() : bool{
-        return (bool)$this->perm;
+        return $this->perm;
     }
 
     /**
@@ -234,7 +234,7 @@ class BookFiguresEntity extends EntityAccess {
      * @return string
      */
     public function getContent() : string{
-        return (string)$this->content;
+        return $this->content;
     }
 
     /**

@@ -1,3 +1,6 @@
+{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
+
+{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 
 <div class="container-fluid">
     {{ showflashes() }}
@@ -18,9 +21,9 @@
                             {% for article in chapter.articles %}
                                 <tr>    
                                     <td><a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></td>
-                                    <td><a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" title="{{ 'Edit Article' | trans  }}" class="fas fa-edit"></a>
-                                        <a href="{{ path('paustianbookmodule_admin_addglossarytoarticle') }}/{{ article.aid }}" title="{{ 'Add Glossary Terms to Article' | trans  }}" class="fas fa-book"></a>
-                                        <a href="{{ path('paustianbookmodule_admin_deletearticle') }}/{{ article.aid }}" title="{{ 'Delete Article' | trans  }}" class="fas fa-trash" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
+                                    <td><a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" title="{{ 'Edit Article' | trans  }}" class="fa fa-pencil"></a>
+                                        <a href="{{ path('paustianbookmodule_admin_addglossarytoarticle') }}/{{ article.aid }}" title="{{ 'Add Glossary Terms to Article' | trans  }}" class="fa fa-book"></a>
+                                        <a href="{{ path('paustianbookmodule_admin_deletearticle') }}/{{ article.aid }}" title="{{ 'Delete Article' | trans  }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
                                 </tr>
                             {% endfor %}
                     </table>
@@ -30,16 +33,17 @@
     {% endfor %}
 
     <script type="text/javascript">
+        function buildArticleTable() {
+            {% for book in books %}
+                jQuery('#ArticleList{{ book.bid }}').accordion({
+                    collapsible: true,
+                    heightStyle: "content"
+                });
+            {% endfor %}
+        };
         document.onreadystatechange = function () {
             if (document.readyState === 'complete') {
-                (function ($) {
-                    {% for book in books %}
-                    $('#ArticleList{{ book.bid }}').accordion({
-                        collapsible: true,
-                        heightStyle: "content"
-                    });
-                    {% endfor %}
-                })(jQuery);
+                buildArticleTable();
             }
         };
     </script>

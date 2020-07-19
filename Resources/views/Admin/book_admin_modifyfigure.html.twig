@@ -2,12 +2,9 @@
 
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 
-<h3>
-    <span class="fa fa-edit"></span>
-    {{ "Chose a Figure to Edit" | trans }}
-    {{ pageSetVar('title', 'Choose Figure'|trans) }}
-</h3>
+<div class="container-fluid">
     {{ showflashes() }}
+    <h3>{{ 'Chose a figure to edit or delete' | trans  }}</h3>
     {% for book in books %}
         <h3>{{ book.bookName }}</h3>
         {% set currChap = -1 %}
@@ -27,8 +24,8 @@
                 {% endif %}
                 <tr>    
                     <td>{{ figure.chap_number }} - {{ figure.fig_number }} {{ figure.title }}</td>
-                    <td><a href="{{ path('paustianbookmodule_admin_editfigure') }}/{{ figure.fid }}" class="fas fa-edit"></a>
-                        <a href="{{ path('paustianbookmodule_admin_deletefigure') }}/{{ figure.fid }}" class="fas fa-trash" onclick="return confirm('Are you sure you want to delete this figure?')"></a></td>
+                    <td><a href="{{ path('paustianbookmodule_admin_editfigure') }}/{{ figure.fid }}" class="fa fa-pencil"></a>
+                        <a href="{{ path('paustianbookmodule_admin_deletefigure') }}/{{ figure.fid }}" class="fa fa-trash-o" onclick="return confirm('Are you sure you want to delete this figure?')"></a></td>
                 </tr>
             {% endfor %}
             {% if currChap != -1 %}        
@@ -40,16 +37,17 @@
     {% endfor %}
 
     <script type="text/javascript">
+        function buildFigureTable() {
+            {% for book in books %}
+                jQuery('#FigureList{{ book.bid }}').accordion({
+                    collapsible: true,
+                    heightStyle: "content"
+                });
+            {% endfor %}
+        }
         document.onreadystatechange = function () {
             if (document.readyState === 'complete') {
-                (function($) {
-                    {% for book in books %}
-                    $('#FigureList{{ book.bid }}').accordion({
-                        collapsible: true,
-                        heightStyle: "content"
-                    });
-                    {% endfor %}
-                })(jQuery)
+                buildFigureTable();
             }
         };
     </script>
