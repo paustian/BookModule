@@ -56,3 +56,12 @@
         {{ notifyDisplayHooks(constant('Paustian\\BookModule\\HookSubscriber\\ArticleUiHookSubscriber::ARTICLE_DISPLAY'), article.aid|default(null), return_url) }}
     </div>
 </div>
+<script type="text/javascript">
+    document.onreadystatechange = function () {
+        if (document.readyState === 'complete') {
+            (function ($) {
+                $('.glossary').tooltip();
+            })(jQuery);
+        }
+    };
+</script>

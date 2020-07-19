@@ -18,10 +18,10 @@ namespace Paustian\BookModule\Helper;
 use Paustian\BookModule\Entity\Repository\BookArticlesRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Zikula\Bundle\CoreBundle\RouteUrl;
 use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
 use Zikula\SearchModule\Entity\SearchResultEntity;
 use Zikula\SearchModule\SearchableInterface;
-use Zikula\Core\RouteUrl;
 
 class SearchHelper implements SearchableInterface
 {
@@ -72,6 +72,7 @@ class SearchHelper implements SearchableInterface
 
         $hits= $this->articleRepo->getSearchResults($words, $searchType);
         $sessionID = $this->session->getId();
+        $date = new \DateTime();
         foreach ($hits as $article) {
             $url = new RouteUrl('paustianbookmodule_user_displayarticle', ['article' => $article->getAid()]);
             //make sure we have permission for this object.
@@ -81,14 +82,16 @@ class SearchHelper implements SearchableInterface
                     ->setModule('PaustianBookModule')
                     ->setText($this->shorten_text($article->getContents(), $words))
                     ->setSesid($sessionID)
-                    ->setUrl($url);
+                    ->setUrl($url)
+                    ->setCreated($date);
                 $returnArray[] = $result;
             } else {
                 $result = new SearchResultEntity();
                 $result->setTitle($article->getTitle())
                 ->setModule('PaustianBookModule')
                  ->setText($this->shorten_text($article->getContents(), $words))
-                 ->setSesid($sessionID);
+                 ->setSesid($sessionID)
+                  ->setCreated($date);
                 $returnArray[] = $result;
             }
         }

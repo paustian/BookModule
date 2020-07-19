@@ -1,14 +1,11 @@
-<div class="container-fluid">
-    <h3>{{ 'The areas you have highlighted in the articles you selected' | trans  }}</h4>
-        {% set curAid = -1 %}
-        {% for hItem in highlights %}
-            {% if curAid != hItem.aid %}
-                <h4>{{ 'Chapter' | trans  }} {{ hItem.chapNum }} - {{ hItem.artNum }} : {{ hItem.title }} </h4>
-                {% set curAid = hItem.aid %}
-            {% endif %}
-            <p>{{ hItem.content|raw }} 
-                <a href="{{ path('paustianbookmodule_user_displayarticle', {aid:hItem.aid}) }}" class="fa fa-link"></a>
-            </p>
-        {% endfor %}
-</div>
-
+<h3>{{ 'The areas you have highlighted in the articles you selected' | trans }}</h4>
+    {% set curAid = -1 %}
+    {% for hItem in highlights %}
+        {% if curAid != hItem.aid %}
+            <h4>{{ 'Chapter' | trans }} {{ hItem.chapNum }} - {{ hItem.artNum }} : {{ hItem.title }} </h4>
+            {% set curAid = hItem.aid %}
+        {% endif %}
+        <p>{{ hItem.content|raw }}
+            <a href="{{ path('paustianbookmodule_user_displayarticle', {aid:hItem.aid}) }}" class="fa fa-link"></a>
+        </p>
+    {% endfor %}

@@ -1,55 +1,58 @@
 {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
-<div class="container-fluid">
+
     {{ showflashes() }}
-    <h3>{{ 'Pick articles to study from' | trans  }}</h3>
-    <form action="{{ path('paustianbookmodule_user_studypage') }}" method="post" enctype="application/x-www-form-urlencoded">
-        {% for book in books %}
-            <h3>{{ book.name }}</h3>
-            <div id="ArticleList{{ book.bid }}">
-                {% for chapter in book.chapters %}
-                    {% if chapter.number == -1 %}
-                        <h4>{{ chapter.name }}</h4>
-                    {% else %}
-                        <h4>{{ chapter.number }} - {{ chapter.name }}</h4>
-                    {% endif %}
-                    <div>
-                        <table class="table table-striped">
-                            <tbody>
-                                {% for article in chapter.articles %}
-                                    <tr>
-                                        <td><input type="checkbox" name="aids[]" value="{{ article.aid }}"/></td>
-                                        <td><a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></td>
-                                    </tr>
-                                {% endfor %}
-                        </table>
-                        
-                    </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
-        <p><label><input type="checkbox" id="checkAll"/> Check all</label></p>
-        <div class="form-group">
-            <div class="col-lg-offset-3 col-lg-9">
-                <button class="btn btn-success" type="submit" name="create" value="create">
-                    {{ 'Create Study Page' | trans  }}
-                </button>
-            </div>
+<h3>{{ 'Pick articles to study from' | trans }}</h3>
+<form action="{{ path('paustianbookmodule_user_studypage') }}" method="post"
+      enctype="application/x-www-form-urlencoded">
+    {% for book in books %}
+        <h3>{{ book.name }}</h3>
+        <div id="ArticleList{{ book.bid }}">
+            {% for chapter in book.chapters %}
+                {% if chapter.number == -1 %}
+                    <h4>{{ chapter.name }}</h4>
+                {% else %}
+                    <h4>{{ chapter.number }} - {{ chapter.name }}</h4>
+                {% endif %}
+                <div>
+                    <table class="table table-striped">
+                        <tbody>
+                        {% for article in chapter.articles %}
+                            <tr>
+                                <td><input type="checkbox" name="aids[]" value="{{ article.aid }}"/></td>
+                                <td>
+                                    <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }}
+                                        - {{ article.number }} {{ article.title }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                </div>
+            {% endfor %}
         </div>
-    </form>
-    <script type="text/javascript">
-        {% for book in books %}    
-        (function ($) {
-            $('#ArticleList{{ book.bid }}').accordion({
-                collapsible: true,
-                heightStyle: "content"
-            });
-        })(jQuery);
-        {% endfor %}
-            (function ($) {
-                $("#checkAll").change(function () {
-                    $("input:checkbox").prop('checked', $(this).prop("checked"));
-                });
-            })(jQuery);
-    </script>
-</div>
+    {% endfor %}
+    <p><label><input type="checkbox" id="checkAll"/> Check all</label></p>
+    <div class="form-group">
+        <div class="col-lg-offset-3 col-lg-9">
+            <button class="btn btn-success" type="submit" name="create" value="create">
+                {{ 'Create Study Page' | trans }}
+            </button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    {% for book in books %}
+    (function ($) {
+        $('#ArticleList{{ book.bid }}').accordion({
+            collapsible: true,
+            heightStyle: "content"
+        });
+    })(jQuery);
+    {% endfor %}
+    (function ($) {
+        $("#checkAll").change(function () {
+            $("input:checkbox").prop('checked', $(this).prop("checked"));
+        });
+    })(jQuery);
+</script>
+

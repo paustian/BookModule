@@ -53,7 +53,7 @@ class ToolsBlock extends AbstractBlockHandler {
             $article = $em->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
             $repo = $em->getRepository('PaustianBookModule:BookEntity');
             $booktoc = $repo->buildtoc($article->getBid(), $chapterids);
-            $content = $this->renderView('PaustianBookModule:Block:tools_block.html.twig', ['aid' => $aid, 'book' => $booktoc[0]]);
+            $content = $this->renderView('@PaustianBookModule/Block/tools_block.html.twig', ['aid' => $aid, 'book' => $booktoc[0]]);
         }
         return $content;
     }

@@ -1,82 +1,81 @@
 {{ pageSetVar('title', 'Arrange Articles') }}
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
-{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 
-<div class="container-fluid">
-    <h3>
-        <span class="fa fa-book"></span>
-        {{ 'Arrange Articles' | trans }}
-    </h3>
-    <p>{{ "Arrange the articles by dragging and dropping them into the chapter boxes" | trans  }}</p>
-    <form action="{{ path('paustianbookmodule_admin_savearrangement') }}" method="post"
-          enctype="application/x-www-form-urlencoded">
+<h3>
+    <span class="fa fa-book"></span>
+    {{ 'Arrange Articles' | trans }}
+</h3>
+<p>{{ "Arrange the articles by dragging and dropping them into the chapter boxes" | trans }}</p>
+<form action="{{ path('paustianbookmodule_admin_savearrangement') }}" method="post"
+      enctype="application/x-www-form-urlencoded">
 
-        <input id='chatperids' name="chapterids" value="{{ chapterids }}" type="hidden"/>
-        {% for book in books %}
-            <div class="row">
-                <fieldset>
-                    <h3 class="legend">{{ 'Book:' | trans  }} {{ book.name }}</h3>
-                   {% for chapter in book.chapters %}
-                        {% if chapter.number == -1 %}
+    <input id='chatperids' name="chapterids" value="{{ chapterids }}" type="hidden"/>
+    {% for book in books %}
+        <div class="row">
+            <fieldset class="wideset">
+                <h3 class="legend">{{ 'Book:' | trans }} {{ book.name }}</h3>
+                {% for chapter in book.chapters %}
+                    {% if chapter.number == -1 %}
+                        <div class="columnorg">
                             <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
-                            <div id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
-                               <div class="pin">&nbsp;</div>
+                            <div id="sortable{{ chapter.cid }}" class="connectedSortable sortable arrageborder">
+                                <div class="pin">&nbsp;</div>
                                 {% for article in chapter.articles %}
                                     <div id="art_{{ article.aid }}"
-                                        class="ui-state-default sortable">{{ article.title }}</div>
+                                         class="ui-state-default sortable">{{ article.title }}</div>
                                 {% endfor %}
                             </div>
-                        {% else %}
-                            <div class="columnorg">
-                            <h5>{{ 'Chapter' | trans  }} {{ chapter.number }} - {%  if chapter.name | length > 30 %}{{ chapter.name | slice(0,30) }}... {% else %} {{ chapter.name }} {% endif %}</h5>
+                        </div>
+                    {% else %}
+                        <div class="columnorg">
+                            <h5 class="arrageart">{{ 'Chapter' | trans }} {{ chapter.number }}
+                                - {% if chapter.name | length > 30 %}{{ chapter.name | slice(0,30) }}... {% else %} {{ chapter.name }} {% endif %}</h5>
                             <input name="order_{{ chapter.cid }}" id="order_{{ chapter.cid }}" hidden/>
-                            <div id="sortable{{ chapter.cid }}" class="connectedSortable sortable">
-                                 <div class="pin">&nbsp;</div>
+                            <div id="sortable{{ chapter.cid }}" class="connectedSortable sortable arrageborder">
+                                <div class="pin">&nbsp;</div>
                                 {% for article in chapter.articles %}
                                     <div id="art_{{ article.aid }}"
-                                        class="ui-state-default sortable">{%  if article.title | length > 40 %}{{ article.title | slice(0,40) }}... {% else %} {{ article.title | raw }} {%  endif %}</div>
+                                         class="ui-state-default sortable">{% if article.title | length > 40 %}{{ article.title | slice(0,40) }}... {% else %} {{ article.title | raw }} {% endif %}</div>
                                 {% endfor %}
                             </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </fieldset>
-            </div>
-        {% endfor %}
-        {# I had a LONG struggle with this until I realized you have to have an underscore in your recognized items. I was doing item33 instead of
-        item_33. If I had remembered the docs, I would have figured this out much sooner #}
-        <div class="form-group">
-            <div class="col-lg-offset-3 col-lg-9">
-                <button class="btn btn-success" type="submit" name="create" value="create">
-                    {{ 'Save Order' | trans  }}
-                </button>
-            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </fieldset>
         </div>
-    </form>
-</div>
-
-<script type="text/javascript">
-    function arrangeCode() {
-        {% for booka in books %}
-        {% for chaptera in booka.chapters %}
-        jQuery("#sortable{{ chaptera.cid }}").sortable({
-            update: function (event, ui) {
-                var Order = jQuery(this).sortable('serialize');
-
-                jQuery('#order_{{ chaptera.cid }}').val(Order);
-            }
-        });
-        jQuery("#sortable{{ chaptera.cid }}").sortable({
-            connectWith: ".connectedSortable",
-            cancel: ".pin"
-        }).disableSelection();
-        {% endfor %}
-        {% endfor %}
-    };
-
+    {% endfor %}
+    {# I had a LONG struggle with this until I realized you have to have an underscore in your recognized items. I was doing item33 instead of
+    item_33. If I had remembered the docs, I would have figured this out much sooner #}
+    <div class="form-group">
+        <div class="col-lg-offset-3 col-lg-9">
+            <button class="btn btn-success" type="submit" name="create" value="create">
+                {{ 'Save Order' | trans }}
+            </button>
+        </div>
+    </div>
+</form>
+<script>
     document.onreadystatechange = function () {
         if (document.readyState === 'complete') {
-            arrangeCode();
+            //wrap your jQuery code in readState complete calls. Then it works.
+            (function ($) {
+                {% for booka in books %}
+                {% for chaptera in booka.chapters %}
+                $("#sortable{{ chaptera.cid }}").sortable({
+                    update: function (event, ui) {
+                        var Order = $(this).sortable('serialize');
+
+                        $('#order_{{ chaptera.cid }}').val(Order);
+                    }
+                });
+                $("#sortable{{ chaptera.cid }}").sortable({
+                    connectWith: ".connectedSortable",
+                    cancel: ".pin"
+                }).disableSelection();
+                {% endfor %}
+                {% endfor %}
+            })(jQuery);
         }
     };
 </script>
+

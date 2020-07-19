@@ -1,23 +1,19 @@
-{{ pageAddAsset('javascript', asset('jquery-ui/jquery-ui.min.js')) }}
-<div class="container-fluid">
-    <div class="row">
-        <h3>
-            <span class="fa fa-edit"></span>
-            {{ "Edit a Book" | trans  }}
-        </h3>
-        <p>{{ "Give the book a name" | trans  }}</p>
-        {{ showflashes() }}
-        {{ form_start(form) }}
-        {{ form_errors(form) }}
-        <fieldset>
-            <legend>{{ 'Book Name' | trans  }}</legend>
-            {{ form_row(form.name) }}
-        </fieldset>
-        <div class="form-group">
-            <div class="col-lg-offset-3 col-lg-9">
-                {{ form_widget(form.add, {'attr': {'class': 'btn btn-success'}}) }}
-            </div>
-        </div>
-        {{ form_end(form) }}
+<h3>
+    <span class="fa fa-edit"></span>
+    {{ "Create/Edit a Book" | trans }}
+    {{ pageSetVar('title', 'Edit/Delete Book'|trans) }}
+</h3>
+<div class="alert alert-info">{{ "Create/Edit a Book Title" | trans }}</div>
+{{ showflashes() }}
+{{ form_start(form) }}
+{{ form_errors(form) }}
+<fieldset>
+    <legend>{{ 'Title' | trans }}</legend>
+    {{ form_row(form.name) }}
+</fieldset>
+<div class="form-group">
+    <div class="col-lg-offset-3 col-lg-9">
+        {{ form_widget(form.add, {'attr': {'class': 'btn btn-success'}}) }}
     </div>
-    </div>
+</div>
+{{ form_end(form) }}

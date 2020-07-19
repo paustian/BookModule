@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
+use Zikula\Bundle\CoreBundle\Controller\AbstractController;
 
 class BookArticlesRepository extends ServiceEntityRepository
 {
@@ -160,7 +161,7 @@ class BookArticlesRepository extends ServiceEntityRepository
     //book_user_addfigures
 //I factored this out of the above so that I could call it from the admin
 //code for exporting the chapters.
-    public function addfigures(string $ioText, \Zikula\Core\Controller\AbstractController $contr)
+    public function addfigures(string $ioText, AbstractController $contr)
     {
         $this->controller = $contr;
         //substitute all the figures
@@ -178,7 +179,7 @@ class BookArticlesRepository extends ServiceEntityRepository
      * @param $searchType - is this an AND or an OR search
      * @return array = the search results
      */
-    public function getSearchResults(string $words, string $searchType)
+    public function getSearchResults(array $words, string $searchType) :array
     {
         $qb = $this->_em->createQueryBuilder();
         $qb->select('a')
@@ -210,9 +211,9 @@ class BookArticlesRepository extends ServiceEntityRepository
 
     private function _inlinefigures(array $matches)
     {
-        $book_number = $matches[1];
-        $chap_number = $matches[2];
-        $fig_number = $matches[3];
+        $book_number = (int)$matches[1];
+        $chap_number = (int)$matches[2];
+        $fig_number = (int)$matches[3];
         $movName = "canvas";
         $weight = 1000;
         $width = 0;
@@ -225,29 +226,29 @@ class BookArticlesRepository extends ServiceEntityRepository
         $countPieces = count($pieces);
         switch ($countPieces){
             case 2:
-                $width = $pieces[1];
+                $width = (int)$pieces[1];
                 break;
             case 3:
-                $width = $pieces[1];
-                $height = $pieces[2];
+                $width = (int)$pieces[1];
+                $height = (int)$pieces[2];
                 break;
             case 4:
-                $width = $pieces[1];
-                $height = $pieces[2];
+                $width = (int)$pieces[1];
+                $height = (int)$pieces[2];
                 $movName = $pieces[3];
                 break;
             case 5:
-                $width = $pieces[1];
-                $height = $pieces[2];
+                $width = (int)$pieces[1];
+                $height = (int)$pieces[2];
                 $movName = $pieces[3];
-                $weight = $pieces[4];
+                $weight = (int)$pieces[4];
                 break;
             case 6:
-                $width = $pieces[1];
-                $height = $pieces[2];
+                $width = (int)$pieces[1];
+                $height = (int)$pieces[2];
                 $movName = $pieces[3];
-                $weight = $pieces[4];
-                $delay = $pieces[5];
+                $weight = (int)$pieces[4];
+                $delay = (int)$pieces[5];
                 break;
             default:
                 break;
@@ -255,8 +256,13 @@ class BookArticlesRepository extends ServiceEntityRepository
 
 
         $repo = $this->_em->getRepository('PaustianBookModule:BookFiguresEntity');
-        $figure = $repo->findFigure($fig_number, $chap_number, $book_number);
-
+        $result = $repo->findFigure($fig_number, $chap_number, $book_number);
+        //This is a bit of defensive coding in case a user has put in two figure that reference the same item.
+        if(is_array($result)){
+            $figure = array_shift($result);
+        } else {
+            $figure = $result;
+        }
         if (!empty($figure)) {
             $figureText = $this->_renderFigure($figure, $width, $height, false, $movName, null, $weight, $delay);
         } else {
@@ -270,7 +276,7 @@ class BookArticlesRepository extends ServiceEntityRepository
                                   int $height = 0,
                                   bool $stand_alone = false,
                                   string $movName = 'canvas',
-                                  \Zikula\Core\Controller\AbstractController $inController = null,
+                                  \Paustian\BookModule\Controller\AdminController $inController = null,
                                   int $weight = 1000,
                                   int $delay = 0)
     {
@@ -278,17 +284,17 @@ class BookArticlesRepository extends ServiceEntityRepository
             $this->controller = $inController;
         }
 //check to see if we have permission to use the figure
-        if ($figure->getPerm() != 0) {
+        if (0 != $figure->getPerm()) {
             $visible_link = $this->_buildlink($figure->getImgLink(), $figure->getTitle(), $width, $height, $stand_alone, $movName, $weight, $delay);
         } else {
             $visible_link = trans("This figure cannot be displayed because permission has not been granted yet.");
         }
 
         if ($stand_alone) {
-            return $this->controller->render('PaustianBookModule:User:book_user_displayfigure.html.twig', ['figure' => $figure,
+            return $this->controller->renderFigure('@PaustianBookModule\User\book_user_displayfigure.html.twig', ['figure' => $figure,
                 'visible_link' => $visible_link])->getContent();
         }
-        return $this->controller->render('PaustianBookModule:User:book_user_displayfigure.html.twig', ['figure' => $figure,
+        return $this->controller->renderFigure('@PaustianBookModule\User\book_user_displayfigure.html.twig', ['figure' => $figure,
             'visible_link' => $visible_link])->getContent();
     }
 
@@ -345,12 +351,12 @@ class BookArticlesRepository extends ServiceEntityRepository
                         $height = round($height * $this->maxpixels / $width);
                         $width = $this->maxpixels;
                     }
-                    $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink1.html.twig', ['link' => $link,
+                    $ret_link = $this->controller->renderFigure('@PaustianBookModule/User/book_user_buildlink1.html.twig', ['link' => $link,
                         'width' => $width,
                         'height' => $height,
                         'alt_link' => $alt_link])->getContent();
                 } else {
-                    $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink2.html.twig', ['link' => $link,
+                    $ret_link = $this->controller->renderFigure('@PaustianBookModule/User/book_user_buildlink2.html.twig', ['link' => $link,
                         'alt_link' => $alt_link])->getContent();
                 }
                 break;
@@ -359,7 +365,7 @@ class BookArticlesRepository extends ServiceEntityRepository
                     $width = 320;
                     $height = 336;
                 }
-                $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink3.html.twig', ['link' => $link,
+                $ret_link = $this->controller->renderFigure('@PaustianBookModule/User/book_user_buildlink3.html.twig', ['link' => $link,
                     'width' => $width,
                     'height' => $height])->getContent();
                 break;
@@ -369,13 +375,13 @@ class BookArticlesRepository extends ServiceEntityRepository
                     $width = $image_data[0];
                     $height = $image_data[1];
                 }
-                $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink4.html.twig', ['link' => $link,
+                $ret_link = $this->controller->renderFigure('@PaustianBookModule\User\book_user_buildlink4.html.twig', ['link' => $link,
                     'width' => $width,
                     'height' => $height])->getContent();
                 break;
             case "canvas":
                 $jLink = $pInfo['dirname'] . "/" . $pInfo['filename'] . ".js";
-                $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink5.html.twig', ['link' => $link,
+                $ret_link = $this->controller->renderFigure('@PaustianBookModule/User/book_user_buildlink5.html.twig', ['link' => $link,
                     'width' => $width,
                     'height' => $height,
                     'jlink' => $jLink,
@@ -384,7 +390,7 @@ class BookArticlesRepository extends ServiceEntityRepository
                 break;
             case 'music':
                 $imglink = $pInfo['dirname'] . "/" . $pInfo['filename'];
-                $ret_link = $this->controller->render('PaustianBookModule:User:book_user_buildlink6.html.twig', ['link' => $link,
+                $ret_link = $this->controller->renderFigure('@PaustianBookModule/User/book_user_buildlink6.html.twig', ['link' => $link,
                     'width' => $width,
                     'height' => $height,
                     'movName' => $movName,

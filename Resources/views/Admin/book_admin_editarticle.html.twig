@@ -1,34 +1,30 @@
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
 
-<div class="container-fluid">
-    <div class="row">
-        <h3>
-            <span class="fa fa-edit"></span>
-            {{ "Edit an Article" | trans  }}
-        </h3>
-        <p>{{ "Give the article a name" | trans  }}</p>
-        {{ showflashes() }}
-        {{ form_start(form) }}
-        {{ form_errors(form) }}
-        <fieldset>
-            <legend>{{ 'Article Data' | trans  }}</legend>
-            {{ form_row(form.title) }}
-            {{ form_row(form.contents, {'attr': {'class': 'book_contents'}}) }}
-            {{ form_row(form.lang) }}
-            {{ form_row(form.next) }}
-            {{ form_row(form.prev) }}
-            {{ form_row(form.number) }}
-        </fieldset>
-        {% for hook_template in hook_templates %}
-            {{ include(hook_template.0, hook_template.1, ignore_missing = true) }}
-        {% endfor %}
-        {{ notifyDisplayHooks('book.ui_hooks.pages.form_edit', form.aid|default(null)) }}
-        <div class="form-group">
-            <div class="col-lg-offset-3 col-lg-9">
-                {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
-            </div>
-        </div>
-        {{ form_end(form) }}
+<h3>
+    <span class="fa fa-edit"></span>
+    {{ "Edit an Article" | trans }}
+</h3>
+<p>{{ "Create/Edit your article" | trans }}</p>
+{{ showflashes() }}
+{{ form_start(form) }}
+{{ form_errors(form) }}
+<fieldset>
+    <legend>{{ 'Article Data' | trans }}</legend>
+    {{ form_row(form.title) }}
+    {{ form_row(form.contents, {'attr': {'class': 'book_contents'}}) }}
+    {{ form_row(form.lang) }}
+    {{ form_row(form.next) }}
+    {{ form_row(form.prev) }}
+    {{ form_row(form.number) }}
+</fieldset>
+{% for hook_template in hook_templates %}
+    {{ include(hook_template.0, hook_template.1, ignore_missing = true) }}
+{% endfor %}
+{{ notifyDisplayHooks('book.ui_hooks.pages.form_edit', form.aid|default(null)) }}
+<div class="form-group">
+    <div class="col-lg-offset-3 col-lg-9">
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
     </div>
 </div>
+{{ form_end(form) }}
 
