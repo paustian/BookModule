@@ -55,10 +55,10 @@ class BookRepository extends EntityRepository {
      * memory.
      *
      * @param int $bid
-     * @param array $chapterids
+     * @param string $chapterids
      * @return array
      */
-    public function buildtoc(int $bid = 0, array &$chapterids = []) : array {
+    public function buildtoc(int $bid = 0, string &$chapterids = "") : array {
         //get the list of books
         $booksEnts = $this->getBooks($bid);
 
@@ -69,8 +69,11 @@ class BookRepository extends EntityRepository {
             $book = array();
             //get list of chapters in the book, ordered by number (that is the the true is for)
             $chapterEnt = $repoChap->getChapters($bookEnt->getBid(), true);
+            //if we have not chapters then you don't need to go on.
+            if(count($chapterEnt) === 0){
+                continue;
+            }
             $chapters = array();
-            $articles = array();
             foreach ($chapterEnt as $chapterEnt) {
                 $chapter = array();
                 //get all the articles in this chapter, ordered by number

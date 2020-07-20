@@ -124,7 +124,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param int $aid
      */
-    public function setAid(int $aid) {
+    public function setAid(int $aid) : void {
         $this->aid = $aid;
     }
 
@@ -136,9 +136,9 @@ class BookArticlesEntity extends EntityAccess {
     }
 
     /**
-     * @param sting $title
+     * @param string $title
      */
-    public function setTitle(sting $title) {
+    public function setTitle(string $title) : void {
         $this->title = $title;
     }
 
@@ -152,7 +152,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param int $cid
      */
-    public function setCid(int $cid) {
+    public function setCid(int $cid) : void {
         $this->cid = $cid;
     }
 
@@ -166,7 +166,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param int $bid
      */
-    public function setBid(int $bid) {
+    public function setBid(int $bid) : void {
         $this->bid = $bid;
     }
 
@@ -180,7 +180,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param string $contents
      */
-    public function setContents(string $contents) {
+    public function setContents(string $contents) : void {
         $this->contents = $contents;
     }
 
@@ -194,7 +194,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param int $counter
      */
-    public function setCounter(int $counter) {
+    public function setCounter(int $counter) : void {
         $this->counter = $counter;
     }
 
@@ -208,7 +208,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param string $lang
      */
-    public function setLang(string $lang) {
+    public function setLang(string $lang) : void {
         $this->lang = $lang;
     }
 
@@ -222,7 +222,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param int $next
      */
-    public function setNext(int $next) {
+    public function setNext(int $next) : void {
         $this->next = $next;
     }
 
@@ -236,7 +236,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param int $prev
      */
-    public function setPrev(int $prev) {
+    public function setPrev(int $prev) : void {
         $this->prev = $prev;
     }
 
@@ -250,7 +250,7 @@ class BookArticlesEntity extends EntityAccess {
     /**
      * @param int $number
      */
-    public function setNumber(int $number) {
+    public function setNumber(int $number) : void {
         $this->number = $number;
     }
 

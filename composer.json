@@ -23,7 +23,7 @@
       "class": "Paustian\\BookModule\\PaustianBookModule",
       "core-compatibility": ">=3.0.0",
       "displayname": "Book Module",
-      "icon": "fas fa-star",
+      "icon": "fas fa-book",
       "oldnames": [],
       "capabilities": {
         "admin": {"route": "paustianbookmodule_admin_edit"},

@@ -1,28 +1,21 @@
-
-
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
-
-<div class="container-fluid">
-    <div class="row">
-        <h3>
-            <span class="fa fa-upload"></span>
-            {{ "Import Book Chapters and Articles" | trans  }}
-        </h3>
-        <p>{{ trans("Paste the correctly formated xml into the textarea below and click Import Book. Below is an example of properly formatted xml. To
-get an example of the correct method of formatting, export a chapter.") }}</p>
-        {{ showflashes() }}
+<h3>
+    <span class="fa fa-upload"></span>
+    {{ "Import Book Chapters and Articles" | trans }}
+</h3>
+<p>{{ "Paste the correctly formated xml into the textarea below and click Import Book. To
+get an example of the correct method of formatting, export a chapter." | trans }}</p>
+{{ showflashes() }}
         {{ form_start(form) }}
         {{ form_errors(form) }}
-        <fieldset>
-            <legend>{{ 'Textr to import' | trans  }}</legend>
-            {{ form_row(form.importText, {'attr': {'class': 'book_contents'}}) }}
-        </fieldset>
-        <div class="form-group">
-            <div class="col-lg-offset-3 col-lg-9">
-                {{ form_widget(form.save, {'attr': {'class': 'btn btn-success'}}) }}
-            </div>
-        </div>
-        {{ form_end(form) }}
+<fieldset>
+    <legend>{{ 'Text to import' | trans }}</legend>
+    {{ form_row(form.importText, {'attr': {'class': 'book_contents'}}) }}
+</fieldset>
+<div class="form-group">
+    <div class="col-lg-offset-3 col-lg-9">
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-success'}}) }}
     </div>
 </div>
+{{ form_end(form) }}
 

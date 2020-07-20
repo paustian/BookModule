@@ -1,8 +1,11 @@
-{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
 
-{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
-
+<h3>
+    <span class="fa fa-edit"></span>
+    {{ "Edit/Delete a Chapter" | trans }}
+    {{ pageSetVar('title', 'Edit/Delete Chapter'|trans) }}
+</h3>
+<div class="alert alert-info">{{ "Choose a Chapter to Edit, Delete, Export, Search/Replace, or check URLS" | trans }}</div>
 <div class="container-fluid">
     {{ showflashes() }}
     <table class="table table-striped">
@@ -20,21 +23,16 @@
                     <td>{{ item.name }}</td>
                     <td>{{ books[loop.index0] }}</td>
                     <td class="actions">
-                        <a href="{{ path('paustianbookmodule_admin_editchapter') }}/{{ item.cid }}" class="fa fa-pencil" title="{{ 'Edit chapter' | trans  }}"></a>
-                        <a href="{{ path('paustianbookmodule_admin_deletechapter') }}/{{ item.cid }}" class="fa fa-trash-o" title="{{ 'Delete chapter' | trans  }}" onclick="return confirm('Are you sure you want to delete this chapter?')"></a>
-                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}" class="fa fa-download" title="{{ 'Export html chapter' | trans  }}"></a>
-                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}/0" class="fa fa-arrow-circle-down" title="{{ 'Export xml chapter' | trans  }}"></a>
-                        <a href="{{ path('paustianbookmodule_admin_searchreplace') }}/{{ item.cid }}" class="fa fa-search" title="{{ 'Do regex search and replace' | trans  }}"></a>
-                        <a href="{{ path('paustianbookmodule_admin_verifyurls') }}/{{ item.cid }}" class="fa fa-link" title="{{ 'Verify the urls in the chapter' | trans  }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_editchapter') }}/{{ item.cid }}" class="fas fa-edit" title="{{ 'Edit chapter' | trans  }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_deletechapter') }}/{{ item.cid }}" class="fas fa-trash" title="{{ 'Delete chapter' | trans  }}" onclick="return confirm('Are you sure you want to delete this chapter?')"></a>
+                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}" class="fas fa-download" title="{{ 'Export html chapter' | trans  }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_export') }}/{{ item.cid }}/0" class="fas fa-arrow-circle-down" title="{{ 'Export xml chapter' | trans  }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_searchreplace') }}/{{ item.cid }}" class="fas fa-search" title="{{ 'Do regex search and replace' | trans  }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_verifyurls') }}/{{ item.cid }}" class="fas fa-link" title="{{ 'Verify the urls in the chapter' | trans  }}"></a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>    
 </div>
-<script>
-    (function ($) {
-        $(document).toolTip();
-    })(jQuery);
-</script>
 

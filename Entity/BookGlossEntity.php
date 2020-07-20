@@ -71,13 +71,13 @@ class BookGlossEntity extends EntityAccess {
      * @return int
      */
     public function getGid() : int {
-        return $this->gid;
+        return (int)$this->gid;
     }
 
     /**
      * @param int $gid
      */
-    public function setGid(int $gid) {
+    public function setGid(int $gid) : void {
         $this->gid = $gid;
     }
 
@@ -91,7 +91,7 @@ class BookGlossEntity extends EntityAccess {
     /**
      * @param string $term
      */
-    public function setTerm(string $term) {
+    public function setTerm(string $term) : void {
         $this->term = $term;
     }
 
@@ -105,7 +105,7 @@ class BookGlossEntity extends EntityAccess {
     /**
      * @param string $definition
      */
-    public function setDefinition(string $definition) {
+    public function setDefinition(string $definition) : void {
         $this->definition = \Paustian\BookModule\Helper\TagHelper::stripFrontAndBackPTags($definition);
     }
 
@@ -119,7 +119,7 @@ class BookGlossEntity extends EntityAccess {
     /**
      * @param string $user
      */
-    public function setUser(string $user) {
+    public function setUser(string $user) : void {
         $this->user = $user;
     }
 
@@ -133,7 +133,7 @@ class BookGlossEntity extends EntityAccess {
     /**
      * @param string $url
      */
-    public function setUrl(string $url) {
+    public function setUrl(string $url) : void {
         $this->url = $url;
     }
 }

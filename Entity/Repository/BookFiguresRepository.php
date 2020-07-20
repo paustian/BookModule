@@ -13,13 +13,13 @@ class BookFiguresRepository extends EntityRepository {
      * Get the figures for a book.
      *
      * @param int $bid
-     * @return int|mixed|string
+     * @return array
      */
-    public function getFigures(int $bid = -1) : string {
+
+    public function getFigures(int $bid = -1) : array {
         $qb = $this->_em->createQueryBuilder();
 
         // add select and from params
-        $fields = array('u.fid', 'u.chap_number', 'u.fig_number', 'u.bid', 'u.title');
         $qb->select('u')
                 ->from('PaustianBookModule:BookFiguresEntity', 'u');
 
@@ -48,9 +48,6 @@ class BookFiguresRepository extends EntityRepository {
     public function findFigure(int $fig_number, int $chap_number, int $book_number) : array {
         $qb = $this->_em->createQueryBuilder();
 
-        // add select and from params
-        $fields = array('u.fig_number', 'u.chap_number', 'u.fig_number', 'u.bid');
-        
         $qb->select('u')
                 ->from('PaustianBookModule:BookFiguresEntity', 'u');
 
@@ -59,7 +56,6 @@ class BookFiguresRepository extends EntityRepository {
 
         // convert querybuilder instance into a Query object
         $query = $qb->getQuery();
-
         // execute query
         return $query->getResult();
     }
