@@ -3,10 +3,11 @@ sets of documents into Books, Chapters and Articles. There is lots of functional
 this module and at some point I really need to write some documentation for it. 
 
 ##Version 5.0
-This version is compatible with Zikula 3.0.0 and greater.
-It is currently a work in progress, but I hope to have it functional soon 
+This version is compatible with Zikula 3.0.0 and greater. It is now in RC1 state and 
+should work in production sites. More testing is needed, but let me know 
+if you have an issues by posting issues at [github](https://github.com/paustian/BookModule/issues)
 
-Version 3.0
+##Version 3.0
 Fixed modurl calls
 Fixed PnRedirect calls
 Fixed LogUtil calls
