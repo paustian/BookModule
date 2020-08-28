@@ -1,8 +1,6 @@
 {{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js')) }}
-
 {{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
 {{ pageAddAsset('stylesheet', zasset('@PaustianBookModule:css/forms.css')) }}
-
 <div class="container-fluid">
     {{ showflashes() }}
     
@@ -17,16 +15,11 @@
                 <tr>
                     <td>{{ item.term }}</td>
                     <td class="actions">
-                        <a href="{{ path('paustianbookmodule_admin_editglossary') }}/{{ item.gid }}" class="fa fa-pencil" title="{{ 'Edit Glossary Term' | trans  }}"></a>
-                        <a href="{{ path('paustianbookmodule_admin_deleteglossary') }}/{{ item.gid }}" class="fa fa-trash-o" title="{{ 'Delete Glossary Term' | trans  }}" onclick="return confirm('Are you sure you want to delete this glossary term?')"></a>
+                        <a href="{{ path('paustianbookmodule_admin_editglossary', {"gloss": item.gid}) }}" class="fas fa-edit" title="{{ 'Edit Glossary Term' | trans  }}"></a>
+                        <a href="{{ path('paustianbookmodule_admin_deleteglossary', {"gloss": item.gid}) }}" class="fas fa-trash" title="{{ 'Delete Glossary Term' | trans  }}" onclick="return confirm('Are you sure you want to delete this glossary term?')"></a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>    
 </div>
-<script>
-    (function ($) {
-        $(document).toolTip();
-    })(jQuery);
-</script>

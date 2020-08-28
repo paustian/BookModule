@@ -23,10 +23,31 @@ declare(strict_types=1);
 
 namespace Paustian\BookModule\Block;
 
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 use Zikula\BlocksModule\AbstractBlockHandler;
+use Zikula\ExtensionsModule\AbstractExtension;
+use Zikula\ExtensionsModule\Api\ApiInterface\VariableApiInterface;
+use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
+use Zikula\UsersModule\Api\CurrentUserApi;
 
 class SubscribeBlock extends AbstractBlockHandler {
 
+    private $currentUserApi;
+
+    public function __construct(
+        AbstractExtension $extension,
+        RequestStack $requestStack,
+        TranslatorInterface $translator,
+        VariableApiInterface $variableApi,
+        PermissionApiInterface $permissionApi,
+        Environment $twig,
+        CurrentUserApi $currentUserApi
+    ) {
+        parent::__construct($extension, $requestStack, $translator, $variableApi, $permissionApi, $twig);
+        $this->currentUserApi = $currentUserApi;
+    }
     /**
      * display block
      * 
@@ -36,11 +57,11 @@ class SubscribeBlock extends AbstractBlockHandler {
      * @return       output      the rendered bock
      */
     public function display(array $properties) : string {
-        $currentUserApi = $this->get('zikula_users_module.current_user');
-        if (!$currentUserApi->isLoggedIn()) {
+
+        if (!$this->currentUserApi->isLoggedIn()) {
             $content = $this->trans('You must <a href="register">register</a> before you can purchase any books.');
         } else {
-            $uid = $em = $this->get('session')->get('uid');
+            $uid = $this->currentUserApi->get('uid');
             $content = $this->renderView('@PaustianBookModule/Block/subscribe_block.html.twig', ['uid' => $uid]);
         }
         return $content;

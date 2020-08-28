@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotations - do not remove
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
+use Symfony\Component\Routing\Annotation\Route;
+use Zikula\ThemeModule\Engine\Annotation\Theme;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Paustian\BookModule\Entity\BookEntity;
@@ -33,7 +33,6 @@ use Paustian\BookModule\Form\ImportGloss;
 use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
 use Zikula\Bundle\HookBundle\Hook\ProcessHook;
-use Zikula\ThemeModule\Engine\Annotation\Theme;
 use Zikula\Bundle\HookBundle\Dispatcher\HookDispatcherInterface;
 
 /**
@@ -974,8 +973,6 @@ class AdminController extends AbstractController {
      * Students can request words to be defined. These will appear as words with empty definitions.
      * This routine will find all empty definitions in the glossary and then display them to the author.
      * The author can then define them.
-     *
-     *
      */
     public function checkstudentdefsAction(Request $request) {
         if (!$this->hasPermission($this->name. '::', '::', ACCESS_EDIT)) {
@@ -984,7 +981,6 @@ class AdminController extends AbstractController {
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
         $glossaryItems = $repo->getUndefinedTerms();
-
         return $this->render('@PaustianBookModule/Admin/book_admin_studentdefgloss.html.twig', ['glossaryItems' => $glossaryItems]);
     }
 

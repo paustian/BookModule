@@ -5,10 +5,10 @@ declare(strict_types=1);
 /**
  * Book Module
  *
- * @version      BookListBlock,v 1.1 2015/12/23
+ * @version      5.0.0
  * @author       Timothy Paustian
  * @link         http://www.bact.wisc.edu/
- * @copyright    Copyright (C) 2015 by Timothy Paustian
+ * @copyright    Copyright (C) 2020 by Timothy Paustian
  * @license      http://www.gnu.org/copyleft/gpl.html GNU General Public License
  */
 namespace Paustian\BookModule\Menu;

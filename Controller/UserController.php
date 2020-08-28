@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Paustian\BookModule\Controller;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zikula\Bundle\CoreBundle\Controller\AbstractController;
 use Zikula\Bundle\CoreBundle\RouteUrl;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,11 +42,28 @@ use Paustian\BookModule\Entity\BookArticlesEntity;
 use Paustian\BookModule\Entity\BookFiguresEntity;
 use Paustian\BookModule\Entity\BookChaptersEntity;
 use Paustian\BookModule\Entity\BookGlossEntity;
+use Zikula\ExtensionsModule\AbstractExtension;
+use Zikula\ExtensionsModule\Api\ApiInterface\VariableApiInterface;
+use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
 use Zikula\UsersModule\Api\ApiInterface\CurrentUserApiInterface;
-use Zikula\UsersModule\Api\CurrentUserApi;
 
 
 class UserController extends AbstractController {
+
+    /**
+     * @var CurrentUserApiInterface
+     */
+    var $currentUserApi;
+
+    public function __construct(
+        AbstractExtension $extension,
+        PermissionApiInterface $permissionApi,
+        VariableApiInterface $variableApi,
+        TranslatorInterface $translator,
+        CurrentUserApiInterface $currentUserApi) {
+        parent::__construct($extension, $permissionApi, $variableApi, $translator);
+        $this->currentUserApi = $currentUserApi;
+    }
 
     /**
      * @Route("")
@@ -128,13 +146,11 @@ class UserController extends AbstractController {
      * @param Request $request
      * @param BookArticlesEntity $article
      * @param bool $doglossary
-     * @param CurrentUserApi $currentUserApi
      * @return Response
      */
     public function displayarticleAction(Request $request,
                                          BookArticlesEntity $article = null,
-                                         bool $doglossary = true,
-                                         CurrentUserApi $currentUserApi) : Response {
+                                         bool $doglossary = true) : Response {
         if (null === $article) {
             $aid = $request->get('aid');
             if (isset($aid)) {
@@ -159,10 +175,10 @@ class UserController extends AbstractController {
 
         $content = $article->getContents();
         //Now add the highlights if necessary
-        $uid = $currentUserApi->get('uid');
+        $uid = $this->currentUserApi->get('uid');
         if ($uid != "") {
             //procesing the highlights goes here. This way the figure text won't matter
-            $content = $this->_process_highlights($content, $article->getAid(), $currentUserApi);
+            $content = $this->_process_highlights($content, $article->getAid(), $this->currentUserApi);
         }
 
         //this code is used for the hook
@@ -508,13 +524,11 @@ class UserController extends AbstractController {
      * @Route("/studypage")
      *
      * @param Request $request
-     * @param CurrentUserApiInterface $currentUserApi
      * @return Response
      */
-    public function studypageAction(Request $request,
-                                    CurrentUserApiInterface $currentUserApi) : Response {
+    public function studypageAction(Request $request) : Response {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_collecthighlights'));
-        $uid = $currentUserApi->get('uid');
+        $uid = $this->currentUserApi->get('uid');
         if ($uid == "") {
             $this->addFlash('status', $this->trans('You must be logged and have access the study pages.'));
             return $response;
@@ -565,15 +579,17 @@ class UserController extends AbstractController {
      *
      * @param Request $request
      * @param BookArticlesEntity $article
+     *
      * @return boolean|RedirectResponse|Response
      */
-    public function customizeTextAction(Request $request, BookArticlesEntity $article) : Response {
+    public function customizeTextAction(Request $request,
+                                        BookArticlesEntity $article) : Response {
         $button = $request->get('buttonpress');
         $text = $request->get('text');
         if ($button == 'highlight') {
-            return $this->_doHighlight($request, $article, $text);
+            return $this->_doHighlight($request, $article, $text, $this->currentUserApi);
         } elseif ($button == 'dodef') {
-            return $this->_dodef($request, $article, $text);
+            return $this->_dodef($request, $article, $text, $this->currentUserApi);
         } else {
             return $this->collecthighlightsAction($request, $article);
         }
@@ -696,7 +712,7 @@ class UserController extends AbstractController {
         $glossTerm = new BookGlossEntity();
         $glossTerm->setTerm($inTerm);
         $glossTerm->setDefinition("TBD");
-        $glossTerm->setUser($uid);
+        $glossTerm->setUser((string)$uid);
         $glossTerm->setUrl($url);
         $em->persist($glossTerm);
         $em->flush();
@@ -707,15 +723,13 @@ class UserController extends AbstractController {
     /**
      * @Route("/download")
      * @param Request $request
-     * @param CurrentUserApiInterface $currentUserApi
      * @return Response
      */
-    public function downloadAction(Request $request,
-                                   CurrentUserApiInterface $currentUserApi) : Response
+    public function downloadAction(Request $request) : Response
     {
         $allow_dl = false;
-        if ($currentUserApi->isLoggedIn()) {
-            $groups = $currentUserApi->get('groups');
+        if ($this->currentUserApi->isLoggedIn()) {
+            $groups = $this->currentUserApi->get('groups');
             //I need to fix this!
             foreach ($groups as $gid => $group) {
                 if($gid == 3){

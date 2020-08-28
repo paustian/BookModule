@@ -59,7 +59,7 @@ class BookGlossRepository extends EntityRepository
      * @param string $inTerm
      * @return string
      */
-    public function getTerm(string $inTerm): string
+    public function getTerm(string $inTerm): ?string
     {
         $glossItem = $this->findOneByTerm($inTerm);
         return $glossItem;

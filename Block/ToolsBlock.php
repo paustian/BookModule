@@ -22,11 +22,37 @@ declare(strict_types=1);
  */
 namespace Paustian\BookModule\Block;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 use Zikula\BlocksModule\AbstractBlockHandler;
-use UserUtil;
-
+use Zikula\ExtensionsModule\AbstractExtension;
+use Zikula\ExtensionsModule\Api\ApiInterface\VariableApiInterface;
+use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
+use Zikula\UsersModule\Api\CurrentUserApi;
 
 class ToolsBlock extends AbstractBlockHandler {
+
+    private $em;
+
+    private $currentUserApi;
+
+    public function __construct(
+        AbstractExtension $extension,
+        RequestStack $requestStack,
+        TranslatorInterface $translator,
+        VariableApiInterface $variableApi,
+        PermissionApiInterface $permissionApi,
+        Environment $twig,
+        CurrentUserApi $currentUserApi,
+        EntityManagerInterface $entityManagerInterface
+    ) {
+        parent::__construct($extension, $requestStack, $translator, $variableApi, $permissionApi, $twig);
+        $this->currentUserApi = $currentUserApi;
+        $this->em = $entityManagerInterface;
+    }
+
     /**
      * display block
      * 
@@ -36,8 +62,8 @@ class ToolsBlock extends AbstractBlockHandler {
      * @return       output      the rendered bock
      */
     public function display(array $properties) :string {
-        $currentUserApi = $this->get('zikula_users_module.current_user');
-        if (!$currentUserApi->isLoggedIn()) {
+        // ToDo: Not sure how to get repository. It looks like you inject it, but not sure how.
+        if (!$this->currentUserApi->isLoggedIn()) {
             return '';
         }
         
@@ -46,13 +72,12 @@ class ToolsBlock extends AbstractBlockHandler {
         //first try to get the book id
         //the book tools are only useful when an article is being displayed.
         $pattern = '|displayarticle/([0-9]{1,3})|';
-        $em = $this->get('doctrine')->getManager();
         $matches = array();
         if (preg_match($pattern, $url, $matches)) {
             $aid = $matches[1];
-            $article = $em->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
-            $repo = $em->getRepository('PaustianBookModule:BookEntity');
-            $booktoc = $repo->buildtoc($article->getBid(), $chapterids);
+            $article = $this->em->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
+            $repo = $this->em->getRepository('PaustianBookModule:BookEntity');
+            $booktoc = $repo->buildtoc($article->getBid());
             $content = $this->renderView('@PaustianBookModule/Block/tools_block.html.twig', ['aid' => $aid, 'book' => $booktoc[0]]);
         }
         return $content;

@@ -8,7 +8,7 @@ class TagHelper
 {
     /*
      * stringFrontAndBackTags - This function was necessary to remove initial <p> and ending paragraph tags
-     * from content going into certain classes (Figure and Glossary)
+     * from content going into certain classes (Figure and Glossary) because of the Scribite editors adding them
      * @param inText - the Text to strip the <p> tag from
      * @return string
      *

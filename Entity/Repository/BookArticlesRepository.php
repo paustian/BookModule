@@ -21,7 +21,7 @@ class BookArticlesRepository extends ServiceEntityRepository
         parent::__construct($registry, BookArticlesEntity::class);
     }
 
-    public function parseImportedChapterXML(string $xmlText)
+    public function parseImportedChapterXML(string $xmlText) : void
     {
         $match = null;
         $pattern = "|<chapid>(.*?)</chapid>|";
@@ -94,7 +94,7 @@ class BookArticlesRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
-    public function searchAndReplaceText(string $searchText, string $replaceText, bool $doPreview, int $cid, int &$count = 0)
+    public function searchAndReplaceText(string $searchText, string $replaceText, bool $doPreview, int $cid, int &$count = 0) : array
     {
         $articles = $this->getArticles($cid, false, true);
         $resultArray = array();
@@ -119,7 +119,7 @@ class BookArticlesRepository extends ServiceEntityRepository
         return $resultArray;
     }
 
-    public function getArticles(int $cid = -1, bool $order = false, bool $content = false)
+    public function getArticles(int $cid = -1, bool $order = false, bool $content = false) : ?array
     {
         $qb = $this->_em->createQueryBuilder();
 
@@ -179,7 +179,7 @@ class BookArticlesRepository extends ServiceEntityRepository
      * @param $searchType - is this an AND or an OR search
      * @return array = the search results
      */
-    public function getSearchResults(string $words, string $searchType)
+    public function getSearchResults(string $words, string $searchType) : array
     {
         $qb = $this->_em->createQueryBuilder();
         $qb->select('a')

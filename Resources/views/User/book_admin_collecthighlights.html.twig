@@ -37,19 +37,22 @@
             </div>
         </div>
     </form>
+    {% set formScript %}
     <script type="text/javascript">
-        {% for book in books %}    
-        (function ($) {
-            $('#ArticleList{{ book.bid }}').accordion({
-                collapsible: true,
-                heightStyle: "content"
-            });
-        })(jQuery);
-        {% endfor %}
-            (function ($) {
+        (function($) {
+            $(document).ready(function() {
+                {% for book in books %}
+                $('#ArticleList{{ book.bid }}').accordion({
+                    collapsible: true,
+                    heightStyle: "content"
+                });
+                {% endfor %}
                 $("#checkAll").change(function () {
                     $("input:checkbox").prop('checked', $(this).prop("checked"));
                 });
-            })(jQuery);
+            });
+        })(jQuery);
     </script>
+    {% endset %}
+    {{ pageAddAsset('footer', formScript) }}
 </div>

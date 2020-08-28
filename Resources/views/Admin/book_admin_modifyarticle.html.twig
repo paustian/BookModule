@@ -30,8 +30,8 @@
     {% endfor %}
 
     <script type="text/javascript">
-        document.onreadystatechange = function () {
-            if (document.readyState === 'complete') {
+        document.addEventListener("DOMContentLoaded",
+            function () {
                 (function ($) {
                     {% for book in books %}
                     $('#ArticleList{{ book.bid }}').accordion({
@@ -40,8 +40,7 @@
                     });
                     {% endfor %}
                 })(jQuery);
-            }
-        };
+            });
     </script>
 </div>
 

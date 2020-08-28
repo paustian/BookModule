@@ -28,10 +28,10 @@ class BookListBlock extends AbstractBlockHandler{
      */
     public function display(array $properties) :string {
         
-        $em = $this->get('doctrine')->getManager();
+        /*$em = $this->get('doctrine')->getManager();
         // Call the modules API to get the items
         $books = $em->getRepository('PaustianBookModule:BookEntity')->buildtoc();
-        
+        */
         // Check for no items returned
         if (empty($books)) {
             return '';
