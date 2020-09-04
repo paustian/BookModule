@@ -1,32 +1,26 @@
 
-
-
-<div class="container-fluid">
-    <div class="row">
-        <h3>
-            <span class="fa fa-search"></span>
-            {{ "Search and Replace text in " | trans  }} {{ chapter.name }}
-        </h3>
-        <p>{{ trans("Enter the search and replace text into the form below. Be careful. This is a very dangerous function and cannot be undone.
-            Use the preview option to see the results. This form expects you to place the delmiters around text in your search function.") }}</p>
-            {{ showflashes() }}
-            {{ form_start(form) }}
-            {{ form_errors(form) }}
-        <fieldset>
-            <legend>{{ 'Search and Replace' | trans  }}</legend>
-            {{ form_row(form.searchText) }}
-            {{ form_row(form.replaceText) }}
-            {{ form_row(form.preview) }}
-        </fieldset>
-        <div class="form-group">
-            <div class="col-lg-offset-3 col-lg-9">
-                {{ form_widget(form.search, {'attr': {'class': 'btn btn-success'}}) }}
-            </div>
-        </div>
-        {{ form_end(form) }}
-
+<h3>
+    <span class="fa fa-search"></span>
+    {{ "Search and Replace text in " | trans  }} {{ chapter.name }}
+</h3>
+<p>{{ "Enter the search and replace text into the form below. Be careful. This is a very dangerous function and cannot be undone.
+    Use the preview option to see the results. This form expects you to place the delmiters around text in your search function." | trans }}</p>
+    {{ showflashes() }}
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+<fieldset>
+    <legend>{{ 'Search and Replace' | trans  }}</legend>
+    {{ form_row(form.searchText) }}
+    {{ form_row(form.replaceText) }}
+    {{ form_row(form.preview) }}
+</fieldset>
+<div class="form-group">
+    <div class="col-lg-offset-3 col-lg-9">
+        {{ form_widget(form.search, {'attr': {'class': 'btn btn-success'}}) }}
     </div>
 </div>
+{{ form_end(form) }}
+
 {% for article in preview %}
     {{ article|raw }}
 {% endfor %}

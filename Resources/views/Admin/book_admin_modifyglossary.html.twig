@@ -2,10 +2,10 @@
     <span class="fa fa-edit"></span>
     {{ "Edit a glossary term" | trans }}
 </h3>
-<p>{{ "Enter the id of the term to edit and click ok" | trans }}</p>
+<p>{{ "Click on the term to edit" | trans }}</p>
 {{ showflashes() }}
 <fieldset>
-    <ul class="pagination pagination-sm">
+    <ul class="pagination pagination-lg">
         {% for letter in 'a'|upper..'z'|upper %}
             <li><a href="{{ path('paustianbookmodule_admin_modifyglossary') }}/{{ letter }}">{{ letter }}</a></li>
         {% endfor %}

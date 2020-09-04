@@ -1,2 +1,2 @@
-Thanks to people in the modules developer forum. I only asked one question, but found advice you have given to other
-very useful in my work on this module. Especially jediping and hammerhead.
+Thanks to people in the Slack forum for all their help (https://zikula.slack.com/). They were invaluable in getting help
+with upgrading the module to zikula 2.0 and zikula 3.0
