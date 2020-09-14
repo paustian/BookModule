@@ -36,7 +36,7 @@
 .tooltip-inner {
     background-color: lightgrey;
     color: darkslategrey;
-    text-align: justify;
+    text-align: left;
 }
 
 .glossary:hover, .glossary {
