@@ -1,5 +1,17 @@
 {{ pageSetVar('title', article.title) }}
 {{ pageAddAsset('javascript', zasset('@PaustianBookModule:js/book.js')) }}
+
+{% set formScript %}
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function() {
+                $('.glossary').tooltip();
+            });
+        })(jQuery);
+    </script>
+{% endset %}
+{{ pageAddAsset('footer', formScript) }}
+
 <p> {{ showflashes() }} </p>
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -56,11 +68,3 @@
         {{ notifyDisplayHooks(constant('Paustian\\BookModule\\HookSubscriber\\ArticleUiHookSubscriber::ARTICLE_DISPLAY'), article.aid|default(null), return_url) }}
     </div>
 </div>
-<script type="text/javascript">
-    document.addEventListener("DOMContentLoaded",
-        function () {
-            (function ($) {
-                $('.glossary').tooltip();
-            })(jQuery);
-        });
-</script>

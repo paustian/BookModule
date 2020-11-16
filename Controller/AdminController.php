@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // ----------------------------------------------------------------------
 // Original Author of file: Timothy Paustian
 // Purpose of file:  Book administration display functions

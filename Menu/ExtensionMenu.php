@@ -15,7 +15,6 @@ namespace Paustian\BookModule\Menu;
 
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
-use Translation\Bundle\EditInPlace\Activator as EditInPlaceActivator;
 use Zikula\MenuModule\ExtensionMenu\ExtensionMenuInterface;
 use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
 
