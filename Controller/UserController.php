@@ -72,7 +72,7 @@ class UserController extends AbstractController {
      * @return Response
      */
     public function indexAction(Request $request) : Response {
-// Security check
+        // Security check
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
             throw new AccessDeniedException($this->trans('You do not have pemission to access any books.'));
         }
