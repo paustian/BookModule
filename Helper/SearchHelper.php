@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
 use Zikula\SearchModule\Entity\SearchResultEntity;
 use Zikula\SearchModule\SearchableInterface;
-use Zikula\Core\RouteUrl;
+use Zikula\Bundle\CoreBundle\RouteUrl;
 
 class SearchHelper implements SearchableInterface
 {

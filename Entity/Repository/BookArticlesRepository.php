@@ -179,7 +179,7 @@ class BookArticlesRepository extends ServiceEntityRepository
      * @param $searchType - is this an AND or an OR search
      * @return array = the search results
      */
-    public function getSearchResults(string $words, string $searchType) : array
+    public function getSearchResults(array $words, string $searchType) : array
     {
         $qb = $this->_em->createQueryBuilder();
         $qb->select('a')
