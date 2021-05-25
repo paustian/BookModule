@@ -679,7 +679,7 @@ class AdminController extends AbstractController {
      */
     public function arrangearticlesAction(Request $request)  : Response {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
-        $chapterids=[];
+        $chapterids= "";
         $books = $repo->buildtoc(0, $chapterids);
 
         return $this->render('@PaustianBookModule/Admin/book_admin_arrangearticles.html.twig', ['books' => $books,

@@ -220,7 +220,7 @@ class UserController extends AbstractController {
      */
     private function _add_glossary_defs(string $in_text) {
         //all the work is done in this funcion
-        $pattern = "|<a class=\"glossary\">(.*?)</a>|";
+        $pattern = "|<a class=\"glossary\"[^>]*>(.*?)</a>|";
         $ret_text = preg_replace_callback($pattern, array(&$this, "_glossary_add"), $in_text);
 
         return $ret_text;
