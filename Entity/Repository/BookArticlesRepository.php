@@ -276,7 +276,7 @@ class BookArticlesRepository extends ServiceEntityRepository
                                   int $height = 0,
                                   bool $stand_alone = false,
                                   string $movName = 'canvas',
-                                  \Paustian\BookModule\Controller\AdminController $inController = null,
+                                  \Paustian\BookModule\Controller\UserController $inController = null,
                                   int $weight = 1000,
                                   int $delay = 0)
     {
@@ -330,8 +330,13 @@ class BookArticlesRepository extends ServiceEntityRepository
         switch ($extension) {
             case "html":
                 $file_link = fopen($link, "r");
-                $ret_link = fread($file_link, filesize($link));
-                fclose($file_link);
+                if($file_link !== false){
+                    $ret_link = fread($file_link, filesize($link));
+                    fclose($file_link);
+                } else {
+                    $ret_link = "file not found";
+                }
+
                 break;
             case "gif":
             case "jpg":

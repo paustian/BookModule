@@ -346,10 +346,10 @@ class UserController extends AbstractController {
         //we look for these parameters in the query string. If they are not there
         //they are set to defaults.
         if(!($width = $request->query->get('width'))){
-            $width = 450;
+            $width = 0;
         }
         if(!($height = $request->query->get('height'))){
-            $height = 360;
+            $height = 0;
         }
         if(!($movName = $request->query->get('movName'))){
             $movName = 'movieName';
