@@ -71,7 +71,7 @@ class UserController extends AbstractController {
      * @param $request
      * @return Response
      */
-    public function indexAction(Request $request) : Response {
+    public function index(Request $request) : Response {
         // Security check
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
             throw new AccessDeniedException($this->trans('You do not have pemission to access any books.'));
@@ -90,7 +90,7 @@ class UserController extends AbstractController {
      * @param BookEntity $book
      * @return Response
      */
-    public function tocAction(Request $request, BookEntity $book = null) : Response {
+    public function toc(Request $request, BookEntity $book = null) : Response {
         $bid = -1;
         if (null === $book) {
             $bid = $request->query->getInt('bid');
@@ -128,7 +128,7 @@ class UserController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function viewAction(Request $request) : Response {
+    public function view(Request $request) : Response {
         return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
     }
 
@@ -136,7 +136,7 @@ class UserController extends AbstractController {
      * @Route("/display")
      * @return Response
      */
-    public function displayAction(Request $request) : Response {
+    public function display(Request $request) : Response {
         return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
     }
 
@@ -148,7 +148,7 @@ class UserController extends AbstractController {
      * @param bool $doglossary
      * @return Response
      */
-    public function displayarticleAction(Request $request,
+    public function displayarticle(Request $request,
                                          BookArticlesEntity $article = null,
                                          bool $doglossary = true) : Response {
         if (null === $article) {
@@ -336,7 +336,7 @@ class UserController extends AbstractController {
      * @param BookFiguresEntity $figure
      * @return Response
      */
-    public function displayfigureAction(Request $request, BookFiguresEntity $figure = null) : Response{
+    public function displayfigure(Request $request, BookFiguresEntity $figure = null) : Response{
         if (null === $figure) {
             return $this->redirect($this->generateUrl('paustianbookmodule_user_index'));
         }
@@ -370,7 +370,7 @@ class UserController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function displayglossaryAction(Request $request) : Response {
+    public function displayglossary(Request $request) : Response {
 //you must have permission to read some book.
         if (!$this->hasPermission($this->name . '::', '::', ACCESS_OVERVIEW)) {
             throw new AccessDeniedException($this->trans('You do not have pemission to access any glossry items.'));
@@ -390,7 +390,7 @@ class UserController extends AbstractController {
      * @param BookEntity $book
      * @return Response
      */
-    public function displaybookAction(Request $request, BookEntity $book) : Response {
+    public function displaybook(Request $request, BookEntity $book) : Response {
         $bid = -1;
         if (null === $book) {
             $bid = $request->get('bid');
@@ -412,7 +412,7 @@ class UserController extends AbstractController {
         foreach ($chapters as $chap_item) {
             $cid = $chap_item->getCid();
             if ($this->hasPermission($this->name . '::Chapter', "$bid::$cid", ACCESS_READ)) {
-                $ret_text .= $this->displaychapterAction($request, $chap_item);
+                $ret_text .= $this->displaychapter($request, $chap_item);
             }
         }
         return $ret_text;
@@ -425,7 +425,7 @@ class UserController extends AbstractController {
      * @param BookChaptersEntity $chapter
      * @return Response
      */
-    public function displaychapterAction(Request $request, BookChaptersEntity $chapter = null) : Response {
+    public function displaychapter(Request $request, BookChaptersEntity $chapter = null) : Response {
         if (null === $chapter) {
             //Old style URL, look for the chapter using the cid
             $cid = $request->get('cid');
@@ -458,7 +458,7 @@ class UserController extends AbstractController {
      * @param BookChaptersEntity $chapter
      * @return Response
      */
-    public function displayarticlesinchapterAction(Request $request, BookChaptersEntity $chapter = null) : Response {
+    public function displayarticlesinchapter(Request $request, BookChaptersEntity $chapter = null) : Response {
         if (null === $chapter) {
             $cid = $request->get('cid');
             if (isset($cid)) {
@@ -504,7 +504,7 @@ class UserController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function collecthighlightsAction(Request $request, BookArticlesEntity $article = null) :Response
+    public function collecthighlights(Request $request, BookArticlesEntity $article = null) :Response
     {
         //build an organization of the book
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
@@ -526,7 +526,7 @@ class UserController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function studypageAction(Request $request) : Response {
+    public function studypage(Request $request) : Response {
         $response = $this->redirect($this->generateUrl('paustianbookmodule_user_collecthighlights'));
         $uid = $this->currentUserApi->get('uid');
         if ($uid == "") {
@@ -582,7 +582,7 @@ class UserController extends AbstractController {
      *
      * @return boolean|RedirectResponse|Response
      */
-    public function customizeTextAction(Request $request,
+    public function customizeText(Request $request,
                                         BookArticlesEntity $article) : Response {
         $button = $request->get('buttonpress');
         $text = $request->get('text');
@@ -591,7 +591,7 @@ class UserController extends AbstractController {
         } elseif ($button == 'dodef') {
             return $this->_dodef($request, $article, $text, $this->currentUserApi);
         } else {
-            return $this->collecthighlightsAction($request, $article);
+            return $this->collecthighlights($request, $article);
         }
     }
 
@@ -725,7 +725,7 @@ class UserController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function downloadAction(Request $request) : Response
+    public function download(Request $request) : Response
     {
         $allow_dl = false;
         if ($this->currentUserApi->isLoggedIn()) {

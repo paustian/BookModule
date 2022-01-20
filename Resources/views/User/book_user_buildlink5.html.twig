@@ -27,8 +27,8 @@ This could have all been avoided if Adobe would use classes!
 You also have to rename the HandleFileLoad and HandleComplete methods. Again make it specific to allow multiple animations on the same page.
 HandleFileLoadDivPlan and HandleCompleteDivPlan in this example
 #}
-{{ pageAddAsset('javascript', zasset('jquery-ui/jquery-ui.js', -50)) }}
-{{ pageAddAsset('stylesheet', asset('jquery-ui/themes/base/jquery-ui.min.css')) }}
+{{ pageAddAsset('javascript', zasset('jqueryui/jquery-ui.js', -50)) }}
+{{ pageAddAsset('stylesheet', asset('jqueryui/themes/base/jquery-ui.min.css')) }}
 {{ pageAddAsset('javascript', "https://code.createjs.com/1.0.0/createjs.min.js", -100) }}
 {{ pageAddAsset('javascript', jlink, weight) }}
 <div id="animation_container{{ movName }}" style="background-color:rgba(255, 255, 255, 1.00); width:{{ width }}px; height:{{ height }}px">
