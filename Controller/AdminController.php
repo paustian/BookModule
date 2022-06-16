@@ -678,7 +678,7 @@ class AdminController extends AbstractController {
      * @return Response
      */
     public function arrangearticles(Request $request)  : Response {
-        $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
+        $repo = $this->entityManager->getRepository('PaustianBookModule:BookEntity');
         $chapterids= "";
         $books = $repo->buildtoc(0, $chapterids);
 

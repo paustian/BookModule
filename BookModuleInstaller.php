@@ -35,7 +35,8 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
         } catch (\Exception $e) {
             return false;
         }
-        $this->setVar('securebooks', false);
+        $this->setVar('summarize', true);
+        $this->setVar('sumlevel', 5);
 
         // Initialisation successful
         return true;
@@ -48,7 +49,7 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
     public function upgrade(string $oldversion) : bool {
         // Upgrade dependent on old version number
         switch ($oldversion) {
-            case 2.1:
+            case '2.1':
                 //we need to add code that changes the table names and gets rid of book_
                 //in front of table names and book_fig and book_gloss and book_user_data
                 $connection = Doctrine_Manager::getInstance()->getConnection('default');
@@ -105,6 +106,12 @@ class BookModuleInstaller extends AbstractExtensionInstaller {
                         die;
                     }
                 }
+                case '5.1.0':
+                    //Add the allowzummarize variable
+                    $this->setVar('summarize', true);
+                    $this->setVar('sumlevel', 5);
+                    $this->delVar('securebooks');
+
                 
         }
 

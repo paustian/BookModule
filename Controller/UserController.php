@@ -2,19 +2,6 @@
 
 declare(strict_types=1);
 
-// pnuser.php,v 1.18 2007/03/16 01:58:56 paustian Exp
-// ----------------------------------------------------------------------
-// PostNuke Content Management System
-// Copyright (C) 2002 by the PostNuke Development Team.
-// http://www.postnuke.com/
-// ----------------------------------------------------------------------
-// LICENSE
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License (GPL)
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -46,6 +33,7 @@ use Zikula\ExtensionsModule\AbstractExtension;
 use Zikula\ExtensionsModule\Api\ApiInterface\VariableApiInterface;
 use Zikula\PermissionsModule\Api\ApiInterface\PermissionApiInterface;
 use Zikula\UsersModule\Api\ApiInterface\CurrentUserApiInterface;
+use Paustian\BookModule\API\TextSummarizer;
 
 
 class UserController extends AbstractController {
@@ -55,6 +43,12 @@ class UserController extends AbstractController {
      */
     var $currentUserApi;
 
+    /**
+     * @private TextSummarizer
+     * a link to the class that uses TextRankFacade to summarize text.
+     */
+    private $textSummarizer;
+
     public function __construct(
         AbstractExtension $extension,
         PermissionApiInterface $permissionApi,
@@ -63,6 +57,7 @@ class UserController extends AbstractController {
         CurrentUserApiInterface $currentUserApi) {
         parent::__construct($extension, $permissionApi, $variableApi, $translator);
         $this->currentUserApi = $currentUserApi;
+        $this->textSummarizer = new TextSummarizer();
     }
 
     /**
@@ -205,7 +200,11 @@ class UserController extends AbstractController {
         if ($doglossary) {
             $return_text = $this->_add_glossary_defs($return_text);
         }
-
+        //dummy variable for now.
+        $doSummary = true;
+        if($doSummary){
+            $return_text = $this->textSummarizer->summarizeText($return_text);
+        }
         return new Response($return_text);
     }
 

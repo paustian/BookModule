@@ -112,6 +112,7 @@ class ExtensionMenu implements ExtensionMenuInterface
             'route' => 'paustianbookmodule_admin_modifyfigure',
         ])->setAttribute('icon', 'fas fa-edit');
 
+        //Glossary
         $menu->addChild(
             'Glossary', ['uri' => '#',
         ])->setAttribute('icon', 'fas fa-books')
@@ -128,6 +129,11 @@ class ExtensionMenu implements ExtensionMenuInterface
         $menu['Glossary']->addChild('Check for Student Definitions', [
             'route' => 'paustianbookmodule_admin_checkstudentdefs',
         ])->setAttribute('icon', 'fas fa-user-graduate');
+
+        $menu->addChild('Settings', [
+            'route' => 'paustianbookmodule_config_config',
+        ])->setAttribute('icon', 'fas fa-wrench');
+
         return 0 === $menu->count() ? null : $menu;
     }
 

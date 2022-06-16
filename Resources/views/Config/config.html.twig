@@ -1,0 +1,19 @@
+<h3>
+    <span class="fa fa-edit"></span>
+    {{ "Modify Settings" | trans }}
+    {{ pageSetVar('title', 'Modify Book Settings'|trans) }}
+</h3>
+<div class="alert alert-info">{{ "Settings" | trans }}</div>
+{{ showflashes() }}
+{{ form_start(form) }}
+{{ form_errors(form) }}
+<fieldset>
+    <legend>{{ 'Summarize' | trans }}</legend>
+    {{ form_row(form.summarize) }}
+</fieldset>
+<div class="form-group">
+    <div class="col-lg-offset-3 col-lg-9">
+        {{ form_widget(form.add, {'attr': {'class': 'btn btn-success'}}) }}
+    </div>
+</div>
+{{ form_end(form) }}
