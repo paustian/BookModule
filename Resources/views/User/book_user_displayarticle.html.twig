@@ -1,5 +1,6 @@
 {{ pageSetVar('title', article.title) }}
 {{ pageAddAsset('javascript', zasset('@PaustianBookModule:js/book.js')) }}
+{{ pageAddAsset('javascript', zasset('@PaustianBookModule:js/summaryModifier.js')) }}
 
 {% set formScript %}
     <script type="text/javascript">
@@ -32,6 +33,15 @@
             <p>{{ 'Article id:' | trans  }} {{ article.aid }}</p>
             <p>{{ 'Chapter id:' | trans  }}{{ article.cid }}</p>
             <p>{{ 'Book id:' | trans  }}{{ article.bid }}</p>
+        {% endif %}
+        <input type="hidden" id="aid" value="{{ article.aid }}" name="aid" />
+        <input type="hidden" id="cid" value="{{ article.cid }}" name="cid" />
+        <input type="hidden" id="bid" value="{{ article.bid }}" name="bid" />
+        {% if summarize %}
+        <div class="slidecontainer">
+            <label><b>Level of Text Summarization:</b></label><br />
+            <p> None <input type="range" min="1" max="{{ max_level }}" value="1" class="slider" id="summaryVal"> Max</p>
+        </div>
         {% endif %}
         <p> <a href="{{ path('paustianbookmodule_user_toc', {bid:article.bid}) }}" title="{{ 'Table of Contents' | trans  }}" class="fa fa-book"></a>|
             <a href="{{ path('paustianbookmodule_user_displaychapter', {cid:article.cid}) }}" title="{{ 'Chapter Article List' | trans  }}" class="fa fa-bookmark"></a>|

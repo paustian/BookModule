@@ -43,3 +43,7 @@
     background-color: lightgoldenrodyellow;
     color: black;
 }
+
+input.slider{
+    vertical-align:bottom;
+}

@@ -15,6 +15,7 @@ namespace Paustian\BookModule\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -32,7 +33,7 @@ class ConfigController extends AbstractController
 {
     /**
      * @Route("/config")
-     * @Template("@PaustianBookModule//Config/config.html.twig")
+     * @Template("@PaustianBookModule/Config/config.html.twig")
      * @Theme("admin")
      *
      * @return array|RedirectResponse
@@ -49,7 +50,7 @@ class ConfigController extends AbstractController
         $form = $this->createForm(ConfigType::class, $dataValues);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get('save')->isClicked()) {
+            if ($form->get('submit')->isClicked()) {
                 $formData = $form->getData();
                 // save modvars
                 $this->setVars($formData);

@@ -11,10 +11,12 @@
     <legend>{{ 'Summarize' | trans }}</legend>
     {{ form_row(form.summarize) }}
     {{ form_row(form.sumlevel) }}
+
 </fieldset>
 <div class="form-group">
     <div class="col-lg-offset-3 col-lg-9">
-        {{ form_widget(form.add, {'attr': {'class': 'btn btn-success'}}) }}
+        {{ form_widget(form.submit, {'attr': {'class': 'btn btn-success'}}) }}
     </div>
 </div>
+
 {{ form_end(form) }}

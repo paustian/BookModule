@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Paustian\BookModule\Controller;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Zikula\Bundle\CoreBundle\Controller\AbstractController;
 use Zikula\Bundle\CoreBundle\RouteUrl;
@@ -58,6 +59,8 @@ class UserController extends AbstractController {
         parent::__construct($extension, $permissionApi, $variableApi, $translator);
         $this->currentUserApi = $currentUserApi;
         $this->textSummarizer = new TextSummarizer();
+        //initially don't summarize the text at all.
+        $this->textSummarizer->setSumLevel(1, (int)$this->getVar('sumlevel'));
     }
 
     /**
@@ -171,7 +174,10 @@ class UserController extends AbstractController {
         $content = $article->getContents();
         //Now add the highlights if necessary
         $uid = $this->currentUserApi->get('uid');
-        if ($uid != "") {
+        $summarize = $this->getVar('summarize');
+        $maxLevel = $this->getVar('sumlevel');
+        //Only process highlights if the text summarizing functions are off or the sumLevel is at 5 sentences (max)
+        if (($uid != "") && (!$summarize || ($this->textSummarizer->getSumLevel() == 5))) {
             //procesing the highlights goes here. This way the figure text won't matter
             $content = $this->_process_highlights($content, $article->getAid(), $this->currentUserApi);
         }
@@ -191,6 +197,8 @@ class UserController extends AbstractController {
                     'chnumber' => $chnumber,
                     'content' => $content,
                     'return_url' => $return_url,
+                    'summarize' => $summarize,
+                    'max_level' => $maxLevel,
                     'show_internals' => $show_internals])->getContent();
 
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
@@ -200,9 +208,7 @@ class UserController extends AbstractController {
         if ($doglossary) {
             $return_text = $this->_add_glossary_defs($return_text);
         }
-        //dummy variable for now.
-        $doSummary = true;
-        if($doSummary){
+        if($summarize){
             $return_text = $this->textSummarizer->summarizeText($return_text);
         }
         return new Response($return_text);
@@ -361,6 +367,31 @@ class UserController extends AbstractController {
 
         $figureText = $repo->_renderFigure($figure, $width, $height, true, $movName, $this, $weight);
         return new Response($figureText);
+    }
+
+    /**
+     * @Route("/sumlevelchange", options={"expose"=true})
+     * @Method("POST")
+     *
+     * Grab all comments associated with this module and item ID and return them to the caller
+     * The caller is a javascript, see the javascripts in Resources/public/js directory
+     *
+     * @param Request $request
+     * @return JsonResponse|AccessDeniedException
+     */
+    public function sumlevelchange(Request $request): JsonResponse{
+        if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
+            return new AccessDeniedException($this->trans('Access forbidden since you cannot read this page.'));
+        }
+        //get the summary level and set it
+        $summaryLevel = (int)$request->get('sumLevel');
+        $this->textSummarizer->setSumLevel($summaryLevel, (int)$this->getVar('sumlevel'));
+
+        //now we have to rerender the text. The $request already has the aid of the article
+        $response = $this->displayarticle($request);
+        $jsonReply = ['html' => $response->getContent(),
+                        'sumLevel' => $summaryLevel];
+        return  new JsonResponse($jsonReply);
     }
 
     /**

@@ -30,7 +30,7 @@ class ConfigType extends AbstractType {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('summarize',CheckboxType::class, ['label' => 'Allow summarization feature', 'required' => true])
+            ->add('summarize',CheckboxType::class, ['label' => 'Allow summarization feature', 'required' => false])
             ->add('sumlevel', RangeType::class,[
                     'label' => 'Max level of summarization (1-5, with 1 being less summarization)',
                     'attr' => [
