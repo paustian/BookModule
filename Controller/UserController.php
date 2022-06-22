@@ -204,11 +204,11 @@ class UserController extends AbstractController {
         $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
         $return_text = $repo->addfigures($return_text, $this);
 
-        //work in the glossary items
-        if ($doglossary) {
+        //work in the glossary items. Only do the glossary if your are
+        if ($doglossary && ($this->textSummarizer->getSumLevel() == 5)) {
             $return_text = $this->_add_glossary_defs($return_text);
         }
-        if($summarize){
+        if($summarize && ($this->textSummarizer->getSumLevel() < 5)){
             $return_text = $this->textSummarizer->summarizeText($return_text);
         }
         return new Response($return_text);
@@ -380,7 +380,7 @@ class UserController extends AbstractController {
      * @return JsonResponse|AccessDeniedException
      */
     public function sumlevelchange(Request $request): JsonResponse{
-        if (!$this->hasPermission($this->name . '::', '::', ACCESS_READ)) {
+        if (!$this->hasPermission($this->name . '::', '::', ACCESS_OVERVIEW)) {
             return new AccessDeniedException($this->trans('Access forbidden since you cannot read this page.'));
         }
         //get the summary level and set it
