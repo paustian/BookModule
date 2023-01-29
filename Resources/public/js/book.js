@@ -38,27 +38,29 @@ function getSelectionHtml2() {
     return htmlContent;
 }
 
+
 (function($) {
     $(document).ready(function () {
         //Toggle fullscreen
-        $("#panel-fullscreen").click(function (e) {
-            e.preventDefault();
-
-            var $this = $(this);
-
-            if ($this.children('i').hasClass('fa-expand')) {
-                $this.children('i').removeClass('fa-expand');
-                $this.children('i').addClass('fa-compress');
-            }
-            else if ($this.children('i').hasClass('fa-compress')) {
-                $this.children('i').removeClass('fa-compress');
-                $this.children('i').addClass('fa-expand');
-            }
-            $(this).closest('.panel').toggleClass('panel-fullscreen');
-        });
-
+        $("#panel-fullscreen").click(window.doFullScreen);
+        $("#print-icon").click(window.doFullScreen);
+        $("#print-icon2").click(window.doFullScreen);
     });
-
+    window.doFullScreen = function (){
+        if ( $("#themeLeftColumn").css("display") === "none" || $("#themeLeftColumn").css("visibility") === "hidden"){
+            $("#themeLeftColumn").show();
+            $(".navbar").show();
+            $(".TTM-footer").show();
+            $(".row").css("display", "flex");
+            $("#themeMainContent").css("max-width", "");
+        } else {
+            $("#themeLeftColumn").hide();
+            $(".navbar").hide();
+            $(".TTM-footer").hide();
+            $(".row").css("display", "contents");
+            $("#themeMainContent").css("max-width", "4000px");
+        }
+    };
    /*
    This code is toying with the idea of highlighing where the reading spot when the text scrolls. It may be as simple as
    having a div in an absolute position on the page and then flashing a highlight color to show the reading spot

@@ -39,7 +39,6 @@
                         "aid": aid},
                 {"success": this.displayNewText.bind(this), method: "POST"}
             );
-
             evt.stopPropagation();
         },
 
@@ -51,6 +50,10 @@
             this.cacheDomAndBindEvents();
             //reset the sumlevel
             this.$summaryLevel.val(result.sumLevel);
+            $("#panel-fullscreen").click(window.doFullScreen);
+            $("#print-icon").click(window.doFullScreen);
+            $("#print-icon2").click(window.doFullScreen);
+
         },
 
         sendAjax: function (url, data, options) {
