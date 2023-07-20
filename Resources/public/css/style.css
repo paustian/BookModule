@@ -1,6 +1,10 @@
 .highlight {
     background-color: yellow;
 }
+
+.showposition{
+    background-color: #E1F0F0;
+}
 .form-across{
     position: relative;
     float: right;
