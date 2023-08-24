@@ -325,7 +325,12 @@ class BookArticlesRepository extends ServiceEntityRepository
         $alt_link = preg_replace("|<.*?>|", "", $title);
         $ret_link = "nothing";
         $pInfo = pathinfo($link);
-        $extension = $pInfo['extension'];
+        if(array_key_exists('extension', $pInfo)){
+            $extension = $pInfo['extension'];
+        } else {
+            $extension = '';
+        }
+
 
         switch ($extension) {
             case "html":

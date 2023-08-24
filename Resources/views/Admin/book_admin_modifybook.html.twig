@@ -1,9 +1,9 @@
 <h3>
     <span class="fa fa-edit"></span>
     {{ "Edit/Delete a Book" | trans }}
-    {{ pageSetVar('title', 'Edit/Delete Book'|trans) }}
+    {{ pageSetVar('title', 'Edit/Export/Delete Book'|trans) }}
 </h3>
-<div class="alert alert-info">{{ "Choose a book to Edit or Delete" | trans }}</div>
+<div class="alert alert-info">{{ "Choose a book to Edit, Export, or Delete" | trans }}</div>
 {{ showflashes() }}
 <table class="table table-striped">
     <thead>
@@ -18,6 +18,7 @@
             <td>{{ item.name }} ({{ item.bid }})</td>
             <td class="actions">
                 <a href="{{ path('paustianbookmodule_admin_edit') }}/{{ item.bid }}" class="fas fa-edit"></a>
+                <a href="{{ path('paustianbookmodule_admin_exportbook') }}/{{ item.bid }}" class="fas fa-download"></a>
                 <a href="{{ path('paustianbookmodule_admin_delete') }}/{{ item.bid }}" class="fas fa-trash"
                    onclick="return confirm('Are you sure you want to delete this book?')"></a>
             </td>

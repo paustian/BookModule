@@ -32,6 +32,7 @@ use Paustian\BookModule\Form\ImportChapter;
 use Paustian\BookModule\Form\SearchReplace;
 use Zikula\Bundle\HookBundle\Hook\ProcessHook;
 use Zikula\Bundle\HookBundle\Dispatcher\HookDispatcherInterface;
+use ZipArchive;
 
 /**
  * @Route("/admin")
@@ -543,6 +544,53 @@ class AdminController extends AbstractController {
             $response = $this->render('@PaustianBookModule/Admin/book_admin_export.html.twig', ['chapter' => $chapter,
                 'articles' => $articles]);
         }
+        return $response;
+    }
+
+    /**
+     * @Route("/exportbook/{book}")
+     * @Theme("admin")
+     * @param Request $request
+     * @param BookEntity $book - the book to export
+     * @return Response
+     */
+    public function exportbook(Request $request, BookEntity $book = null) {
+        $response = $this->redirect($this->generateUrl('paustianbookmodule_admin_index'));
+        if ($book == null) {
+            //you want the edit interface, which has a delete option.
+            return $response;
+        }
+        if (!$this->hasPermission($this->name . 'Book::', "::" . $book->getBid(), ACCESS_DELETE)) {
+            throw new AccessDeniedException($this->trans("You do not have permission to export the book."));
+        }
+        $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookChaptersEntity');
+        $chapters = $repo->getChapters($book->getBid(), true);
+
+        //create the archive
+        $namePath = preg_replace("/[^A-Za-z0-9]/", '', $book->getName());
+        $directory = realpath($request->server->get('DOCUMENT_ROOT')) . $request->server->get('BASE') . '/uploads/' . $namePath;
+        $archive= new ZipArchive();
+        $zipName = $directory . '.zip';
+        $result = $archive->open($zipName, ZipArchive::CREATE);
+        if($result !== true){
+            $this->addFlash('error', $this->trans('Unable to create a the zip archive'));
+            return $response;
+        }
+        $artRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity');
+        foreach ($chapters as $chapter){
+            $articles = $artRepo->getArticles($chapter->getCid(), true, true);
+            $chap_text = $this->render('@PaustianBookModule/User/book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter, 'articles' => $articles])->getContent();
+            $chap_text = $artRepo->addfigures($chap_text, $this);
+            $archive->addFromString("Chapter" . $chapter->getNumber() . ".html", $chap_text);
+        }
+        $archive->close();
+
+        $response = new Response(file_get_contents($zipName));
+        $response->headers->set('Content-Type', 'application/zip');
+        $response->headers->set('Content-Disposition', 'attachment;filename="' . $namePath . '.zip"');
+        $response->headers->set('Content-length', filesize($zipName));
+
+        @unlink($zipName);
         return $response;
     }
 

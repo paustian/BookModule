@@ -99,7 +99,7 @@ function getSelectionHtml2() {
             });
             //Now hightlight it for a second and then fade away.
             iFirstVisible.addClass("showposition");
-            setTimeout(() => {iFirstVisible.removeClass("showposition");}, 1000);
+            setTimeout(() => {iFirstVisible.removeClass("showposition");}, 2000);
         }
 
         iScrollPos = iCurScrollPos;

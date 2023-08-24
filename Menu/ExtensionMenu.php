@@ -66,7 +66,7 @@ class ExtensionMenu implements ExtensionMenuInterface
             'route' => 'paustianbookmodule_admin_edit',
         ])->setAttribute('icon', 'fas fa-plus');
 
-        $menu['Book']->addChild('Edit or Delete Book', [
+        $menu['Book']->addChild('Edit, Export, or Delete Book', [
             'route' => 'paustianbookmodule_admin_modify',
         ])->setAttribute('icon', 'fas fa-pencil');
 
