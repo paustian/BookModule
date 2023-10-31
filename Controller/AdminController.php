@@ -198,6 +198,14 @@ class AdminController extends AbstractController {
                     'chapter' => $chapter
         ));
     }
+    /**
+     * @Route("createarticle")
+     * @Theme("admin")
+     */
+    public function createarticle(Request $request,
+        HookDispatcherInterface $hookDispatcher) {
+        return $this->editarticle($request, null, $hookDispatcher);
+    }
 
     /**
      * @Route("/editarticle/{article}")
@@ -255,6 +263,14 @@ class AdminController extends AbstractController {
     }
 
     /**
+     * @Route("createfigure")
+     * @Theme("admin")
+     */
+    public function createfigure(Request $request,
+        HookDispatcherInterface $hookDispatcher) {
+        return $this->editfigure($request, null, $hookDispatcher);
+    }
+    /**
      * @Route("/editfigure/{figure}")
      * @Theme("admin")
      * @param Request $request
@@ -310,6 +326,14 @@ class AdminController extends AbstractController {
             'hook_templates' => $formHook->getTemplates()]);
     }
 
+    /**
+     * @Route("createglossary")
+     * @Theme("admin")
+     */
+    public function createglossary(Request $request,
+        HookDispatcherInterface $hookDispatcher) {
+        return $this->editglossary($request, null, $hookDispatcher);
+    }
     /**
      * @Route("/editglossary/{gloss}")
      * @Theme("admin")
@@ -652,13 +676,13 @@ class AdminController extends AbstractController {
         }
 
         $em = $this->getDoctrine()->getManager();
-
+        $aid = $article->getAid();
 
         $em->remove($article);
         $em->flush();
         $this->addFlash('status', $this->trans('Article Deleted.'));
         //Let any providers hooked to this article that it was deleted.
-        $hookDispatcher->dispatch(\Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber::ARTICLE_DELETE_PROCESS, new ProcessHook($article->getAid()));
+        $hookDispatcher->dispatch(\Paustian\BookModule\HookSubscriber\ArticleUiHookSubscriber::ARTICLE_DELETE_PROCESS, new ProcessHook($aid));
 
         return $response;
     }
@@ -726,7 +750,7 @@ class AdminController extends AbstractController {
      * @return Response
      */
     public function arrangearticles(Request $request)  : Response {
-        $repo = $this->entityManager->getRepository('PaustianBookModule:BookEntity');
+        $repo = $this->getDoctrine()->getRepository('PaustianBookModule:BookEntity');
         $chapterids= "";
         $books = $repo->buildtoc(0, $chapterids);
 

@@ -91,7 +91,7 @@ class ExtensionMenu implements ExtensionMenuInterface
         ])->setAttribute('icon', 'fas fa-newspaper')
             ->setAttribute('dropdown', true);
         $menu['Article']->addChild('Create New Article', [
-            'route' => 'paustianbookmodule_admin_editarticle',
+            'route' => 'paustianbookmodule_admin_createarticle',
         ])->setAttribute('icon', 'fas fa-plus');
         $menu['Article']->addChild('Edit or Delete Article', [
             'route' => 'paustianbookmodule_admin_modifyarticle',
@@ -106,7 +106,7 @@ class ExtensionMenu implements ExtensionMenuInterface
         ])->setAttribute('icon', 'fas fa-image')
             ->setAttribute('dropdown', true);
         $menu['Figure']->addChild('Create New Figure', [
-            'route' => 'paustianbookmodule_admin_editfigure',
+            'route' => 'paustianbookmodule_admin_createfigure',
         ])->setAttribute('icon', 'fas fa-plus');
         $menu['Figure']->addChild('Edit or Delete Figure', [
             'route' => 'paustianbookmodule_admin_modifyfigure',
@@ -118,7 +118,7 @@ class ExtensionMenu implements ExtensionMenuInterface
         ])->setAttribute('icon', 'fas fa-books')
             ->setAttribute('dropdown', true);
         $menu['Glossary']->addChild('Create New Glossary', [
-            'route' => 'paustianbookmodule_admin_editglossary',
+            'route' => 'paustianbookmodule_admin_createglossary',
         ])->setAttribute('icon', 'fas fa-plus');
         $menu['Glossary']->addChild('Edit or Delete Glossary', [
             'route' => 'paustianbookmodule_admin_modifyglossary',
