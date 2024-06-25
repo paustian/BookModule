@@ -692,6 +692,12 @@ class UserController extends AbstractController {
 
 
         if (!$userRepo->checkHighlights($aid, $uid, $start, $end)) {
+            //I added a word check to prevent super short highlights. This prevents highlight errors
+            //where the system highlight previously worded text that matches.
+            if(str_word_count($inText) < 20) {
+                $this->addFlash('status', $this->trans('You must select at least 20 words for highlighting to work correctly.'));
+                return $response;
+            }
             $userRepo->recordHighlight($aid, $uid, $start, $end);
         }
 

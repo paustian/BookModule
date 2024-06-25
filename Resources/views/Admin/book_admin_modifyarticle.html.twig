@@ -17,10 +17,10 @@
                         <tbody>
                             {% for article in chapter.articles %}
                                 <tr>    
-                                    <td><a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.aid }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></td>
-                                    <td><a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" title="{{ 'Edit Article' | trans  }}" class="fas fa-edit"></a>
+                                    <td><a href="{{ path('paustianbookmodule_user_displayarticle', {article: article.aid}) }}">{{ chapter.number }} - {{ article.number }} {{ article.title }}</a></td>
+                                    <td><a href="{{ path('paustianbookmodule_admin_editarticle', {article: article.aid}) }}" title="{{ 'Edit Article' | trans  }}" class="fas fa-edit"></a>
                                         <a href="{{ path('paustianbookmodule_admin_addglossarytoarticle') }}/{{ article.aid }}" title="{{ 'Add Glossary Terms to Article' | trans  }}" class="fas fa-book"></a>
-                                        <a href="{{ path('paustianbookmodule_admin_deletearticle') }}/{{ article.aid }}" title="{{ 'Delete Article' | trans  }}" class="fas fa-trash" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
+                                        <a href="{{ path('paustianbookmodule_admin_deletearticle', {article: article.aid}) }}" title="{{ 'Delete Article' | trans  }}" class="fas fa-trash" onclick="return confirm('Are you sure you want to delete this article?')"></a></td>
                                 </tr>
                             {% endfor %}
                     </table>

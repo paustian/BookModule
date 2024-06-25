@@ -29,7 +29,8 @@
         {% endif %}
 
         {% if show_internals %}
-            <a href="{{ path('paustianbookmodule_admin_editarticle') }}/{{ article.aid }}" class="fa fa-pencil">{{ 'Edit Article' | trans  }}</a>
+            <p>Admin Information {{ article.aid }}</p>
+            <a href="{{ path('paustianbookmodule_admin_editarticle', {article:article.aid}) }}" title="{{ 'Edit Article' | trans  }}" class="fa fa-pencil">{{ 'Edit Article' | trans  }}</a>
             <p>{{ 'Article id:' | trans  }} {{ article.aid }}</p>
             <p>{{ 'Chapter id:' | trans  }}{{ article.cid }}</p>
             <p>{{ 'Book id:' | trans  }}{{ article.bid }}</p>
