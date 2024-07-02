@@ -59,7 +59,9 @@
             <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.next }}" title="{{ 'Next Article' | trans  }}" class="fa fa-arrow-right"></a>
         {% endif %}
         <br />
+        <div id="article_content">
         {{ content|raw }}
+        </div>
         <p>
             {% if article.prev !=0 %}
                 <a href="{{ path('paustianbookmodule_user_displayarticle') }}/{{ article.prev }}" title="{{ 'Previous Article' | trans  }}" class="fa fa-arrow-left"></a>

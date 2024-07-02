@@ -566,7 +566,7 @@ class UserController extends AbstractController {
         $em = $this->getDoctrine()->getManager();
         $articleIds = $request->get('aids');
         if (!isset($articleIds)) {
-            $this->addFlash('status', $this->trans('You need to select some articles for the highlighted areas to be collected..'));
+            $this->addFlash('status', $this->trans('Please select some articles for the highlighted areas to be collected..'));
             return $response;
         }
         $articles = $em->getRepository('PaustianBookModule:BookArticlesEntity')->findBy(['aid' => $articleIds]);
@@ -602,26 +602,32 @@ class UserController extends AbstractController {
     }
 
     /**
-     * @Route("/customizeText/{article}")
+     * @Route("/customizetext", methods = {"POST"}, options={"expose"=true})
      *
      * The user has presumably selected some text. Act on it according to
      * what text was selected.
      *
      * @param Request $request
-     * @param BookArticlesEntity $article
      *
-     * @return boolean|RedirectResponse|Response
+     * @return JsonResponse
      */
-    public function customizeText(Request $request,
-                                        BookArticlesEntity $article) : Response {
-        $button = $request->get('buttonpress');
+    public function customizetext(Request $request) : JsonResponse {
         $text = $request->get('text');
-        if ($button == 'highlight') {
-            return $this->_doHighlight($request, $article, $text, $this->currentUserApi);
-        } elseif ($button == 'dodef') {
-            return $this->_dodef($request, $article, $text, $this->currentUserApi);
+        $aid = (int) $request->get('aid');
+        $function = $request->get('function');
+        if ($function == 'dohighlight') {
+            return $this->_doHighlight($request, $aid, $text, $this->currentUserApi);
+        } elseif ($function == 'dodef') {
+            return $this->_dodef($request, $aid, $text, $this->currentUserApi);
         } else {
-            return $this->collecthighlights($request, $article);
+            $error = "";
+            try{
+                $url = $this->generateUrl('paustianbookmodule_user_studypage');
+            } catch (\Exception $e) {
+                $error = $this->trans("There was a problem generating the URL");
+            }
+            $jsonReply = ['url' => $url, 'error' => $error];
+            return  new JsonResponse($jsonReply);
         }
     }
 
@@ -632,77 +638,73 @@ class UserController extends AbstractController {
      * @param BookArticlesEntity $article
      * @param string $inText
      * @param CurrentUserApiInterface $currentUserApi
-     * @return RedirectResponse
+     * @return JsonResponse
      */
-    private function _doHighlight(Request $request, BookArticlesEntity $article,
-                                  string $inText,
-                                  CurrentUserApiInterface $currentUserApi) :RedirectResponse
+    private function _doHighlight(Request $request, $aid, $text,
+                                  CurrentUserApiInterface $currentUserApi) :JsonResponse
     {
-        $response = $this->redirect($this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]));
-
-        if ($inText == "") {
-            $this->addFlash('status', $this->trans('You must choose a selection to before clicking the button.'));
-            return $response;
-        }
+        $article = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity')->find($aid);
         if (!$this->hasPermission($this->name . '::Chapter', $article->getBid() . "::" . $article->getCid(), ACCESS_READ)) {
             throw new AccessDeniedException();
         }
-
+        $error = "";
         $uid = $currentUserApi->get('uid');
         if ($uid == "") {
             //user id is empty, we are not in
-            $this->addFlash('status', $this->trans('You are not logged in. In this case you cannot add highlights.'));
-            return $response;
+            $error =  $this->trans('You are not logged in. In this case you cannot add highlights.');
         }
 
         $content = $article->getContents();
-
+        $position = (int)$request->get('position');
         //find the offsets
         //get rid of any newlines in the content and in the in text.
         //$content = preg_replace('/[\n|\r]/', ' ', $content);
         //$inText = preg_replace('/[\n|\r]/', ' ', $inText);
-        //Scrub out the glooary stuff. out because this is not in the stored text
-        $inText = preg_replace('|<a class="glossary".*?>|', '<a class="glossary">', $inText);
+        //Scrub out the glossary stuff. out because this is not in the stored text
+        $text = preg_replace('|<a class="glossary".*?>|', '<a class="glossary">', $text);
         //we also need to get rid of any highlights that are in the text
-        $inText = preg_replace('|<span class="highlight".*?>|', '', $inText);
-        $inText = preg_replace('|<!--highlight--></span>|', '', $inText);
-        //Get the first 40 characters and then quote out anythying you might need be in them
+        $text = preg_replace('|<span class="highlight".*?>|', '', $text);
+        $text = preg_replace('|<!--highlight--></span>|', '', $text);
+        //Get the first 40 characters and then quote out anything you might need be in them
         //40 characters should be unique to the text.
-        $front_text = preg_quote(substr($inText, 0, 100));
-
-        if (!preg_match("|$front_text|", $content, $matches, PREG_OFFSET_CAPTURE)) {
-            $this->addFlash('status', $this->trans('You cannot highligh that text. You cannot highlight figure text. You might also try a slightly different selection.'));
-            return $response;
+        if(strlen($text) < 40) {
+            $error = $this->trans('You cannot highlight less than 40 characters.');
         }
-        $start = $matches[0][1];
-        $end = $start + strlen($inText);
+        $front_text = preg_quote(substr($text, 0, 100));
+        $offset = 0;
+        if (!preg_match_all("|$front_text|", $content, $matches, PREG_OFFSET_CAPTURE)) {
+            $error = $this->trans('You cannot highlight that text. You cannot highlight figure text. You might also try a slightly different selection.');
+        }
+        $start = 0;
+        $diff = 100000;
+        //pick the match closest to the selection position
+        foreach ($matches[0] as $match) {
+            $dist = abs(($match[1] - $position));
+            if($dist < $diff){
+                $diff = $dist;
+                $start = $match[1];
+            }
+        }
+        $end = $start + strlen($text);
 
         if ($end == 0 || ($start > $end)) {
-
             //print "Start: $start, End: $end <br />";
-            $this->addFlash('status', $this->trans('You cannot highlight that text. You cannot highlight figure text. You might also try a slightly different selection.'));
-            return $response;
+            $error = $this->trans('You cannot highlight that text. You cannot highlight figure text. You might also try a slightly different selection.');
         }
-
-        $aid = $article->getAid();
 
         //finally make sure that this area is not already highlighted.
         //if it is, unhighlight the area.
         $userRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookUserDataEntity');
+        $removed= $userRepo->checkHighlights($aid, $uid, $start, $end);
 
-
-        if (!$userRepo->checkHighlights($aid, $uid, $start, $end)) {
-            //I added a word check to prevent super short highlights. This prevents highlight errors
-            //where the system highlight previously worded text that matches.
-            if(str_word_count($inText) < 20) {
-                $this->addFlash('status', $this->trans('You must select at least 20 words for highlighting to work correctly.'));
-                return $response;
-            }
+        if (!$removed) {
             $userRepo->recordHighlight($aid, $uid, $start, $end);
         }
 
-        //finally redirect to the page again, this time with highlights
-        return $response;
+        $jsonReply = ['removed' => $removed,
+                    'error' => $error];
+
+        return  new JsonResponse($jsonReply);
     }
 
     /**
@@ -712,48 +714,49 @@ class UserController extends AbstractController {
      * @param BookArticlesEntity $article
      * @param string $inTerm
      * @param CurrentUserApiInterface $currentUserApi
-     * @return RedirectResponse
+     * @return JsonResponse
      */
-    private function _dodef(Request $request, BookArticlesEntity $article,
+    private function _dodef(Request $request,
+                            int $articleId,
                             string $inTerm,
-                            CurrentUserApiInterface $currentUserApi) :RedirectResponse
+                            CurrentUserApiInterface $currentUserApi) : JsonResponse
     {
-
-        $url = $this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]);
-        $response = $this->redirect($url);
+        $article = $this->getDoctrine()->getRepository('PaustianBookModule:BookArticlesEntity')->find($articleId);
         $uid = $currentUserApi->get('uid');
-        if ($inTerm == "") {
-            $this->addFlash('status', $this->trans("No word was selected to be defined"));
-            return $response;
-        }
+        $do_term = true;
         if ($uid == "") {
             //user id is empty, we are not in
-            $this->addFlash('status', $this->trans('You are not logged in. In this case you cannot ask for definitions.'));
-            return $response;
+            $error = $this->trans('You are not logged in. In this case you cannot ask for definitions.');
+            $do_term = false;
         }
         $inTerm = trim($inTerm);
         if (str_word_count($inTerm) > 3) {
-            $this->addFlash('status', $this->trans('Terms to be defined must be 3 words or less. You may have also selected a term that is already defined.'));
-            return $response;
+            $error = $this->trans('Terms to be defined must be 3 words or less.');
+            $do_term = false;
         }
         //is it already defined?
         $glossRepo = $this->getDoctrine()->getRepository('PaustianBookModule:BookGlossEntity');
-        $glossItem = $glossRepo->getTerm($inTerm);
+        $glossItem = $glossRepo->isDefined($inTerm);
         if ($glossItem) {
             //if the term has been defined, then send them to that term
-            return $this->redirect($this->generateUrl('paustianbookmodule_user_displayglossary') . "#$inTerm");
+            $error = $this->trans("$inTerm is already defined.");
+            $do_term = false;
         }
-        //ok, we passed the checks. Add the word to the glossary
-        $em = $this->getDoctrine()->getManager();
-        $glossTerm = new BookGlossEntity();
-        $glossTerm->setTerm($inTerm);
-        $glossTerm->setDefinition("TBD");
-        $glossTerm->setUser((string)$uid);
-        $glossTerm->setUrl($url);
-        $em->persist($glossTerm);
-        $em->flush();
-        $this->addFlash('status', $this->trans('Thank you for submitting this word. The authors will define it soon.'));
-        return $response;
+        if($do_term){
+            //ok, we passed the checks. Add the word to the glossary
+            $em = $this->getDoctrine()->getManager();
+            $glossTerm = new BookGlossEntity();
+            $glossTerm->setTerm($inTerm);
+            $glossTerm->setDefinition("TBD");
+            $glossTerm->setUser((string)$uid);
+            $url = $this->generateUrl('paustianbookmodule_user_displayarticle', [ 'article' => $article->getAid()]);
+            $glossTerm->setUrl($url);
+            $em->persist($glossTerm);
+            $em->flush();
+            $error = $this->trans('Thank you for submitting this word. The authors will define it soon.');
+        }
+        $jsonReply = ['error' => $error];
+        return  new JsonResponse($jsonReply);
     }
 
     /**

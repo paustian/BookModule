@@ -1,16 +1,8 @@
 {{ pageAddAsset('javascript', zasset('@PaustianBookModule:js/book.js')) }}   
 <div class="form-across">
-        <form name="highlight" action="{{ path('paustianbookmodule_user_customizetext', {article: aid}) }}" method="post" enctype="application/x-www-form-urlencoded">
-            <input type="hidden" name="text">
-            <input type="hidden" name="buttonpress">
-            <input type='hidden' name="aid" value="{{ aid }}">
-            <input type="button" value="{{ ('Toggle Highlight') }}" name="highlight" onmousedown="document.highlight.text.value = getSelectionHtml(); document.highlight.buttonpress.value='highlight';
-                    document.highlight.submit()" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Select the text you want to highlight.' | trans  }}">
-            <input type="button" value="{{ 'Create Definition' | trans  }}" name="dodef" onmousedown="document.highlight.text.value = getSelectionHtml();document.highlight.buttonpress.value='dodef';
-                    document.highlight.submit()"
-                   class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you.' | trans  }}">
-            <input type="button" value="{{ 'Study Time' | trans  }}" name="collecthighlights" onmousedown="document.highlight.buttonpress.value='collecthighlight';document.highlight.submit()"
-                   class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Click this button to collect all the text you have highlighted for studying.' | trans  }}">
-        </form>
-   </div>
+    <input type='hidden' name="aid" value="{{ aid }}">
+    <input type="button" value="{{ ('Toggle Highlight') }}" name="highlight" id="highlight" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Select the text you want to highlight.' | trans  }}">
+    <input type="button" value="{{ 'Create Definition' | trans  }}" name="dodef" id="dodef" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Select one to three words that you do not know the meaning of and click. The authors of the textbook will then define them for you.' | trans  }}">
+    <input type="button" value="{{ 'Study Time' | trans  }}" name="collecthighlights" id="collecthighlights" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{{ 'Click this button to collect all the text you have highlighted for studying.' | trans  }}">
+</div>
   

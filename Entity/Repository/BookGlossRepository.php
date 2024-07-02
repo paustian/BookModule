@@ -57,12 +57,12 @@ class BookGlossRepository extends EntityRepository
      *
      * Given a term, see if it is defined
      * @param string $inTerm
-     * @return string
+     * @return bool
      */
-    public function getTerm(string $inTerm): ?string
+    public function isDefined(string $inTerm): ?bool
     {
         $glossItem = $this->findOneByTerm($inTerm);
-        return $glossItem;
+        return ($glossItem != null);
     }
 
     /**
