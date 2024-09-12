@@ -22,9 +22,9 @@
             <tr>
                 <td>{{ term.term }}</td>
                 <td class="actions">
-                    <a href="{{ path('paustianbookmodule_admin_editglossary') }}/{{ term.gid }}"
+                    <a href="{{ path('paustianbookmodule_admin_editglossary', {gloss: term.gid}) }}"
                        class="fas fa-edit"></a>
-                    <a href="{{ path('paustianbookmodule_admin_deleteglossary') }}/{{ term.gid }}" class="fas fa-trash"
+                    <a href="{{ path('paustianbookmodule_admin_deleteglossary', {gloss: term.gid}) }}" class="fas fa-trash"
                        onclick="return confirm('Are you sure you want to delete this glossary term?')"></a>
                 </td>
             </tr>

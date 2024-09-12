@@ -26,8 +26,8 @@
                 {% endif %}
                 <tr>    
                     <td>{{ figure.chap_number }} - {{ figure.fig_number }} {{ figure.title }} (id: {{ figure.fid }})</td>
-                    <td><a href="{{ path('paustianbookmodule_admin_editfigure') }}/{{ figure.fid }}" class="fas fa-edit"></a>
-                        <a href="{{ path('paustianbookmodule_admin_deletefigure') }}/{{ figure.fid }}" class="fas fa-trash" onclick="return confirm('Are you sure you want to delete this figure?')"></a></td>
+                    <td><a href="{{ path('paustianbookmodule_admin_editfigure', {figure: figure.fid}) }}" class="fas fa-edit"></a>
+                        <a href="{{ path('paustianbookmodule_admin_deletefigure', {figure: figure.fid}) }}" class="fas fa-trash" onclick="return confirm('Are you sure you want to delete this figure?')"></a></td>
                 </tr>
             {% endfor %}
             {% if currChap != -1 %}        
