@@ -4,5 +4,17 @@
 </h3>
 <p>{{ "Below is a correctly formatted xml document. Take it into your favorite editor and change the text how you like. Do not change the unique xml tags or remove the codes listing the book id, chapter id or article id." | trans }}</p>
 <textarea rows="50" cols="100">
-    {{ text }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="book_files/style.css" />
+</head>
+<body>
+{{ text }}
+</body>
+</html>
+
+
 </textarea>

@@ -563,7 +563,8 @@ class AdminController extends AbstractController {
         if($inlinefig){
             $return_text = $this->render('@PaustianBookModule/User/book_user_displayarticlesinchapter.html.twig', ['chapter' => $chapter, 'articles' => $articles])->getContent();
             $return_text = $repo->addfigures($return_text, $this);
-            $response = $this->render('@PaustianBookModule/Admin/book_admin_export2.html.twig', ['chapter' => $chapter, 'text' => $return_text]);
+            $title = "Chapter " . $chapter->getNumber() . " - " . $chapter->getName();
+            $response = $this->render('@PaustianBookModule/Admin/book_admin_export2.html.twig', ['chapter' => $chapter, 'text' => $return_text, 'title' => $title]);
         } else {
             $response = $this->render('@PaustianBookModule/Admin/book_admin_export.html.twig', ['chapter' => $chapter,
                 'articles' => $articles]);
